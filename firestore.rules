@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    match /plots/{plotId} {
+      allow read: if true;
+      allow write: if isSignedIn() && role() in ['admin', 'agent'];
+    }
+
+    match /enquiries/{id} {
+      allow create: if true;
+      allow read, update: if isSignedIn() && role() in ['admin', 'agent'];
+    }
+
+    match /messages/{id} {
+      allow read, create: if isSignedIn() && role() in ['admin', 'agent'];
+    }
+
+    match /customers/{id} {
+      allow read, write: if isSignedIn() && role() in ['admin', 'agent'];
+    }
+
+    match /appointments/{id} {
+      allow read, write: if isSignedIn() && role() in ['admin', 'agent'];
+      allow read: if isSignedIn() && request.auth.uid == resource.data.customerId;
+    }
+
+    match /documents/{id} {
+      allow read, write: if isSignedIn() && role() in ['admin', 'agent'];
+    }
+
+    match /users/{uid} {
+      allow create: if isSignedIn() && request.auth.uid == uid && request.resource.data.role == 'customer';
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow update: if isSignedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role;
+      allow read: if isSignedIn() && role() == 'admin';
+      allow update: if isSignedIn() && role() == 'admin';
+    }
+
+    match /settings/{id} {
+      allow read: if isSignedIn() && role() in ['admin', 'agent'];
+      allow write: if isSignedIn() && role() == 'admin';
+    }
+
+    match /wishlists/{userId}/plots/{plotId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}
