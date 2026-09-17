@@ -178,13 +178,13 @@ export function Reports() {
       <>
         <PageHeader title="Reports & Analytics" description="Loading report metrics..." />
         {error && (
-          <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+          <div className="mb-4 rounded-2xl bg-red-50 p-4 text-sm text-red-700 border border-red-200 shadow-card">
             {error}
           </div>
         )}
         <div className="grid gap-4 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 animate-pulse rounded-2xl bg-slate-200" />
+            <div key={i} className="h-32 animate-pulse rounded-2xl bg-surface-200 shadow-card" />
           ))}
         </div>
       </>
@@ -201,28 +201,28 @@ export function Reports() {
             <button
               type="button"
               onClick={exportPdf}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 px-4 text-xs font-bold text-white hover:from-red-600 hover:to-red-700 transition shadow-card hover:shadow-elevated"
             >
               <FileText size={15} /> PDF
             </button>
             <button
               type="button"
               onClick={exportExcel}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 text-xs font-bold text-white hover:from-emerald-600 hover:to-emerald-700 transition shadow-card hover:shadow-elevated"
             >
               <FileSpreadsheet size={15} /> Excel
             </button>
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-4 text-xs font-bold text-white hover:from-blue-600 hover:to-blue-700 transition shadow-card hover:shadow-elevated"
             >
               <Download size={15} /> CSV
             </button>
             <button
               type="button"
               onClick={() => window.print()}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-green-600 px-4 text-xs font-bold text-white hover:bg-green-700 transition shadow-sm"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-4 text-xs font-bold text-white hover:from-primary-700 hover:to-primary-600 transition shadow-card hover:shadow-elevated"
             >
               <Printer size={15} /> Print
             </button>
@@ -231,23 +231,23 @@ export function Reports() {
       />
 
       {/* Date Filter */}
-      <div className="mb-6 flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4 print:hidden shadow-sm">
-        <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+      <div className="mb-6 flex flex-wrap items-end gap-3 rounded-2xl border border-surface-200 bg-white p-4 print:hidden shadow-card">
+        <label className="text-xs font-bold uppercase tracking-wider text-surface-500">
           From
           <input
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="mt-1 block min-h-10 rounded-xl border border-slate-200 px-3 text-sm text-slate-900"
+            className="input-modern mt-1 block min-h-10 w-full"
           />
         </label>
-        <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+        <label className="text-xs font-bold uppercase tracking-wider text-surface-500">
           To
           <input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="mt-1 block min-h-10 rounded-xl border border-slate-200 px-3 text-sm text-slate-900"
+            className="input-modern mt-1 block min-h-10 w-full"
           />
         </label>
         {(from || to) && (
@@ -257,7 +257,7 @@ export function Reports() {
               setFrom('')
               setTo('')
             }}
-            className="min-h-10 rounded-xl px-3 text-xs font-bold text-green-700 hover:underline"
+            className="min-h-10 rounded-xl px-3 text-xs font-bold text-primary-600 hover:text-primary-700 hover:underline transition"
           >
             Clear filters
           </button>
@@ -293,8 +293,8 @@ export function Reports() {
       </div>
 
       {/* Monthly Chart */}
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="font-bold text-slate-900">Revenue & Profit Trajectory (Last 6 Months)</h2>
+      <section className="mt-6 card-modern p-6">
+        <h2 className="font-display font-bold text-surface-900">Revenue & Profit Trajectory (Last 6 Months)</h2>
         <div className="mt-6 h-72">
           {report.chart.some((i) => i.sales || i.profit) ? (
             <ResponsiveContainer width="100%" height="100%">
@@ -304,12 +304,12 @@ export function Reports() {
                 <YAxis tickFormatter={(val) => `₹${Number(val) / 100000}L`} tick={{ fontSize: 12 }} />
                 <Tooltip formatter={(val) => currency.format(Number(val))} />
                 <Legend />
-                <Bar dataKey="sales" name="Sales" fill="#16a34a" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sales" name="Sales" fill="#059669" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="profit" name="Profit" fill="#0ea5e9" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="grid h-full place-items-center rounded-lg bg-slate-50 text-sm text-slate-500">
+            <div className="grid h-full place-items-center rounded-2xl bg-surface-50 text-sm text-surface-500">
               No sales data recorded in this period.
             </div>
           )}
@@ -318,60 +318,60 @@ export function Reports() {
 
       {/* Performance & Activity Tables */}
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-bold text-slate-900">Agent Performance</h2>
+        <section className="card-modern p-6">
+          <h2 className="font-display font-bold text-surface-900">Agent Performance</h2>
           {report.agents.length > 0 ? (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b text-xs uppercase text-slate-400">
+                <thead className="border-b border-surface-100 text-xs uppercase text-surface-400">
                   <tr>
-                    <th className="py-2.5">Agent</th>
-                    <th className="py-2.5">Sales</th>
-                    <th className="py-2.5">Profit</th>
+                    <th className="py-3 font-semibold">Agent</th>
+                    <th className="py-3 font-semibold">Sales</th>
+                    <th className="py-3 font-semibold">Profit</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-surface-100">
                   {report.agents.map((ag, i) => (
-                    <tr key={i}>
-                      <td className="py-2.5 font-medium text-slate-900">{ag.agent}</td>
-                      <td className="py-2.5">{currency.format(ag.sales)}</td>
-                      <td className="py-2.5 font-bold text-green-700">{currency.format(ag.profit)}</td>
+                    <tr key={i} className="hover:bg-surface-50 transition-colors">
+                      <td className="py-3 font-medium text-surface-900">{ag.agent}</td>
+                      <td className="py-3 text-surface-700">{currency.format(ag.sales)}</td>
+                      <td className="py-3 font-bold text-primary-700">{currency.format(ag.profit)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           ) : (
-            <p className="mt-4 text-sm text-slate-500">No agent transactions recorded.</p>
+            <p className="mt-4 text-sm text-surface-500">No agent transactions recorded.</p>
           )}
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="font-bold text-slate-900">Business Activity Metrics</h2>
+        <section className="card-modern p-6">
+          <h2 className="font-display font-bold text-surface-900">Business Activity Metrics</h2>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b text-xs uppercase text-slate-400">
+              <thead className="border-b border-surface-100 text-xs uppercase text-surface-400">
                 <tr>
-                  <th className="py-2.5">Metric</th>
-                  <th className="py-2.5 text-right">Value</th>
+                  <th className="py-3 font-semibold">Metric</th>
+                  <th className="py-3 text-right font-semibold">Value</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                <tr>
-                  <td className="py-2.5">Customers in Period</td>
-                  <td className="py-2.5 text-right font-bold text-slate-900">{report.customers}</td>
+              <tbody className="divide-y divide-surface-100">
+                <tr className="hover:bg-surface-50 transition-colors">
+                  <td className="py-3 text-surface-700">Customers in Period</td>
+                  <td className="py-3 text-right font-bold text-surface-900">{report.customers}</td>
                 </tr>
-                <tr>
-                  <td className="py-2.5">Site Visits & Appointments</td>
-                  <td className="py-2.5 text-right font-bold text-slate-900">{report.appointments}</td>
+                <tr className="hover:bg-surface-50 transition-colors">
+                  <td className="py-3 text-surface-700">Site Visits & Appointments</td>
+                  <td className="py-3 text-right font-bold text-surface-900">{report.appointments}</td>
                 </tr>
-                <tr>
-                  <td className="py-2.5">Converted Leads</td>
-                  <td className="py-2.5 text-right font-bold text-green-700">{report.converted}</td>
+                <tr className="hover:bg-surface-50 transition-colors">
+                  <td className="py-3 text-surface-700">Converted Leads</td>
+                  <td className="py-3 text-right font-bold text-primary-700">{report.converted}</td>
                 </tr>
-                <tr>
-                  <td className="py-2.5">Available Plots Ready for Sale</td>
-                  <td className="py-2.5 text-right font-bold text-slate-900">{report.available}</td>
+                <tr className="hover:bg-surface-50 transition-colors">
+                  <td className="py-3 text-surface-700">Available Plots Ready for Sale</td>
+                  <td className="py-3 text-right font-bold text-surface-900">{report.available}</td>
                 </tr>
               </tbody>
             </table>

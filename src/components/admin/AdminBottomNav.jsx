@@ -13,7 +13,7 @@ const mobileNavItems = [
 export function AdminBottomNav() {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-slate-200 bg-white/95 px-2 backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-surface-200/60 bg-white/90 px-2 backdrop-blur-xl lg:hidden shadow-lg shadow-surface-900/5"
       aria-label="Mobile navigation"
     >
       {mobileNavItems.map((item) => {
@@ -24,8 +24,8 @@ export function AdminBottomNav() {
             to={item.to}
             end={item.exact}
             className={({ isActive }) =>
-              `flex min-w-14 flex-col items-center gap-1 rounded-lg py-1 text-[11px] font-medium transition ${
-                isActive ? 'text-green-700 font-semibold' : 'text-slate-500'
+              `flex min-w-14 flex-col items-center gap-1 rounded-xl py-1 text-[11px] font-semibold transition-all duration-200 ${
+                isActive ? 'text-primary-600' : 'text-surface-400 hover:text-surface-600'
               }`
             }
           >

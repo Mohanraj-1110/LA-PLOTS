@@ -56,165 +56,158 @@ export function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        {/* Brand Header */}
-        <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-2 font-extrabold text-2xl text-slate-900">
-            <span className="rounded bg-green-600 px-2 py-0.5 text-white">LA</span>
-            <span>PLOTS</span>
-          </Link>
-          <h1 className="mt-4 text-2xl font-bold text-slate-900">Create your account</h1>
-          <p className="mt-1 text-sm text-slate-500">Save your favorite plots and schedule site visits</p>
-        </div>
-
-        {/* Error Alert */}
-        {error && (
-          <div className="mb-5 rounded-lg bg-red-50 p-3.5 text-sm text-red-700 border border-red-200 flex items-start gap-2.5">
-            <svg className="size-5 shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="leading-snug">{error}</span>
-          </div>
-        )}
-
-        {/* Google One-Click Sign Up */}
-        <button
-          type="button"
-          disabled={busy || googleBusy}
-          onClick={handleGoogleLogin}
-          className="flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-60 transition"
-        >
-          {googleBusy ? (
-            <svg className="size-5 animate-spin text-slate-600" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : (
-            <svg className="size-4" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-              />
-            </svg>
-          )}
-          <span>{googleBusy ? 'Connecting to Google...' : 'Sign up with Google'}</span>
-        </button>
-
-        {/* Divider */}
-        <div className="my-5 flex items-center gap-3">
-          <div className="flex-1 border-t border-slate-200" />
-          <span className="text-xs font-medium text-slate-400 uppercase">or register with email</span>
-          <div className="flex-1 border-t border-slate-200" />
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Full Name</label>
-            <input
-              type="text"
-              required
-              autoComplete="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Mohan Raj"
-              className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 text-slate-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600"
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-950 via-surface-900 to-indigo-950 px-4 py-12 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+      
+      <div className="w-full max-w-md animate-slide-up relative z-10">
+        <div className="rounded-3xl bg-white/95 backdrop-blur-xl p-8 shadow-elevated border border-white/20">
+          {/* Brand Header */}
+          <div className="text-center mb-6">
+            <Link to="/" className="inline-flex items-center gap-2.5 font-extrabold text-2xl text-surface-900">
+              <span className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-3 py-1 text-white font-extrabold shadow-md shadow-primary-600/20">LA</span>
+              <span className="font-display">PLOTS</span>
+            </Link>
+            <h1 className="mt-5 text-2xl font-bold text-surface-900 font-display">Create your account</h1>
+            <p className="mt-1.5 text-sm text-surface-500">Save your favorite plots and schedule site visits</p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Email Address</label>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-              className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 text-slate-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Password</label>
-            <input
-              type="password"
-              required
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 text-slate-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Account Role</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedRole('customer')}
-                className={`py-2 px-3 text-xs font-semibold rounded-lg border transition ${
-                  selectedRole === 'customer'
-                    ? 'border-green-600 bg-green-50 text-green-700 ring-1 ring-green-600'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                Customer / Buyer
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedRole('admin')}
-                className={`py-2 px-3 text-xs font-semibold rounded-lg border transition ${
-                  selectedRole === 'admin'
-                    ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                Admin / Agent
-              </button>
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-5 rounded-xl bg-red-50 p-3.5 text-sm text-red-700 border border-red-200/60 flex items-start gap-2.5 animate-slide-up">
+              <svg className="size-5 shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="leading-snug">{error}</span>
             </div>
+          )}
+
+          {/* Google One-Click Sign Up */}
+          <button
+            type="button"
+            disabled={busy || googleBusy}
+            onClick={handleGoogleLogin}
+            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-surface-200 bg-white px-4 py-2.5 font-semibold text-surface-700 shadow-sm hover:bg-surface-50 hover:border-surface-300 hover:shadow-md disabled:opacity-60 transition-all duration-200 active:scale-[0.98]"
+          >
+            {googleBusy ? (
+              <svg className="size-5 animate-spin text-surface-600" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <svg className="size-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+            )}
+            <span>{googleBusy ? 'Connecting to Google...' : 'Sign up with Google'}</span>
+          </button>
+
+          {/* Divider */}
+          <div className="my-5 flex items-center gap-3">
+            <div className="flex-1 border-t border-surface-200" />
+            <span className="text-xs font-semibold text-surface-400 uppercase tracking-wider">or register with email</span>
+            <div className="flex-1 border-t border-surface-200" />
           </div>
 
-          <button
-            type="submit"
-            disabled={busy || googleBusy}
-            className="flex min-h-11 w-full items-center justify-center rounded-lg bg-green-600 font-semibold text-white hover:bg-green-700 disabled:opacity-60 transition shadow-sm"
-          >
-            {busy ? (
-              <span className="flex items-center gap-2">
-                <svg className="size-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                </svg>
-                Creating account...
-              </span>
-            ) : (
-              'Create Account'
-            )}
-          </button>
-        </form>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-surface-700 mb-1.5">Full Name</label>
+              <input
+                type="text"
+                required
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Mohan Raj"
+                className="input-modern"
+              />
+            </div>
 
-        {/* Footer Login Link */}
-        <p className="mt-6 text-center text-sm text-slate-600">
-          Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-green-700 hover:underline">
-            Sign in
-          </Link>
-        </p>
+            <div>
+              <label className="block text-sm font-semibold text-surface-700 mb-1.5">Email Address</label>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="input-modern"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-surface-700 mb-1.5">Password</label>
+              <input
+                type="password"
+                required
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="input-modern"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-surface-700 mb-2">Account Role</label>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedRole('customer')}
+                  className={`py-2.5 px-3 text-xs font-bold rounded-xl border-2 transition-all duration-200 ${
+                    selectedRole === 'customer'
+                      ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-sm shadow-primary-500/10'
+                      : 'border-surface-200 bg-white text-surface-600 hover:bg-surface-50 hover:border-surface-300'
+                  }`}
+                >
+                  Customer / Buyer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedRole('admin')}
+                  className={`py-2.5 px-3 text-xs font-bold rounded-xl border-2 transition-all duration-200 ${
+                    selectedRole === 'admin'
+                      ? 'border-surface-900 bg-surface-900 text-white shadow-sm'
+                      : 'border-surface-200 bg-white text-surface-600 hover:bg-surface-50 hover:border-surface-300'
+                  }`}
+                >
+                  Admin / Agent
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={busy || googleBusy}
+              className="btn-primary w-full min-h-11"
+            >
+              {busy ? (
+                <span className="flex items-center gap-2">
+                  <svg className="size-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  Creating account...
+                </span>
+              ) : (
+                'Create Account'
+              )}
+            </button>
+          </form>
+
+          {/* Footer Login Link */}
+          <p className="mt-6 text-center text-sm text-surface-600">
+            Already have an account?{' '}
+            <Link to="/login" className="font-bold text-primary-600 hover:text-primary-700 transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

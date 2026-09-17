@@ -77,14 +77,14 @@ export function Settings() {
       {notice && <Toast message={notice} />}
 
       {error && (
-        <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div className="mb-6 rounded-2xl bg-red-50 p-4 text-sm text-red-700 border border-red-200 shadow-card">
           {error}
         </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-[230px_1fr]">
         <nav
-          className="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 lg:flex-col lg:self-start shadow-sm"
+          className="card-modern flex gap-2 overflow-x-auto p-2 lg:flex-col lg:self-start"
           aria-label="Settings sections"
         >
           {sections.map((item) => {
@@ -94,10 +94,10 @@ export function Settings() {
                 key={item.id}
                 type="button"
                 onClick={() => setSection(item.id)}
-                className={`inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-xl px-4 text-left text-sm font-semibold transition ${
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-xl px-4 text-left text-sm font-semibold transition-all ${
                   section === item.id
-                    ? 'bg-green-50 text-green-800 font-bold'
-                    : 'text-slate-600 hover:bg-slate-50'
+                    ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white font-bold shadow-card'
+                    : 'text-surface-600 hover:bg-surface-50'
                 }`}
               >
                 <Icon size={18} />
@@ -134,8 +134,8 @@ export function Settings() {
 
 function Panel({ title, children }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+    <section className="card-modern p-6">
+      <h2 className="font-display text-lg font-bold text-surface-900">{title}</h2>
       <div className="mt-5">{children}</div>
     </section>
   )
@@ -159,35 +159,60 @@ function ProfileForm({ profile, onSuccess, onError, onRefresh }) {
 
   return (
     <Panel title="Personal Profile">
+      {/* Profile Photo Preview */}
+      <div className="mb-6 flex items-center gap-4">
+        <div className="relative">
+          {photoURL ? (
+            <img
+              src={photoURL}
+              alt={name}
+              className="size-20 rounded-2xl object-cover border-2 border-surface-200 shadow-card"
+            />
+          ) : (
+            <div className="flex size-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white font-display font-bold text-2xl shadow-card">
+              {name ? name.charAt(0).toUpperCase() : 'U'}
+            </div>
+          )}
+          <div className="absolute -bottom-1 -right-1 size-5 rounded-full bg-primary-500 border-2 border-white flex items-center justify-center">
+            <div className="size-2 rounded-full bg-white" />
+          </div>
+        </div>
+        <div>
+          <p className="font-display font-bold text-surface-900">{name || 'Your Name'}</p>
+          <p className="text-sm text-surface-500">{profile.email || profile.uid}</p>
+        </div>
+      </div>
+
       <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm font-medium text-slate-700">
+        <label className="block text-sm font-bold text-surface-700">
           Full Name
           <input
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+            className="input-modern mt-1 block w-full"
           />
         </label>
-        <label className="block text-sm font-medium text-slate-700">
+        <label className="block text-sm font-bold text-surface-700">
           Phone Number
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 block min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+            className="input-modern mt-1 block w-full"
           />
         </label>
-        <label className="block text-sm font-medium text-slate-700 sm:col-span-2">
+        <label className="block text-sm font-bold text-surface-700 sm:col-span-2">
           Profile Photo URL
           <input
             value={photoURL}
             onChange={(e) => setPhotoURL(e.target.value)}
-            className="mt-1 block min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+            placeholder="https://..."
+            className="input-modern mt-1 block w-full"
           />
         </label>
         <button
           type="submit"
-          className="min-h-11 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 transition sm:w-fit"
+          className="btn-primary min-h-11 sm:w-fit"
         >
           Save Profile
         </button>
@@ -225,50 +250,50 @@ function CompanyForm({ company, isAdmin, onSuccess, onError }) {
     <Panel title="Company Information">
       {isAdmin ? (
         <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-bold text-surface-700">
             Company Name
             <input
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+              className="input-modern mt-1 block w-full"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-bold text-surface-700">
             Official Phone
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 block min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+              className="input-modern mt-1 block w-full"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-700 sm:col-span-2">
+          <label className="block text-sm font-bold text-surface-700 sm:col-span-2">
             Contact Email
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+              className="input-modern mt-1 block w-full"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-700 sm:col-span-2">
+          <label className="block text-sm font-bold text-surface-700 sm:col-span-2">
             Registered Office Address
             <textarea
               rows={2}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="mt-1 block w-full rounded-xl border border-slate-200 p-3 text-sm text-slate-900 outline-none focus:border-green-500"
+              className="input-modern mt-1 block w-full min-h-[60px]"
             />
           </label>
           <button
             type="submit"
-            className="min-h-11 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 transition sm:w-fit"
+            className="btn-primary min-h-11 sm:w-fit"
           >
             Save Company Details
           </button>
         </form>
       ) : (
-        <p className="text-sm text-slate-500">Only administrators can modify company data.</p>
+        <p className="text-sm text-surface-500">Only administrators can modify company data.</p>
       )}
     </Panel>
   )
@@ -314,7 +339,7 @@ function UsersPanel({ users, onSuccess, onError }) {
             placeholder="Agent Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="min-h-11 rounded-xl border border-slate-200 px-3 text-sm"
+            className="input-modern"
           />
           <input
             required
@@ -322,7 +347,7 @@ function UsersPanel({ users, onSuccess, onError }) {
             placeholder="Agent Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="min-h-11 rounded-xl border border-slate-200 px-3 text-sm"
+            className="input-modern"
           />
           <input
             required
@@ -330,12 +355,12 @@ function UsersPanel({ users, onSuccess, onError }) {
             placeholder="Temp Password (6+ chars)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="min-h-11 rounded-xl border border-slate-200 px-3 text-sm"
+            className="input-modern"
           />
           <button
             type="submit"
             disabled={busy}
-            className="min-h-11 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 transition sm:col-span-3 sm:w-fit"
+            className="btn-primary min-h-11 sm:col-span-3 sm:w-fit disabled:opacity-60"
           >
             {busy ? 'Creating...' : 'Create Agent Account'}
           </button>
@@ -347,23 +372,23 @@ function UsersPanel({ users, onSuccess, onError }) {
           users.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b text-xs uppercase text-slate-400">
+                <thead className="border-b border-surface-100 text-xs uppercase text-surface-400">
                   <tr>
-                    <th className="py-3">Name</th>
-                    <th className="py-3">Email</th>
-                    <th className="py-3">Role</th>
+                    <th className="py-3 font-semibold">Name</th>
+                    <th className="py-3 font-semibold">Email</th>
+                    <th className="py-3 font-semibold">Role</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-surface-100">
                   {users.map((u) => (
-                    <tr key={u.uid}>
-                      <td className="py-3 font-semibold text-slate-900">{u.name || 'User'}</td>
-                      <td className="py-3 text-slate-600">{u.email}</td>
+                    <tr key={u.uid} className="hover:bg-surface-50 transition-colors">
+                      <td className="py-3 font-semibold text-surface-900">{u.name || 'User'}</td>
+                      <td className="py-3 text-surface-600">{u.email}</td>
                       <td className="py-3">
                         <select
                           value={u.role || 'customer'}
                           onChange={(e) => handleRoleChange(u.uid, e.target.value)}
-                          className="min-h-9 rounded-lg border border-slate-200 px-2 text-xs font-semibold capitalize"
+                          className="input-modern min-h-9 text-xs font-semibold capitalize"
                         >
                           <option value="admin">Admin</option>
                           <option value="agent">Agent</option>
@@ -376,10 +401,10 @@ function UsersPanel({ users, onSuccess, onError }) {
               </table>
             </div>
           ) : (
-            <p className="text-sm text-slate-500">No users found.</p>
+            <p className="text-sm text-surface-500">No users found.</p>
           )
         ) : (
-          <p className="text-sm text-slate-500">Loading user accounts...</p>
+          <p className="text-sm text-surface-500">Loading user accounts...</p>
         )}
       </Panel>
     </div>
@@ -407,7 +432,7 @@ function SecurityForm({ onSuccess, onError }) {
   return (
     <Panel title="Security & Credentials">
       <form onSubmit={submit} className="max-w-md space-y-4">
-        <label className="block text-sm font-medium text-slate-700">
+        <label className="block text-sm font-bold text-surface-700">
           New Password
           <input
             type="password"
@@ -415,12 +440,12 @@ function SecurityForm({ onSuccess, onError }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="mt-1 block min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+            className="input-modern mt-1 block w-full"
           />
         </label>
         <button
           type="submit"
-          className="min-h-11 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 transition"
+          className="btn-primary min-h-11"
         >
           Update Password
         </button>
@@ -442,21 +467,41 @@ function AppearanceForm({ onSuccess }) {
     onSuccess('Appearance preference saved.')
   }
 
+  const themeOptions = [
+    { value: 'light', label: 'Light', icon: '☀️', desc: 'Clean and bright interface' },
+    { value: 'dark', label: 'Dark', icon: '🌙', desc: 'Easy on the eyes at night' },
+    { value: 'system', label: 'System', icon: '💻', desc: 'Follow device settings' },
+  ]
+
   return (
     <Panel title="Appearance & Themes">
-      <div className="flex flex-wrap gap-3">
-        {['light', 'dark', 'system'].map((t) => (
+      <div className="grid gap-3 sm:grid-cols-3">
+        {themeOptions.map((t) => (
           <button
-            key={t}
+            key={t.value}
             type="button"
-            onClick={() => save(t)}
-            className={`min-h-11 rounded-xl px-5 text-sm font-semibold capitalize transition ${
-              theme === t
-                ? 'bg-green-100 text-green-800'
-                : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+            onClick={() => save(t.value)}
+            className={`card-modern p-4 text-left transition-all ${
+              theme === t.value
+                ? 'border-primary-500 shadow-glow ring-2 ring-primary-200'
+                : 'hover:shadow-elevated hover:border-surface-300'
             }`}
           >
-            {t}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">{t.icon}</span>
+              <span className={`font-display font-bold text-sm ${
+                theme === t.value ? 'text-primary-700' : 'text-surface-900'
+              }`}>
+                {t.label}
+              </span>
+            </div>
+            <p className="text-xs text-surface-500">{t.desc}</p>
+            {theme === t.value && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-primary-600">
+                <div className="size-1.5 rounded-full bg-primary-500" />
+                Active
+              </div>
+            )}
           </button>
         ))}
       </div>
@@ -467,19 +512,36 @@ function AppearanceForm({ onSuccess }) {
 function About() {
   return (
     <Panel title="About LA PLOTS">
-      <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
-        <p>
-          <strong className="text-slate-900">LA PLOTS</strong> is a real estate plot management
-          platform unifying catalog inventory, lead conversion, guided site inspections, document
-          verification, and business analytics into a single reactive workspace.
-        </p>
-        <p>
-          <strong className="text-slate-800">Version:</strong> 2.0.0 (Unified JavaScript Edition)
-        </p>
-        <p>
-          <strong className="text-slate-800">Stack:</strong> React 19 + Vite + Tailwind CSS +
-          Firebase Firestore, Storage & Auth
-        </p>
+      <div className="space-y-4">
+        {/* Brand Header */}
+        <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-primary-600 to-primary-500 p-6 text-white shadow-card">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm font-display font-bold text-xl">
+            LP
+          </div>
+          <div>
+            <h3 className="font-display font-bold text-xl">LA PLOTS</h3>
+            <p className="text-primary-100 text-sm">Real Estate Plot Management Platform</p>
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="space-y-3 text-sm text-surface-600 leading-relaxed">
+          <p className="text-surface-700">
+            <strong className="text-surface-900">LA PLOTS</strong> is a real estate plot management
+            platform unifying catalog inventory, lead conversion, guided site inspections, document
+            verification, and business analytics into a single reactive workspace.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div className="rounded-xl bg-surface-50 p-3 border border-surface-100">
+              <p className="text-xs font-bold text-surface-400 uppercase">Version</p>
+              <p className="font-semibold text-surface-900">2.0.0 (Unified JavaScript Edition)</p>
+            </div>
+            <div className="rounded-xl bg-surface-50 p-3 border border-surface-100">
+              <p className="text-xs font-bold text-surface-400 uppercase">Stack</p>
+              <p className="font-semibold text-surface-900">React 19 + Vite + Tailwind CSS + Firebase</p>
+            </div>
+          </div>
+        </div>
       </div>
     </Panel>
   )

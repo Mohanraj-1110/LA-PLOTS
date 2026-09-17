@@ -37,30 +37,33 @@ export function PlotCard({ plot }) {
   return (
     <Link
       to={`/plots/${plot.id}`}
-      className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="group block overflow-hidden rounded-2xl bg-white border border-surface-200/60 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover hover:border-surface-200"
     >
-      <div className="relative h-48 bg-slate-100 overflow-hidden">
+      <div className="relative h-52 bg-surface-100 overflow-hidden">
         {plot.photos && plot.photos[0] ? (
           <img
             src={plot.photos[0]}
             alt={`Plot ${plot.plotNumber}`}
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
           />
         ) : (
-          <div className="grid h-full place-items-center text-slate-400 bg-slate-100">
-            <Trees size={36} />
+          <div className="grid h-full place-items-center text-surface-300 bg-gradient-to-br from-surface-50 to-surface-100">
+            <Trees size={40} className="text-primary-300" />
           </div>
         )}
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* Wishlist Button */}
         <button
           type="button"
           onClick={handleToggleWishlist}
-          className={`absolute top-3 left-3 size-8.5 rounded-full p-2 flex items-center justify-center backdrop-blur shadow-sm transition active:scale-90 ${
+          className={`absolute top-3 left-3 size-9 rounded-full p-2 flex items-center justify-center backdrop-blur-md shadow-sm transition-all duration-200 active:scale-90 ${
             saved
-              ? 'bg-red-50 text-red-600 ring-1 ring-red-200'
-              : 'bg-white/80 text-slate-600 hover:bg-white hover:text-red-500'
+              ? 'bg-red-50 text-red-500 ring-1 ring-red-200/60'
+              : 'bg-white/80 text-surface-500 hover:bg-white hover:text-red-500'
           }`}
           title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
           aria-label="Toggle wishlist"
@@ -71,10 +74,10 @@ export function PlotCard({ plot }) {
         {/* Status Badge */}
         <div className="absolute top-3 right-3">
           <span
-            className={`rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${
+            className={`rounded-full px-3 py-1 text-xs font-bold shadow-sm backdrop-blur-sm ${
               isAvailable
-                ? 'bg-green-600 text-white'
-                : 'bg-amber-500 text-white'
+                ? 'bg-primary-500/90 text-white'
+                : 'bg-accent-500/90 text-white'
             }`}
           >
             {plot.status}
@@ -85,28 +88,28 @@ export function PlotCard({ plot }) {
       <div className="p-5">
         <div className="flex justify-between items-start gap-2">
           <div>
-            <h3 className="font-bold text-slate-900 group-hover:text-green-700 transition">
+            <h3 className="font-bold text-surface-900 group-hover:text-primary-700 transition-colors duration-200 font-display">
               {plot.projectId ? `${plot.projectId} — Plot ${plot.plotNumber}` : `Plot ${plot.plotNumber}`}
             </h3>
-            <p className="mt-1 flex items-center text-xs text-slate-500">
-              <MapPin className="mr-1 inline text-slate-400 shrink-0" size={13} />
+            <p className="mt-1.5 flex items-center text-xs text-surface-500">
+              <MapPin className="mr-1 inline text-surface-400 shrink-0" size={13} />
               <span className="truncate">{plot.location || 'Location details on request'}</span>
             </p>
           </div>
         </div>
 
-        <div className="mt-4 flex items-baseline justify-between border-t border-slate-100 pt-3">
+        <div className="mt-4 flex items-baseline justify-between border-t border-surface-100 pt-3.5">
           <div>
-            <span className="text-lg font-extrabold text-green-700">
+            <span className="text-lg font-extrabold text-primary-700 font-display">
               {currency.format(plot.totalAmount)}
             </span>
             {plot.ratePerSqft > 0 && (
-              <span className="block text-[11px] text-slate-400">
-                ₹{plot.ratePerSqft.toLocaleString('en-IN')}/sq.ft
+              <span className="block text-[11px] text-surface-400 mt-0.5">
+                {currency.format(plot.ratePerSqft)}/sq.ft
               </span>
             )}
           </div>
-          <span className="text-xs font-medium text-slate-600">
+          <span className="text-xs font-semibold text-surface-500 bg-surface-50 px-2.5 py-1 rounded-lg">
             {plot.areaSqft.toLocaleString('en-IN')} sq.ft
           </span>
         </div>

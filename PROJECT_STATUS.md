@@ -1,6 +1,6 @@
 # LA PLOTS — Project Status
 
-**Current phase:** 13 — Customer App shell + Home + Browse Plots + Plot Details (Restructured to single React project)
+**Current phase:** 16 — Firestore Security Rules hardening + analytics event wiring
 **Last updated by:** Antigravity — 2026-09-17
 
 > Rule: work top-to-bottom. Don't skip ahead. Check a box only when the
@@ -19,8 +19,8 @@
 - [x] 11. Enquiries + Messages modules
 - [x] 12. Settings, Users & Roles, About (Admin App)
 - [x] 13. Customer App shell + Home + Browse Plots + Plot Details
-- [ ] 14. Customer Auth + Wishlist + My Appointments + Profile
-- [ ] 15. Enquiry form, EMI calculator, WhatsApp button, Notifications, Reviews
+- [x] 14. Customer Auth + Wishlist + My Appointments + Profile
+- [x] 15. Enquiry form, EMI calculator, WhatsApp button, Notifications, Reviews
 - [ ] 16. Firestore Security Rules hardening + analytics event wiring
 - [ ] 17. Responsive testing (360/390/430/768/1024/1280px) + bug fixing
 - [ ] 18. Deploy to Firebase Hosting + final QA

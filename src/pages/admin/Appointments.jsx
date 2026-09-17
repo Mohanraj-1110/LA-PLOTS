@@ -28,11 +28,11 @@ export function Appointments() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [appointments, setAppointments] = useState(null)
   const [search, setSearch] = useState('')
-  const [filterTab, setFilterTab] = useState('all') // 'all' | 'Upcoming' | 'Completed'
+  const [filterTab, setFilterTab] = useState('all')
   const [error, setError] = useState(null)
   const [notice, setNotice] = useState(null)
 
-  const [modalMode, setModalMode] = useState(null) // 'new' | 'edit' | 'details'
+  const [modalMode, setModalMode] = useState(null)
   const [activeItem, setActiveItem] = useState(null)
   const [form, setForm] = useState(initialForm)
   const [busy, setBusy] = useState(false)
@@ -122,7 +122,7 @@ export function Appointments() {
   }
 
   return (
-    <>
+    <div className="page-enter">
       <PageHeader
         title="Appointments & Visits"
         description="Schedule site visits, buyer meetings, and registration follow-ups."
@@ -130,7 +130,7 @@ export function Appointments() {
           <button
             type="button"
             onClick={openNewModal}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700 transition shadow-sm"
+            className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
           >
             <Plus size={18} />
             Schedule Visit
@@ -139,13 +139,13 @@ export function Appointments() {
       />
 
       {notice && (
-        <div className="mb-4 rounded-xl bg-green-50 p-4 text-sm text-green-800 border border-green-200">
+        <div className="mb-4 rounded-2xl border border-primary-200 bg-gradient-to-r from-primary-50 to-emerald-50 p-4 text-sm font-medium text-primary-800 shadow-card">
           {notice}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-card">
           {error}
         </div>
       )}
@@ -160,17 +160,16 @@ export function Appointments() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="mt-4 flex gap-2">
         {['all', 'Upcoming', 'Completed'].map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setFilterTab(tab)}
-            className={`min-h-10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition ${
+            className={`min-h-10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
               filterTab === tab
-                ? 'bg-green-100 text-green-800'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
+                : 'bg-white text-slate-600 hover:bg-surface-50 border border-surface-200 shadow-card'
             }`}
           >
             {tab}
@@ -178,28 +177,34 @@ export function Appointments() {
         ))}
       </div>
 
-      {/* List / Table */}
       {appointments === null ? (
-        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-slate-200" />
+        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-surface-100" />
       ) : filteredAppointments.length > 0 ? (
-        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-surface-200 bg-white shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+              <thead className="border-b border-surface-200 bg-surface-50 text-xs uppercase tracking-wider text-slate-500">
                 <tr>
-                  <th className="px-5 py-3.5">Type & Status</th>
-                  <th className="px-5 py-3.5">Customer / Target Plot</th>
-                  <th className="px-5 py-3.5">Date & Time</th>
-                  <th className="px-5 py-3.5">Notes</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-5 py-3.5 font-bold">Type & Status</th>
+                  <th className="px-5 py-3.5 font-bold">Customer / Target Plot</th>
+                  <th className="px-5 py-3.5 font-bold">Date & Time</th>
+                  <th className="px-5 py-3.5 font-bold">Notes</th>
+                  <th className="px-5 py-3.5 text-right font-bold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-surface-100">
                 {filteredAppointments.map((app) => (
-                  <tr key={app.id} className="hover:bg-slate-50/80 transition">
+                  <tr key={app.id} className="group transition-colors hover:bg-gradient-to-r hover:from-primary-50/50 hover:to-transparent">
                     <td className="px-5 py-4">
-                      <span className="font-bold text-slate-900 capitalize block">{app.type}</span>
-                      <StatusBadge status={app.status || 'Upcoming'} />
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-glow">
+                          <CalendarDays size={18} />
+                        </div>
+                        <div>
+                          <span className="font-display font-bold text-slate-900 capitalize block">{app.type}</span>
+                          <StatusBadge status={app.status || 'Upcoming'} />
+                        </div>
+                      </div>
                     </td>
                     <td className="px-5 py-4">
                       <span className="font-medium text-slate-800 block">
@@ -223,21 +228,21 @@ export function Appointments() {
                         <button
                           type="button"
                           onClick={() => openDetailsModal(app)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-surface-100 hover:text-slate-700"
                         >
                           <Eye size={17} />
                         </button>
                         <button
                           type="button"
                           onClick={() => openEditModal(app)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-primary-50 hover:text-primary-600"
                         >
                           <Pencil size={17} />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(app)}
-                          className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 size={17} />
                         </button>
@@ -258,7 +263,6 @@ export function Appointments() {
         </div>
       )}
 
-      {/* Modal: New / Edit */}
       {(modalMode === 'new' || modalMode === 'edit') && (
         <Modal
           title={modalMode === 'edit' ? 'Edit Appointment' : 'Schedule Appointment'}
@@ -267,11 +271,11 @@ export function Appointments() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Type</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Type</label>
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500 capitalize"
+                  className="input-modern mt-1 w-full capitalize"
                 >
                   {appointmentTypes.map((t) => (
                     <option key={t} value={t}>
@@ -281,11 +285,11 @@ export function Appointments() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Status</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Status</label>
                 <select
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 >
                   <option value="Upcoming">Upcoming</option>
                   <option value="Completed">Completed</option>
@@ -296,75 +300,75 @@ export function Appointments() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Customer ID / Name</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Customer ID / Name</label>
                 <input
                   type="text"
                   required
                   value={form.customerId}
                   onChange={(e) => setForm({ ...form, customerId: e.target.value })}
                   placeholder="e.g. Anand"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Plot Number / ID</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Plot Number / ID</label>
                 <input
                   type="text"
                   value={form.plotId}
                   onChange={(e) => setForm({ ...form, plotId: e.target.value })}
                   placeholder="e.g. A-102"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Date *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Date *</label>
                 <input
                   type="date"
                   required
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Time *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Time *</label>
                 <input
                   type="text"
                   required
                   value={form.time}
                   onChange={(e) => setForm({ ...form, time: e.target.value })}
                   placeholder="10:30 AM"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600">Notes & Instructions</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Notes & Instructions</label>
               <textarea
                 rows={3}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 placeholder="Pick up customer from airport / office at 10 AM..."
-                className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                className="input-modern mt-1 w-full resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <div className="flex justify-end gap-3 pt-4 border-t border-surface-100">
               <button
                 type="button"
                 onClick={() => setModalMode(null)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="btn-secondary rounded-xl px-4 py-2 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-xl bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+                className="btn-primary rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-60"
               >
                 {busy ? 'Saving...' : modalMode === 'edit' ? 'Update Visit' : 'Schedule Visit'}
               </button>
@@ -373,37 +377,41 @@ export function Appointments() {
         </Modal>
       )}
 
-      {/* Modal: Details */}
       {modalMode === 'details' && activeItem && (
         <Modal title={`Appointment Details`} onClose={() => setModalMode(null)}>
           <div className="space-y-4 text-sm">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-              <span className="font-bold capitalize text-slate-900">{activeItem.type}</span>
+            <div className="flex justify-between items-center pb-3 border-b border-surface-100">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-glow">
+                  <CalendarDays size={18} />
+                </div>
+                <span className="font-display font-bold text-slate-900 capitalize">{activeItem.type}</span>
+              </div>
               <StatusBadge status={activeItem.status || 'Upcoming'} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="text-xs text-slate-400 block">Customer</span>
-                <span className="font-bold text-slate-900">{activeItem.customerId}</span>
+                <span className="text-xs text-slate-400 block font-medium">Customer</span>
+                <span className="font-display font-bold text-slate-900">{activeItem.customerId}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Plot</span>
-                <span className="font-bold text-slate-900">{activeItem.plotId || 'Any'}</span>
+                <span className="text-xs text-slate-400 block font-medium">Plot</span>
+                <span className="font-display font-bold text-slate-900">{activeItem.plotId || 'Any'}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Date</span>
-                <span className="font-bold text-slate-900">
+                <span className="text-xs text-slate-400 block font-medium">Date</span>
+                <span className="font-display font-bold text-slate-900">
                   {activeItem.date?.toDate?.().toLocaleDateString('en-IN') || 'Date pending'}
                 </span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Time</span>
-                <span className="font-bold text-slate-900">{activeItem.time}</span>
+                <span className="text-xs text-slate-400 block font-medium">Time</span>
+                <span className="font-display font-bold text-slate-900">{activeItem.time}</span>
               </div>
             </div>
             {activeItem.notes && (
-              <div className="pt-3 border-t border-slate-100">
-                <span className="text-xs text-slate-400 block">Notes</span>
+              <div className="pt-3 border-t border-surface-100">
+                <span className="text-xs text-slate-400 block font-medium">Notes</span>
                 <p className="mt-1 text-slate-700">{activeItem.notes}</p>
               </div>
             )}
@@ -411,7 +419,7 @@ export function Appointments() {
               <button
                 type="button"
                 onClick={() => setModalMode(null)}
-                className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                className="btn-secondary rounded-xl px-4 py-2 text-sm font-semibold"
               >
                 Close
               </button>
@@ -419,7 +427,7 @@ export function Appointments() {
           </div>
         </Modal>
       )}
-    </>
+    </div>
   )
 }
 export default Appointments

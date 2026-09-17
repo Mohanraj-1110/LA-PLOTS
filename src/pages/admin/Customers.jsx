@@ -37,7 +37,7 @@ export function Customers() {
   const [error, setError] = useState(null)
   const [notice, setNotice] = useState(null)
 
-  const [modalMode, setModalMode] = useState(null) // 'new' | 'edit' | 'details'
+  const [modalMode, setModalMode] = useState(null)
   const [activeCustomer, setActiveCustomer] = useState(null)
   const [form, setForm] = useState(initialForm)
   const [busy, setBusy] = useState(false)
@@ -137,7 +137,7 @@ export function Customers() {
   }
 
   return (
-    <>
+    <div className="page-enter">
       <PageHeader
         title="Customers & Leads"
         description={`${customers ? customers.length : 0} buyer records in database.`}
@@ -145,7 +145,7 @@ export function Customers() {
           <button
             type="button"
             onClick={openNewModal}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700 transition shadow-sm"
+            className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
           >
             <Plus size={18} />
             Add Customer
@@ -154,13 +154,13 @@ export function Customers() {
       />
 
       {notice && (
-        <div className="mb-4 rounded-xl bg-green-50 p-4 text-sm text-green-800 border border-green-200">
+        <div className="mb-4 rounded-2xl border border-primary-200 bg-gradient-to-r from-primary-50 to-emerald-50 p-4 text-sm font-medium text-primary-800 shadow-card">
           {notice}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-card">
           {error}
         </div>
       )}
@@ -175,21 +175,20 @@ export function Customers() {
         </div>
       </div>
 
-      {/* Status Tabs */}
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
         {leadStatuses.map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setStatusFilter(item)}
-            className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition ${
+            className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
               statusFilter === item
-                ? 'bg-green-100 text-green-800'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
+                : 'bg-white text-slate-600 hover:bg-surface-50 border border-surface-200 shadow-card'
             }`}
           >
             {item}{' '}
-            <span className="ml-1 rounded-full bg-white/70 px-1.5 py-0.5 text-[10px] text-slate-700">
+            <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] ${statusFilter === item ? 'bg-white/20 text-white' : 'bg-surface-100 text-slate-700'}`}>
               {item === 'all'
                 ? customers?.length || 0
                 : customers?.filter((c) => c.status === item).length || 0}
@@ -198,32 +197,38 @@ export function Customers() {
         ))}
       </div>
 
-      {/* Customers Table */}
       {customers === null ? (
-        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-slate-200" />
+        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-surface-100" />
       ) : filteredCustomers.length > 0 ? (
-        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-surface-200 bg-white shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+              <thead className="border-b border-surface-200 bg-surface-50 text-xs uppercase tracking-wider text-slate-500">
                 <tr>
-                  <th className="px-5 py-3.5">Customer</th>
-                  <th className="px-5 py-3.5">Contact</th>
-                  <th className="px-5 py-3.5">Budget</th>
-                  <th className="px-5 py-3.5">Interest</th>
-                  <th className="px-5 py-3.5">Lead Status</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-5 py-3.5 font-bold">Customer</th>
+                  <th className="px-5 py-3.5 font-bold">Contact</th>
+                  <th className="px-5 py-3.5 font-bold">Budget</th>
+                  <th className="px-5 py-3.5 font-bold">Interest</th>
+                  <th className="px-5 py-3.5 font-bold">Lead Status</th>
+                  <th className="px-5 py-3.5 text-right font-bold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-surface-100">
                 {filteredCustomers.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-50/80 transition">
-                    <td className="px-5 py-4 font-bold text-slate-900">{c.name}</td>
+                  <tr key={c.id} className="group transition-colors hover:bg-gradient-to-r hover:from-primary-50/50 hover:to-transparent">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-600 text-sm font-bold text-white shadow-glow">
+                          {c.name?.charAt(0)?.toUpperCase() || '?'}
+                        </div>
+                        <span className="font-display font-bold text-slate-900">{c.name}</span>
+                      </div>
+                    </td>
                     <td className="px-5 py-4">
                       <span className="text-slate-900 font-medium">{c.phone}</span>
                       <span className="block text-xs text-slate-400">{c.email || 'No email'}</span>
                     </td>
-                    <td className="px-5 py-4 font-semibold text-green-700">
+                    <td className="px-5 py-4 font-semibold text-primary-600">
                       ₹{(Number(c.budget) || 0).toLocaleString('en-IN')}
                     </td>
                     <td className="px-5 py-4 text-slate-700">
@@ -237,21 +242,21 @@ export function Customers() {
                         <button
                           type="button"
                           onClick={() => openDetailsModal(c)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-surface-100 hover:text-slate-700"
                         >
                           <Eye size={17} />
                         </button>
                         <button
                           type="button"
                           onClick={() => openEditModal(c)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-primary-50 hover:text-primary-600"
                         >
                           <Pencil size={17} />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(c)}
-                          className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 size={17} />
                         </button>
@@ -272,7 +277,6 @@ export function Customers() {
         </div>
       )}
 
-      {/* Modal: New / Edit */}
       {(modalMode === 'new' || modalMode === 'edit') && (
         <Modal
           title={modalMode === 'edit' ? `Edit Customer: ${activeCustomer?.name}` : 'Add New Customer'}
@@ -281,69 +285,69 @@ export function Customers() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Full Name *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Full Name *</label>
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Sundar Pichai"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Phone Number *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Phone Number *</label>
                 <input
                   type="tel"
                   required
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="+91 9876543210"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Email Address</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Email Address</label>
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="sundar@example.com"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Budget (INR)</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Budget (INR)</label>
                 <input
                   type="number"
                   value={form.budget}
                   onChange={(e) => setForm({ ...form, budget: e.target.value })}
                   placeholder="3000000"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Interested Project</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Interested Project</label>
                 <input
                   type="text"
                   value={form.interestedProjectId}
                   onChange={(e) => setForm({ ...form, interestedProjectId: e.target.value })}
                   placeholder="Green Meadows"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Status</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Status</label>
                 <select
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 >
                   {leadStatuses.filter((s) => s !== 'all').map((st) => (
                     <option key={st} value={st}>
@@ -355,38 +359,38 @@ export function Customers() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600">Next Follow-up Date</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Next Follow-up Date</label>
               <input
                 type="date"
                 value={form.nextFollowupDate}
                 onChange={(e) => setForm({ ...form, nextFollowupDate: e.target.value })}
-                className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                className="input-modern mt-1 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600">Notes & Preference</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Notes & Preference</label>
               <textarea
                 rows={3}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 placeholder="Requested a weekend site visit with family..."
-                className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                className="input-modern mt-1 w-full resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <div className="flex justify-end gap-3 pt-4 border-t border-surface-100">
               <button
                 type="button"
                 onClick={() => setModalMode(null)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="btn-secondary rounded-xl px-4 py-2 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-xl bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+                className="btn-primary rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-60"
               >
                 {busy ? 'Saving...' : modalMode === 'edit' ? 'Update Customer' : 'Save Customer'}
               </button>
@@ -395,39 +399,38 @@ export function Customers() {
         </Modal>
       )}
 
-      {/* Modal: Details */}
       {modalMode === 'details' && activeCustomer && (
         <Modal title={`Customer: ${activeCustomer.name}`} onClose={() => setModalMode(null)}>
           <div className="space-y-4 text-sm">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-              <span className="text-slate-500">Lead Status</span>
+            <div className="flex justify-between items-center pb-3 border-b border-surface-100">
+              <span className="text-slate-500 font-medium">Lead Status</span>
               <StatusBadge status={activeCustomer.status} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="text-xs text-slate-400 block">Phone</span>
-                <span className="font-bold text-slate-900">{activeCustomer.phone}</span>
+                <span className="text-xs text-slate-400 block font-medium">Phone</span>
+                <span className="font-display font-bold text-slate-900">{activeCustomer.phone}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Email</span>
-                <span className="font-bold text-slate-900">{activeCustomer.email || 'N/A'}</span>
+                <span className="text-xs text-slate-400 block font-medium">Email</span>
+                <span className="font-display font-bold text-slate-900">{activeCustomer.email || 'N/A'}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Budget</span>
-                <span className="font-bold text-green-700">
+                <span className="text-xs text-slate-400 block font-medium">Budget</span>
+                <span className="font-display font-bold text-primary-600">
                   ₹{(Number(activeCustomer.budget) || 0).toLocaleString('en-IN')}
                 </span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Interested Project</span>
-                <span className="font-bold text-slate-900">
+                <span className="text-xs text-slate-400 block font-medium">Interested Project</span>
+                <span className="font-display font-bold text-slate-900">
                   {activeCustomer.interestedProjectId || 'Any'}
                 </span>
               </div>
             </div>
             {activeCustomer.notes && (
-              <div className="pt-3 border-t border-slate-100">
-                <span className="text-xs text-slate-400 block">Notes</span>
+              <div className="pt-3 border-t border-surface-100">
+                <span className="text-xs text-slate-400 block font-medium">Notes</span>
                 <p className="mt-1 text-slate-700">{activeCustomer.notes}</p>
               </div>
             )}
@@ -435,7 +438,7 @@ export function Customers() {
               <button
                 type="button"
                 onClick={() => setModalMode(null)}
-                className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                className="btn-secondary rounded-xl px-4 py-2 text-sm font-semibold"
               >
                 Close
               </button>
@@ -443,7 +446,7 @@ export function Customers() {
           </div>
         </Modal>
       )}
-    </>
+    </div>
   )
 }
 export default Customers

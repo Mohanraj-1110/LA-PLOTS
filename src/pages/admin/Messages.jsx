@@ -81,39 +81,50 @@ export function Messages() {
       />
 
       {error && (
-        <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div className="mb-4 rounded-2xl bg-red-50 p-4 text-sm text-red-700 border border-red-200 shadow-card">
           {error}
         </div>
       )}
 
       {messages === null ? (
-        <div className="h-96 animate-pulse rounded-2xl bg-slate-200" />
+        <div className="h-96 animate-pulse rounded-2xl bg-surface-200 shadow-card" />
       ) : conversations.length > 0 ? (
-        <section className="grid min-h-[540px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:grid-cols-[280px_1fr]">
+        <section className="card-modern grid min-h-[540px] overflow-hidden md:grid-cols-[280px_1fr] p-0">
           {/* Conversation List */}
-          <aside className="border-b border-slate-200 md:border-b-0 md:border-r border-slate-100 bg-slate-50/50">
-            <div className="p-3 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          <aside className="border-b border-surface-100 md:border-b-0 md:border-r border-surface-100 bg-surface-50">
+            <div className="p-4 border-b border-surface-100">
+              <span className="text-xs font-bold uppercase tracking-wider text-surface-400">
                 Conversations
               </span>
             </div>
-            <div className="divide-y divide-slate-100 overflow-y-auto max-h-[500px]">
+            <div className="divide-y divide-surface-100 overflow-y-auto max-h-[500px]">
               {conversations.map((conv) => (
                 <button
                   key={conv.id}
                   type="button"
                   onClick={() => setSelectedId(conv.id)}
-                  className={`w-full p-4 text-left transition ${
+                  className={`w-full p-4 text-left transition-all ${
                     activeId === conv.id
-                      ? 'bg-green-50 border-l-4 border-green-600'
-                      : 'hover:bg-slate-100/70'
+                      ? 'bg-primary-50 border-l-4 border-primary-600'
+                      : 'hover:bg-surface-100/70'
                   }`}
                 >
-                  <p className="font-bold text-slate-900 text-sm">{conv.name}</p>
-                  <p className="mt-1 truncate text-xs text-slate-500">{conv.latest.body}</p>
-                  <span className="mt-1 block text-[10px] text-slate-400">
-                    {formatTime(conv.latest.createdAt)}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className={`flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                      activeId === conv.id
+                        ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white'
+                        : 'bg-surface-200 text-surface-600'
+                    }`}>
+                      <User size={15} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-surface-900 text-sm truncate">{conv.name}</p>
+                      <p className="mt-0.5 truncate text-xs text-surface-500">{conv.latest.body}</p>
+                      <span className="mt-0.5 block text-[10px] text-surface-400">
+                        {formatTime(conv.latest.createdAt)}
+                      </span>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -121,17 +132,17 @@ export function Messages() {
 
           {/* Active Thread */}
           <div className="flex flex-col h-[540px]">
-            <header className="border-b border-slate-100 px-6 py-4 flex items-center gap-3">
-              <div className="size-8 rounded-full bg-green-100 text-green-700 grid place-items-center font-bold text-xs">
-                <User size={14} />
+            <header className="border-b border-surface-100 px-6 py-4 flex items-center gap-3 bg-white">
+              <div className="size-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 text-white grid place-items-center font-bold text-xs shadow-card">
+                <User size={15} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-sm">{activeConversation?.name}</h3>
-                <p className="text-xs text-slate-400">Customer Thread</p>
+                <h3 className="font-display font-bold text-surface-900 text-sm">{activeConversation?.name}</h3>
+                <p className="text-xs text-surface-400">Customer Thread</p>
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-3">
+            <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-surface-50/30">
               {thread.map((msg) => {
                 const isMine = msg.agentId === firebaseUser?.uid
                 return (
@@ -139,14 +150,14 @@ export function Messages() {
                     key={msg.id}
                     className={`max-w-[80%] rounded-2xl p-4 text-sm ${
                       isMine
-                        ? 'ml-auto bg-green-600 text-white rounded-br-none shadow-sm'
-                        : 'bg-slate-100 text-slate-800 rounded-bl-none'
+                        ? 'ml-auto bg-gradient-to-br from-primary-600 to-primary-500 text-white rounded-br-md shadow-card'
+                        : 'bg-white text-surface-800 rounded-bl-md shadow-card border border-surface-100'
                     }`}
                   >
                     <p className="leading-relaxed">{msg.body}</p>
                     <p
-                      className={`mt-1 text-[10px] text-right ${
-                        isMine ? 'text-green-200' : 'text-slate-400'
+                      className={`mt-1.5 text-[10px] text-right ${
+                        isMine ? 'text-primary-200' : 'text-surface-400'
                       }`}
                     >
                       {formatTime(msg.createdAt)}
@@ -156,16 +167,16 @@ export function Messages() {
               })}
             </div>
 
-            <form onSubmit={handleSend} className="flex gap-2 border-t border-slate-100 p-3 bg-white">
+            <form onSubmit={handleSend} className="flex gap-2 border-t border-surface-100 p-3 bg-white">
               <input
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write a message or internal note..."
-                className="min-h-11 min-w-0 flex-1 rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-green-500 text-slate-900"
+                className="input-modern min-h-11 min-w-0 flex-1"
               />
               <button
                 type="submit"
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 transition"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-5 text-sm font-bold text-white hover:from-primary-700 hover:to-primary-600 transition shadow-card hover:shadow-elevated"
               >
                 <Send size={16} />
                 Send

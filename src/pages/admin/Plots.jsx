@@ -39,8 +39,7 @@ export function Plots() {
   const [error, setError] = useState(null)
   const [notice, setNotice] = useState(null)
 
-  // Modal states
-  const [modalMode, setModalMode] = useState(null) // 'new' | 'edit' | 'details'
+  const [modalMode, setModalMode] = useState(null)
   const [activePlot, setActivePlot] = useState(null)
   const [form, setForm] = useState(initialForm)
   const [photos, setPhotos] = useState([])
@@ -163,7 +162,7 @@ export function Plots() {
     (Number(form.areaSqft) || 0) * (Number(form.ratePerSqft) || 0)
 
   return (
-    <>
+    <div className="page-enter">
       <PageHeader
         title="Plot Inventory"
         description={`${plots ? plots.length : 0} plots in total catalog.`}
@@ -171,7 +170,7 @@ export function Plots() {
           <button
             type="button"
             onClick={openNewModal}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700 transition shadow-sm"
+            className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
           >
             <Plus size={18} />
             Add New Plot
@@ -180,13 +179,13 @@ export function Plots() {
       />
 
       {notice && (
-        <div className="mb-4 rounded-xl bg-green-50 p-4 text-sm text-green-800 border border-green-200">
+        <div className="mb-4 rounded-2xl border border-primary-200 bg-gradient-to-r from-primary-50 to-emerald-50 p-4 text-sm font-medium text-primary-800 shadow-card">
           {notice}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-card">
           {error}
         </div>
       )}
@@ -201,21 +200,20 @@ export function Plots() {
         </div>
       </div>
 
-      {/* Status Tabs */}
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
         {statuses.map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setStatusFilter(item)}
-            className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition ${
+            className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
               statusFilter === item
-                ? 'bg-green-100 text-green-800'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
+                : 'bg-white text-slate-600 hover:bg-surface-50 border border-surface-200 shadow-card'
             }`}
           >
             {item}{' '}
-            <span className="ml-1 rounded-full bg-white/70 px-1.5 py-0.5 text-[10px] text-slate-700">
+            <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] ${statusFilter === item ? 'bg-white/20 text-white' : 'bg-surface-100 text-slate-700'}`}>
               {item === 'all'
                 ? plots?.length || 0
                 : plots?.filter((p) => p.status === item).length || 0}
@@ -224,28 +222,27 @@ export function Plots() {
         ))}
       </div>
 
-      {/* Plots Table */}
       {plots === null ? (
-        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-slate-200" />
+        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-surface-100" />
       ) : filteredPlots.length > 0 ? (
-        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-surface-200 bg-white shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+              <thead className="border-b border-surface-200 bg-surface-50 text-xs uppercase tracking-wider text-slate-500">
                 <tr>
-                  <th className="px-5 py-3.5">Plot Details</th>
-                  <th className="px-5 py-3.5">Project & Location</th>
-                  <th className="px-5 py-3.5">Area & Rate</th>
-                  <th className="px-5 py-3.5">Total Amount</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-5 py-3.5 font-bold">Plot Details</th>
+                  <th className="px-5 py-3.5 font-bold">Project & Location</th>
+                  <th className="px-5 py-3.5 font-bold">Area & Rate</th>
+                  <th className="px-5 py-3.5 font-bold">Total Amount</th>
+                  <th className="px-5 py-3.5 font-bold">Status</th>
+                  <th className="px-5 py-3.5 text-right font-bold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-surface-100">
                 {filteredPlots.map((plot) => (
-                  <tr key={plot.id} className="hover:bg-slate-50/80 transition">
+                  <tr key={plot.id} className="group transition-colors hover:bg-gradient-to-r hover:from-primary-50/50 hover:to-transparent">
                     <td className="px-5 py-4">
-                      <span className="font-bold text-slate-900">Plot #{plot.plotNumber}</span>
+                      <span className="font-display font-bold text-slate-900">Plot #{plot.plotNumber}</span>
                       <span className="block text-xs text-slate-400">
                         Survey: {plot.surveyNumber || 'N/A'} · Facing: {plot.facing || 'East'}
                       </span>
@@ -262,7 +259,7 @@ export function Plots() {
                         ₹{plot.ratePerSqft.toLocaleString('en-IN')}/sq.ft
                       </span>
                     </td>
-                    <td className="px-5 py-4 font-bold text-green-700">
+                    <td className="px-5 py-4 font-display font-bold text-primary-600">
                       ₹{plot.totalAmount.toLocaleString('en-IN')}
                     </td>
                     <td className="px-5 py-4">
@@ -273,7 +270,7 @@ export function Plots() {
                         <button
                           type="button"
                           onClick={() => openDetailsModal(plot)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 transition"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-surface-100 hover:text-slate-700"
                           title="View Details"
                         >
                           <Eye size={17} />
@@ -281,7 +278,7 @@ export function Plots() {
                         <button
                           type="button"
                           onClick={() => openEditModal(plot)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 transition"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-primary-50 hover:text-primary-600"
                           title="Edit Plot"
                         >
                           <Pencil size={17} />
@@ -289,7 +286,7 @@ export function Plots() {
                         <button
                           type="button"
                           onClick={() => handleDelete(plot)}
-                          className="rounded-lg p-2 text-red-500 hover:bg-red-50 transition"
+                          className="rounded-xl p-2 text-slate-400 transition-all hover:bg-red-50 hover:text-red-600"
                           title="Delete Plot"
                         >
                           <Trash2 size={17} />
@@ -311,7 +308,6 @@ export function Plots() {
         </div>
       )}
 
-      {/* Modal: New / Edit */}
       {(modalMode === 'new' || modalMode === 'edit') && (
         <Modal
           title={modalMode === 'edit' ? `Edit Plot #${activePlot?.plotNumber}` : 'Add New Plot'}
@@ -320,85 +316,85 @@ export function Plots() {
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Project Name *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Project Name *</label>
                 <input
                   type="text"
                   required
                   value={form.projectId}
                   onChange={(e) => setForm({ ...form, projectId: e.target.value })}
                   placeholder="Green Meadows"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Plot Number *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Plot Number *</label>
                 <input
                   type="text"
                   required
                   value={form.plotNumber}
                   onChange={(e) => setForm({ ...form, plotNumber: e.target.value })}
                   placeholder="A-102"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Survey Number *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Survey Number *</label>
                 <input
                   type="text"
                   required
                   value={form.surveyNumber}
                   onChange={(e) => setForm({ ...form, surveyNumber: e.target.value })}
                   placeholder="142/2B"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Location *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Location *</label>
                 <input
                   type="text"
                   required
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   placeholder="Vandalur Outer Ring Road"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Area (sq.ft) *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Area (sq.ft) *</label>
                 <input
                   type="number"
                   required
                   value={form.areaSqft}
                   onChange={(e) => setForm({ ...form, areaSqft: e.target.value })}
                   placeholder="1200"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Rate per sq.ft (₹) *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Rate per sq.ft (₹) *</label>
                 <input
                   type="number"
                   required
                   value={form.ratePerSqft}
                   onChange={(e) => setForm({ ...form, ratePerSqft: e.target.value })}
                   placeholder="2500"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             {totalCalculated > 0 && (
-              <div className="rounded-xl bg-green-50 p-3.5 text-sm">
-                <span className="text-xs text-green-700 uppercase font-bold tracking-wider">
+              <div className="rounded-2xl bg-gradient-to-r from-primary-50 to-emerald-50 p-4 border border-primary-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary-600">
                   Total Calculated Price
                 </span>
-                <p className="text-xl font-extrabold text-green-900">
+                <p className="text-xl font-extrabold font-display text-primary-700">
                   ₹{totalCalculated.toLocaleString('en-IN')}
                 </p>
               </div>
@@ -406,11 +402,11 @@ export function Plots() {
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Status</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Status</label>
                 <select
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 >
                   <option value="available">Available</option>
                   <option value="reserved">Reserved</option>
@@ -419,40 +415,40 @@ export function Plots() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Facing</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Facing</label>
                 <input
                   type="text"
                   value={form.facing}
                   onChange={(e) => setForm({ ...form, facing: e.target.value })}
                   placeholder="North / East"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600">Road Width (ft)</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Road Width (ft)</label>
                 <input
                   type="number"
                   value={form.roadWidth}
                   onChange={(e) => setForm({ ...form, roadWidth: e.target.value })}
                   placeholder="30"
-                  className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                  className="input-modern mt-1 w-full"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600">Description</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Description</label>
               <textarea
                 rows={2}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Corner plot, DTCP approved, immediate electricity..."
-                className="mt-1 w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-green-500"
+                className="input-modern mt-1 w-full resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600">Upload Photos</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Upload Photos</label>
               <input
                 type="file"
                 multiple
@@ -463,7 +459,7 @@ export function Plots() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600">Upload Layout PDFs</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">Upload Layout PDFs</label>
               <input
                 type="file"
                 multiple
@@ -473,18 +469,24 @@ export function Plots() {
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            {error && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                {error}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-surface-100">
               <button
                 type="button"
                 onClick={() => setModalMode(null)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="btn-secondary rounded-xl px-4 py-2 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-xl bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+                className="btn-primary rounded-xl px-5 py-2 text-sm font-semibold disabled:opacity-60"
               >
                 {busy ? 'Saving...' : modalMode === 'edit' ? 'Update Plot' : 'Create Plot'}
               </button>
@@ -493,49 +495,48 @@ export function Plots() {
         </Modal>
       )}
 
-      {/* Modal: Details View */}
       {modalMode === 'details' && activePlot && (
         <Modal title={`Plot Details: #${activePlot.plotNumber}`} onClose={() => setModalMode(null)}>
           <div className="space-y-4 text-sm">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-              <span className="text-slate-500">Status</span>
+            <div className="flex justify-between items-center pb-3 border-b border-surface-100">
+              <span className="text-slate-500 font-medium">Status</span>
               <StatusBadge status={activePlot.status} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="text-xs text-slate-400 block">Project</span>
-                <span className="font-bold text-slate-900">{activePlot.projectId}</span>
+                <span className="text-xs text-slate-400 block font-medium">Project</span>
+                <span className="font-display font-bold text-slate-900">{activePlot.projectId}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Location</span>
-                <span className="font-bold text-slate-900">{activePlot.location}</span>
+                <span className="text-xs text-slate-400 block font-medium">Location</span>
+                <span className="font-display font-bold text-slate-900">{activePlot.location}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Survey Number</span>
-                <span className="font-bold text-slate-900">{activePlot.surveyNumber}</span>
+                <span className="text-xs text-slate-400 block font-medium">Survey Number</span>
+                <span className="font-display font-bold text-slate-900">{activePlot.surveyNumber}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Facing / Road</span>
-                <span className="font-bold text-slate-900">
+                <span className="text-xs text-slate-400 block font-medium">Facing / Road</span>
+                <span className="font-display font-bold text-slate-900">
                   {activePlot.facing || 'East'} / {activePlot.roadWidth || 30}ft
                 </span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Area</span>
-                <span className="font-bold text-slate-900">
+                <span className="text-xs text-slate-400 block font-medium">Area</span>
+                <span className="font-display font-bold text-slate-900">
                   {activePlot.areaSqft.toLocaleString()} sq.ft
                 </span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Total Price</span>
-                <span className="font-bold text-green-700 text-base">
+                <span className="text-xs text-slate-400 block font-medium">Total Price</span>
+                <span className="font-display font-bold text-primary-600 text-base">
                   ₹{activePlot.totalAmount.toLocaleString('en-IN')}
                 </span>
               </div>
             </div>
             {activePlot.description && (
-              <div className="pt-3 border-t border-slate-100">
-                <span className="text-xs text-slate-400 block">Description</span>
+              <div className="pt-3 border-t border-surface-100">
+                <span className="text-xs text-slate-400 block font-medium">Description</span>
                 <p className="mt-1 text-slate-700">{activePlot.description}</p>
               </div>
             )}
@@ -543,7 +544,7 @@ export function Plots() {
               <button
                 type="button"
                 onClick={() => setModalMode(null)}
-                className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                className="btn-secondary rounded-xl px-4 py-2 text-sm font-semibold"
               >
                 Close
               </button>
@@ -551,7 +552,7 @@ export function Plots() {
           </div>
         </Modal>
       )}
-    </>
+    </div>
   )
 }
 export default Plots

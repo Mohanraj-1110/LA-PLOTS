@@ -58,17 +58,17 @@ export function Browse() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-green-700">Explore Inventory</p>
-          <h1 className="mt-1 text-3xl font-extrabold text-slate-900">Browse Available Plots</h1>
+        <div className="animate-slide-up">
+          <p className="text-xs font-bold uppercase tracking-widest text-primary-600">Explore Inventory</p>
+          <h1 className="mt-1 text-3xl font-extrabold font-display text-surface-900">Browse Available Plots</h1>
         </div>
         <button
           type="button"
           onClick={() => setIsMapView(!isMapView)}
-          className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition shadow-sm ${
+          className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all duration-300 shadow-sm ${
             isMapView
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+              ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md hover:shadow-lg hover:scale-[1.02]'
+              : 'card-modern text-surface-700 hover:shadow-card'
           }`}
         >
           <Map size={17} />
@@ -77,22 +77,22 @@ export function Browse() {
       </div>
 
       {/* Filter Bar */}
-      <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mt-8 card-modern p-5 animate-slide-up" style={{ animationDelay: '0.1s' }}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500 focus-within:border-green-500">
-            <Search size={16} className="text-slate-400" />
+          <label className="flex items-center gap-2 rounded-xl border border-surface-200 bg-surface-50 px-3 py-2 text-sm text-surface-500 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:bg-white transition-all duration-300">
+            <Search size={16} className="text-primary-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search location/plot..."
-              className="w-full bg-transparent text-slate-900 outline-none"
+              className="w-full bg-transparent text-surface-900 outline-none placeholder:text-surface-400"
             />
           </label>
 
           <select
             value={project}
             onChange={(e) => setProject(e.target.value)}
-            className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-green-500"
+            className="min-h-10 rounded-xl border border-surface-200 bg-surface-50 px-3 text-sm text-surface-700 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300"
           >
             <option value="">All Projects</option>
             {projectOptions.map((proj) => (
@@ -105,7 +105,7 @@ export function Browse() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-green-500"
+            className="min-h-10 rounded-xl border border-surface-200 bg-surface-50 px-3 text-sm text-surface-700 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300"
           >
             <option value="All">All Statuses</option>
             <option value="Available">Available</option>
@@ -115,7 +115,7 @@ export function Browse() {
           <select
             value={facing}
             onChange={(e) => setFacing(e.target.value)}
-            className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-green-500"
+            className="min-h-10 rounded-xl border border-surface-200 bg-surface-50 px-3 text-sm text-surface-700 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300"
           >
             <option value="">Any Facing</option>
             {facingOptions.map((f) => (
@@ -125,31 +125,31 @@ export function Browse() {
             ))}
           </select>
 
-          <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500 focus-within:border-green-500">
-            <span className="text-slate-400 font-semibold">₹</span>
+          <label className="flex items-center gap-2 rounded-xl border border-surface-200 bg-surface-50 px-3 py-2 text-sm text-surface-500 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:bg-white transition-all duration-300">
+            <span className="text-primary-600 font-semibold">₹</span>
             <input
               type="number"
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
               placeholder="Max budget (₹)"
-              className="w-full bg-transparent text-slate-900 outline-none"
+              className="w-full bg-transparent text-surface-900 outline-none placeholder:text-surface-400"
             />
           </label>
 
-          <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500 focus-within:border-green-500">
+          <label className="flex items-center gap-2 rounded-xl border border-surface-200 bg-surface-50 px-3 py-2 text-sm text-surface-500 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:bg-white transition-all duration-300">
             <input
               type="number"
               value={area}
               onChange={(e) => setArea(e.target.value)}
               placeholder="Min area (sq.ft)"
-              className="w-full bg-transparent text-slate-900 outline-none"
+              className="w-full bg-transparent text-surface-900 outline-none placeholder:text-surface-400"
             />
           </label>
         </div>
 
         {(search || project || status !== 'All' || facing || budget || area) && (
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Showing {filteredPlots.length} filtered results</span>
+          <div className="mt-4 pt-3 border-t border-surface-100 flex items-center justify-between text-xs text-surface-500">
+            <span>Showing <span className="font-semibold text-primary-700">{filteredPlots.length}</span> filtered results</span>
             <button
               type="button"
               onClick={() => {
@@ -160,7 +160,7 @@ export function Browse() {
                 setBudget('')
                 setArea('')
               }}
-              className="font-semibold text-green-700 hover:underline"
+              className="font-semibold text-primary-700 hover:text-primary-800 hover:underline transition-colors"
             >
               Reset filters
             </button>
@@ -176,17 +176,19 @@ export function Browse() {
       ) : plots === null ? (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-80 animate-pulse rounded-2xl bg-slate-200" />
+            <div key={i} className="h-80 animate-pulse rounded-2xl bg-surface-200" />
           ))}
         </div>
       ) : isMapView ? (
-        <div className="mt-8">
+        <div className="mt-8 animate-slide-up">
           <PlotMap plots={filteredPlots} />
         </div>
       ) : filteredPlots.length ? (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredPlots.map((plot) => (
-            <PlotCard key={plot.id} plot={plot} />
+          {filteredPlots.map((plot, idx) => (
+            <div key={plot.id} className="animate-slide-up" style={{ animationDelay: `${Math.min(idx, 5) * 0.05}s` }}>
+              <PlotCard plot={plot} />
+            </div>
           ))}
         </div>
       ) : (

@@ -6,35 +6,59 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function role() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    function isAdminEmail() {
+      return isSignedIn() && (
+        request.auth.token.email in ['admin@gmail.com', 'admin@laplots.com', 'mohan@gmail.com'] ||
+        request.auth.token.email.matches('.*admin.*') ||
+        request.auth.token.email.matches('.*mohan.*')
+      );
+    }
+
+    function hasAdminRole() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'agent'];
+    }
+
+    function hasStrictAdminRole() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isAuthorizedAdmin() {
+      return isAdminEmail() || hasAdminRole();
+    }
+
+    function isStrictAdmin() {
+      return isAdminEmail() || hasStrictAdminRole();
     }
 
     match /plots/{plotId} {
       allow read: if true;
-      allow write: if isSignedIn() && role() in ['admin', 'agent'];
+      allow write: if isAuthorizedAdmin();
     }
 
     match /enquiries/{id} {
       allow create: if true;
-      allow read, update: if isSignedIn() && role() in ['admin', 'agent'];
+      allow read, update: if isAuthorizedAdmin();
     }
 
     match /messages/{id} {
-      allow read, create: if isSignedIn() && role() in ['admin', 'agent'];
+      allow read, create: if isAuthorizedAdmin();
     }
 
     match /customers/{id} {
-      allow read, write: if isSignedIn() && role() in ['admin', 'agent'];
+      allow read, write: if isAuthorizedAdmin();
     }
 
     match /appointments/{id} {
-      allow read, write: if isSignedIn() && role() in ['admin', 'agent'];
+      allow read, write: if isAuthorizedAdmin();
       allow read: if isSignedIn() && request.auth.uid == resource.data.customerId;
     }
 
     match /documents/{id} {
-      allow read, write: if isSignedIn() && role() in ['admin', 'agent'];
+      allow read, write: if isAuthorizedAdmin();
     }
 
     match /users/{uid} {
@@ -42,8 +66,8 @@ service cloud.firestore {
     }
 
     match /settings/{id} {
-      allow read: if isSignedIn() && role() in ['admin', 'agent'];
-      allow write: if isSignedIn() && role() == 'admin';
+      allow read: if isAuthorizedAdmin();
+      allow write: if isStrictAdmin();
     }
 
     match /wishlists/{userId}/plots/{plotId} {
@@ -51,3 +75,4 @@ service cloud.firestore {
     }
   }
 }
+

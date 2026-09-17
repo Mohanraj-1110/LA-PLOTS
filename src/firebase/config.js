@@ -28,6 +28,10 @@ export const db = isFirebaseConfigured
       : getFirestore(firebaseApp))
   : null
 export const storage = isFirebaseConfigured ? getStorage(firebaseApp) : null
+if (storage) {
+  storage.maxUploadRetryTime = 10000
+  storage.maxOperationRetryTime = 10000
+}
 export const functions = isFirebaseConfigured ? getFunctions(firebaseApp) : null
 
 export let analytics = null

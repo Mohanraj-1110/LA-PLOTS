@@ -9,9 +9,32 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  waitForPendingWrites,
 } from 'firebase/firestore'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 import { db, isFirebaseConfigured, storage } from '../firebase/config'
+
+/**
+ * Ensures a write operation has reached Cloud Firestore backend,
+ * rather than only being stored in volatile local memory cache.
+ */
+async function confirmServerSync(actionName = 'save') {
+  if (!db) return
+  try {
+    const syncPromise = waitForPendingWrites(db)
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('SYNC_TIMEOUT')), 3500)
+    )
+    await Promise.race([syncPromise, timeoutPromise])
+  } catch (err) {
+    if (err?.message === 'SYNC_TIMEOUT') {
+      throw new Error(
+        'Plot saved in local cache, but Cloud Firestore server did not acknowledge the write. Make sure Cloud Firestore database is created in Firebase Console (Project: la-plots) and firestore.rules allow writes.'
+      )
+    }
+    throw err
+  }
+}
 
 /**
  * Maps raw plot data to a standardized plot object
@@ -83,7 +106,8 @@ export async function createPlot(input) {
   if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
   const { areaSqft, ratePerSqft, ...rest } = input
   const totalAmount = Number(areaSqft) * Number(ratePerSqft)
-  return addDoc(collection(db, 'plots'), {
+  
+  const addPromise = addDoc(collection(db, 'plots'), {
     ...rest,
     areaSqft: Number(areaSqft),
     ratePerSqft: Number(ratePerSqft),
@@ -91,6 +115,20 @@ export async function createPlot(input) {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
+
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(
+      () =>
+        reject(
+          new Error(
+            'Database write timed out. Cloud Firestore database does not exist or is unreachable. Please finish creating Cloud Firestore in your Firebase Console (Step 2 of 2) and click Enable.'
+          )
+        ),
+      8000
+    )
+  )
+
+  return Promise.race([addPromise, timeoutPromise])
 }
 
 // Update plot
@@ -98,19 +136,46 @@ export async function updatePlot(plotId, input) {
   if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
   const { areaSqft, ratePerSqft, ...rest } = input
   const totalAmount = Number(areaSqft) * Number(ratePerSqft)
-  await updateDoc(doc(db, 'plots', plotId), {
+
+  const updatePromise = updateDoc(doc(db, 'plots', plotId), {
     ...rest,
     areaSqft: Number(areaSqft),
     ratePerSqft: Number(ratePerSqft),
     totalAmount,
     updatedAt: serverTimestamp(),
   })
+
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(
+      () =>
+        reject(
+          new Error(
+            'Database update timed out. Cloud Firestore database is unreachable. Please make sure it is enabled in Firebase Console.'
+          )
+        ),
+      8000
+    )
+  )
+
+  return Promise.race([updatePromise, timeoutPromise])
 }
 
 // Delete plot
 export async function deletePlot(plotId) {
   if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  await deleteDoc(doc(db, 'plots', plotId))
+
+  const deletePromise = deleteDoc(doc(db, 'plots', plotId))
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(
+      () =>
+        reject(
+          new Error('Database delete timed out. Cloud Firestore database is unreachable.')
+        ),
+      8000
+    )
+  )
+
+  return Promise.race([deletePromise, timeoutPromise])
 }
 
 // Upload plot photos/documents to Firebase Storage
@@ -123,13 +188,43 @@ export async function uploadPlotFiles(plotId, files, kind = 'photos') {
   if (files.some((file) => !allowed.includes(file.type))) {
     throw new Error(kind === 'photos' ? 'Photos must be JPG, PNG, or WebP files.' : 'Documents must be PDF files.')
   }
-  return Promise.all(
+  const uploadTask = Promise.all(
     files.map(async (file) => {
       const fileRef = ref(storage, `plots/${plotId}/${kind}/${Date.now()}-${file.name}`)
       await uploadBytes(fileRef, file)
       return getDownloadURL(fileRef)
     })
   )
+
+  const timeoutTask = new Promise((_, reject) =>
+    setTimeout(
+      () =>
+        reject(
+          new Error(
+            'File upload timed out. Please make sure Firebase Storage is enabled in Firebase Console (Storage > Get started) and storage.rules are published.'
+          )
+        ),
+      12000
+    )
+  )
+
+  try {
+    return await Promise.race([uploadTask, timeoutTask])
+  } catch (err) {
+    if (err?.code === 'storage/unauthorized') {
+      throw new Error('Firebase Storage permission denied. Please update and publish storage.rules in Firebase Console.')
+    }
+    if (
+      err?.code === 'storage/bucket-not-found' ||
+      err?.code === 'storage/project-not-found' ||
+      err?.message?.includes('404')
+    ) {
+      throw new Error(
+        'Firebase Storage has not been enabled yet. Please go to Firebase Console > Storage and click "Get started".'
+      )
+    }
+    throw err
+  }
 }
 
 export async function appendPlotFiles(plotId, kind, urls) {

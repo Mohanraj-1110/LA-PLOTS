@@ -78,12 +78,12 @@ export function Documents() {
   }
 
   return (
-    <>
+    <div className="page-enter">
       <PageHeader
         title="Document Management"
         description={`${documents ? documents.length : 0} verified legal documents stored.`}
         action={
-          <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700 transition shadow-sm">
+          <label className="btn-primary inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl px-4 text-sm font-semibold">
             <FilePlus size={18} />
             Upload PDF
             <input
@@ -100,41 +100,40 @@ export function Documents() {
       />
 
       {notice && (
-        <div className="mb-4 rounded-xl bg-green-50 p-4 text-sm text-green-800 border border-green-200">
+        <div className="mb-4 rounded-2xl border border-primary-200 bg-gradient-to-r from-primary-50 to-emerald-50 p-4 text-sm font-medium text-primary-800 shadow-card">
           {notice}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-card">
           {error}
         </div>
       )}
 
       {progress !== null && (
-        <div className="mb-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-          <div className="flex justify-between font-semibold">
-            <span>Uploading document...</span>
-            <span>{progress}%</span>
+        <div className="mb-6 card-modern p-4">
+          <div className="flex justify-between font-semibold text-sm">
+            <span className="text-slate-700">Uploading document...</span>
+            <span className="font-display text-primary-600">{progress}%</span>
           </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-green-200">
+          <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-surface-100">
             <div
-              className="h-full bg-green-600 transition-all duration-200"
+              className="h-full rounded-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-300 shadow-glow"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
       )}
 
-      {/* Category Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1">
         <button
           type="button"
           onClick={() => setCategory('All')}
-          className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition ${
+          className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
             category === 'All'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
+              : 'bg-white text-slate-600 hover:bg-surface-50 border border-surface-200 shadow-card'
           }`}
         >
           All
@@ -144,10 +143,10 @@ export function Documents() {
             key={item}
             type="button"
             onClick={() => setCategory(item)}
-            className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition ${
+            className={`min-h-10 whitespace-nowrap rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
               category === item
-                ? 'bg-green-100 text-green-800'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
+                : 'bg-white text-slate-600 hover:bg-surface-50 border border-surface-200 shadow-card'
             }`}
           >
             {item}
@@ -155,55 +154,54 @@ export function Documents() {
         ))}
       </div>
 
-      {/* Grid */}
       {documents === null ? (
-        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-slate-200" />
+        <div className="mt-6 h-64 animate-pulse rounded-2xl bg-surface-100" />
       ) : filtered.length > 0 ? (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((doc) => (
             <article
               key={doc.id}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-slate-300 transition"
+              className="card-modern group p-5 transition-all duration-200 hover:shadow-elevated"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="truncate font-bold text-slate-900" title={doc.name}>
+                  <h3 className="truncate font-display font-bold text-slate-900" title={doc.name}>
                     {doc.name}
                   </h3>
-                  <p className="mt-1 text-xs text-slate-500">{doc.category}</p>
+                  <p className="mt-1 text-xs text-slate-500 font-medium">{doc.category}</p>
                 </div>
-                <span className="rounded-lg bg-red-50 px-2 py-1 text-xs font-bold text-red-700">
+                <span className="shrink-0 rounded-lg bg-gradient-to-br from-red-500 to-red-600 px-2 py-1 text-xs font-bold text-white shadow-sm">
                   PDF
                 </span>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2 pt-3 border-t border-slate-100">
+              <div className="mt-5 flex flex-wrap gap-2 pt-3 border-t border-surface-100">
                 <a
                   href={doc.fileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-surface-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-all hover:bg-surface-50 hover:border-surface-300 shadow-card"
                 >
                   <ExternalLink size={14} /> Preview
                 </a>
                 <a
                   href={doc.fileUrl}
                   download
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-surface-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-all hover:bg-surface-50 hover:border-surface-300 shadow-card"
                 >
                   <Download size={14} /> Download
                 </a>
                 <button
                   type="button"
                   onClick={() => handleShare(doc)}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-surface-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-all hover:bg-surface-50 hover:border-surface-300 shadow-card"
                 >
                   <Share2 size={14} /> Share
                 </button>
                 <button
                   type="button"
                   onClick={() => handleRemove(doc)}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 transition"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-600 transition-all hover:bg-red-50 hover:border-red-300 shadow-card"
                 >
                   <Trash2 size={14} /> Delete
                 </button>
@@ -219,7 +217,7 @@ export function Documents() {
           />
         </div>
       )}
-    </>
+    </div>
   )
 }
 export default Documents

@@ -3,11 +3,13 @@ import { FileText } from 'lucide-react'
 
 export function EmptyState({ title = 'No items found', description = 'Try adjusting your filters or add a new record.', icon: Icon = FileText, action }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-      <Icon className="mx-auto text-slate-400" size={32} aria-hidden="true" />
-      <h3 className="mt-3 text-base font-semibold text-slate-800">{title}</h3>
-      <p className="mt-1 text-sm text-slate-500 max-w-sm mx-auto">{description}</p>
-      {action && <div className="mt-4">{action}</div>}
+    <div className="rounded-2xl border-2 border-dashed border-surface-200 bg-gradient-to-b from-surface-50 to-white px-6 py-14 text-center">
+      <div className="mx-auto size-16 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100/50 grid place-items-center mb-4">
+        <Icon className="text-primary-500" size={28} aria-hidden="true" />
+      </div>
+      <h3 className="text-lg font-bold text-surface-800 font-display">{title}</h3>
+      <p className="mt-2 text-sm text-surface-500 max-w-sm mx-auto leading-relaxed">{description}</p>
+      {action && <div className="mt-5">{action}</div>}
     </div>
   )
 }

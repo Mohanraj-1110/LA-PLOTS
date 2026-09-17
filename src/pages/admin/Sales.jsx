@@ -22,6 +22,12 @@ const currency = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 0,
 })
 
+const kpiIcons = [
+  { icon: CircleDollarSign, gradient: 'from-primary-500 to-primary-600' },
+  { icon: TrendingDown, gradient: 'from-accent-500 to-amber-600' },
+  { icon: TrendingUp, gradient: 'from-emerald-400 to-emerald-600' },
+]
+
 function inPeriod(sale, period, from, to) {
   const date = sale.saleDate?.toDate ? sale.saleDate.toDate() : null
   if (!date) return false
@@ -96,7 +102,7 @@ export function Sales() {
     return (
       <>
         <PageHeader title="Sales & Profit" description="Track revenue, costs, and net profit." />
-        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 shadow-card">
           {error}
         </div>
       </>
@@ -104,23 +110,22 @@ export function Sales() {
   }
 
   return (
-    <>
+    <div className="page-enter">
       <PageHeader
         title="Sales & Profit"
         description="Comprehensive accounting and profit margins on plot sales."
       />
 
-      {/* Filter Tabs */}
       <div className="flex flex-wrap items-center gap-2">
         {periods.map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setPeriod(item)}
-            className={`min-h-10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition ${
+            className={`min-h-10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
               period === item
-                ? 'bg-green-100 text-green-800'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
+                : 'bg-white text-slate-600 hover:bg-surface-50 border border-surface-200 shadow-card'
             }`}
           >
             {item}
@@ -132,44 +137,46 @@ export function Sales() {
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs"
+              className="input-modern min-h-10 px-3 text-xs"
             />
-            <span className="text-slate-400 text-xs">to</span>
+            <span className="text-slate-400 text-xs font-medium">to</span>
             <input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs"
+              className="input-modern min-h-10 px-3 text-xs"
             />
           </div>
         )}
       </div>
 
-      {/* KPI Cards */}
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Total Sales (Revenue)"
-          value={currency.format(totalSales)}
-          detail={`${filtered.length} recorded sales`}
-          icon={CircleDollarSign}
-        />
-        <StatCard
-          label="Total Land Cost"
-          value={currency.format(totalCost)}
-          detail="Acquisition & development"
-          icon={TrendingDown}
-        />
-        <StatCard
-          label="Net Profit"
-          value={currency.format(netProfit)}
-          detail="Net surplus after costs"
-          icon={TrendingUp}
-        />
+        {[
+          { label: 'Total Sales (Revenue)', value: currency.format(totalSales), detail: `${filtered.length} recorded sales` },
+          { label: 'Total Land Cost', value: currency.format(totalCost), detail: 'Acquisition & development' },
+          { label: 'Net Profit', value: currency.format(netProfit), detail: 'Net surplus after costs' },
+        ].map((kpi, idx) => (
+          <div
+            key={kpi.label}
+            className="card-modern group relative overflow-hidden p-5 transition-all duration-300 hover:shadow-elevated"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">{kpi.label}</p>
+                <p className="mt-2 text-2xl font-extrabold text-slate-900 font-display">{kpi.value}</p>
+                <p className="mt-1 text-xs font-medium text-slate-400">{kpi.detail}</p>
+              </div>
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${kpiIcons[idx].gradient} text-white shadow-glow`}>
+                {React.createElement(kpiIcons[idx].icon, { size: 22 })}
+              </div>
+            </div>
+            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-500/0 via-primary-500/20 to-primary-500/0 opacity-0 transition-opacity group-hover:opacity-100" />
+          </div>
+        ))}
       </div>
 
-      {/* Chart */}
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="font-bold text-slate-900">Revenue vs Profit Analysis</h2>
+      <section className="card-modern mt-6 p-6">
+        <h2 className="font-display text-lg font-bold text-slate-900">Revenue vs Profit Analysis</h2>
         <div className="mt-6 h-72">
           {chartData.some((item) => item.sales || item.profit) ? (
             <ResponsiveContainer width="100%" height="100%">
@@ -182,37 +189,36 @@ export function Sales() {
                 />
                 <Tooltip formatter={(value) => currency.format(Number(value))} />
                 <Legend />
-                <Bar dataKey="sales" name="Sales" fill="#16a34a" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sales" name="Sales" fill="#059669" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="grid h-full place-items-center rounded-lg bg-slate-50 text-sm text-slate-500">
+            <div className="grid h-full place-items-center rounded-2xl bg-surface-50 text-sm text-slate-500">
               No sales transactions in this selected period.
             </div>
           )}
         </div>
       </section>
 
-      {/* Recent Sales Table */}
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="font-bold text-slate-900">Sales Transactions</h2>
+      <section className="card-modern mt-6 p-6">
+        <h2 className="font-display text-lg font-bold text-slate-900">Sales Transactions</h2>
         {filtered.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+              <thead className="border-b border-surface-200 bg-surface-50 text-xs uppercase tracking-wider text-slate-500">
                 <tr>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Project / Plot</th>
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-4 py-3">Sale Amount</th>
-                  <th className="px-4 py-3">Cost</th>
-                  <th className="px-4 py-3 font-bold text-green-800">Profit</th>
+                  <th className="px-4 py-3 font-bold">Date</th>
+                  <th className="px-4 py-3 font-bold">Project / Plot</th>
+                  <th className="px-4 py-3 font-bold">Customer</th>
+                  <th className="px-4 py-3 font-bold">Sale Amount</th>
+                  <th className="px-4 py-3 font-bold">Cost</th>
+                  <th className="px-4 py-3 font-bold text-primary-600">Profit</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-surface-100">
                 {filtered.map((sale) => (
-                  <tr key={sale.id} className="hover:bg-slate-50">
+                  <tr key={sale.id} className="group transition-colors hover:bg-gradient-to-r hover:from-primary-50/50 hover:to-transparent">
                     <td className="px-4 py-3">
                       {sale.saleDate?.toDate?.().toLocaleDateString('en-IN') || 'Date pending'}
                     </td>
@@ -223,9 +229,9 @@ export function Sales() {
                       </span>
                     </td>
                     <td className="px-4 py-3">{sale.customerName || sale.customerId}</td>
-                    <td className="px-4 py-3 font-semibold">{currency.format(sale.saleAmount)}</td>
+                    <td className="px-4 py-3 font-semibold font-display">{currency.format(sale.saleAmount)}</td>
                     <td className="px-4 py-3 text-slate-500">{currency.format(sale.cost)}</td>
-                    <td className="px-4 py-3 font-bold text-green-700">
+                    <td className="px-4 py-3 font-display font-bold text-primary-600">
                       {currency.format(sale.profit)}
                     </td>
                   </tr>
@@ -242,7 +248,7 @@ export function Sales() {
           </div>
         )}
       </section>
-    </>
+    </div>
   )
 }
 export default Sales

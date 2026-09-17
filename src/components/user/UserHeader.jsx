@@ -27,23 +27,25 @@ export function UserHeader() {
   const isAdminOrAgent = role === 'admin' || role === 'agent' || localRole === 'admin' || Boolean(user)
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 glass border-b border-surface-200/60">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 font-bold tracking-tight text-slate-900">
-          <span className="rounded bg-green-600 px-2 py-0.5 text-white font-extrabold">LA</span>
-          <span className="text-slate-900">PLOTS</span>
+        <Link to="/" className="flex items-center gap-2.5 font-extrabold text-surface-900">
+          <span className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-2.5 py-1 text-white font-extrabold text-sm shadow-md shadow-primary-600/20">LA</span>
+          <span className="font-display text-lg tracking-tight">PLOTS</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
-                `text-sm font-medium transition ${
-                  isActive ? 'text-green-700 font-semibold' : 'text-slate-600 hover:text-green-700'
+                `px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? 'text-primary-700 bg-primary-50 font-semibold'
+                    : 'text-surface-600 hover:text-primary-700 hover:bg-primary-50/50'
                 }`
               }
             >
@@ -54,7 +56,7 @@ export function UserHeader() {
           {user && (
             <Link
               to="/admin"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 transition"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-surface-900 px-3 py-2 text-xs font-bold text-white hover:bg-surface-800 transition-all duration-200 shadow-sm hover:shadow-md ml-2"
             >
               <LayoutDashboard size={14} />
               Admin Portal
@@ -62,17 +64,17 @@ export function UserHeader() {
           )}
 
           {user ? (
-            <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
+            <div className="flex items-center gap-2 border-l border-surface-200 pl-3 ml-2">
               <Link
                 to="/wishlist"
-                className="rounded-full p-1.5 text-slate-600 hover:bg-slate-100 hover:text-green-700 transition"
+                className="rounded-xl p-2 text-surface-500 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
                 title="My Wishlist"
               >
                 <Heart size={18} />
               </Link>
               <Link
                 to="/appointments"
-                className="rounded-full p-1.5 text-slate-600 hover:bg-slate-100 hover:text-green-700 transition"
+                className="rounded-xl p-2 text-surface-500 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
                 title="My Appointments & Site Visits"
               >
                 <svg className="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -84,31 +86,33 @@ export function UserHeader() {
               </Link>
               <Link
                 to="/profile"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 hover:text-green-800"
+                className="inline-flex items-center gap-2 text-sm font-bold text-primary-700 hover:text-primary-800 transition-colors"
               >
-                <User size={16} />
-                {profile?.name ? profile.name.split(' ')[0] : 'My Account'}
+                <div className="size-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 text-white grid place-items-center text-xs font-bold shadow-sm">
+                  {profile?.name ? profile.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <span className="hidden lg:inline">{profile?.name ? profile.name.split(' ')[0] : 'Account'}</span>
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
+                className="rounded-xl p-2 text-surface-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200"
                 title="Sign out"
               >
                 <LogOut size={16} />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
+            <div className="flex items-center gap-2 border-l border-surface-200 pl-3 ml-2">
               <Link
                 to="/login"
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:text-green-700"
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-surface-700 hover:text-primary-700 hover:bg-primary-50/50 transition-all duration-200"
               >
                 Sign in
               </Link>
               <Link
                 to="/signup"
-                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 transition shadow-sm"
+                className="btn-primary text-sm !px-4 !py-2 !min-h-0"
               >
                 Sign up
               </Link>
@@ -120,7 +124,7 @@ export function UserHeader() {
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="rounded-lg p-2 text-slate-600 md:hidden hover:bg-slate-100"
+          className="rounded-xl p-2 text-surface-600 md:hidden hover:bg-surface-100 transition-all duration-200 active:scale-95"
           aria-label="Toggle navigation"
         >
           {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -129,7 +133,7 @@ export function UserHeader() {
 
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <nav className="border-t border-slate-100 bg-white p-4 md:hidden space-y-1">
+        <nav className="border-t border-surface-100 bg-white/95 backdrop-blur-xl p-4 md:hidden space-y-1 animate-slide-down shadow-lg">
           {navLinks.map((item) => (
             <NavLink
               key={item.to}
@@ -137,8 +141,8 @@ export function UserHeader() {
               end={item.to === '/'}
               onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `block rounded-lg px-3 py-2 text-sm font-medium ${
-                  isActive ? 'bg-green-50 text-green-700 font-semibold' : 'text-slate-700 hover:bg-slate-50'
+                `block rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  isActive ? 'bg-primary-50 text-primary-700 font-semibold' : 'text-surface-700 hover:bg-surface-50'
                 }`
               }
             >
@@ -150,20 +154,20 @@ export function UserHeader() {
             <Link
               to="/admin"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white"
+              className="flex items-center gap-2 rounded-xl bg-surface-900 px-4 py-2.5 text-sm font-bold text-white mt-2"
             >
               <LayoutDashboard size={16} />
               Admin Portal
             </Link>
           )}
 
-          <div className="border-t border-slate-100 pt-3 mt-3">
+          <div className="border-t border-surface-100 pt-3 mt-3">
             {user ? (
               <div className="space-y-1">
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-surface-700 hover:bg-surface-50"
                 >
                   <Heart size={16} />
                   My Wishlist
@@ -171,14 +175,14 @@ export function UserHeader() {
                 <Link
                   to="/appointments"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-surface-700 hover:bg-surface-50"
                 >
                   My Appointments
                 </Link>
                 <Link
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-50"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-primary-700 hover:bg-primary-50"
                 >
                   <User size={16} />
                   My Profile ({profile?.name || user.email})
@@ -189,7 +193,7 @@ export function UserHeader() {
                     setMobileMenuOpen(false)
                     handleLogout()
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
                 >
                   <LogOut size={16} />
                   Sign out
@@ -200,14 +204,14 @@ export function UserHeader() {
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 rounded-lg border border-slate-200 py-2 text-center text-sm font-semibold text-slate-700"
+                  className="flex-1 rounded-xl border border-surface-200 py-2.5 text-center text-sm font-bold text-surface-700 hover:bg-surface-50 transition-all"
                 >
                   Sign in
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 rounded-lg bg-green-600 py-2 text-center text-sm font-semibold text-white"
+                  className="flex-1 btn-primary text-center text-sm !py-2.5"
                 >
                   Sign up
                 </Link>

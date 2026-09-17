@@ -32,20 +32,25 @@ export function AdminSidebar({ onItemClick, onClose, isMobileDrawer = false }) {
     <aside
       className={`bg-white min-h-screen flex flex-col ${
         isMobileDrawer
-          ? 'w-72 max-w-[85vw] shadow-2xl border-r border-slate-200'
-          : 'hidden w-64 shrink-0 border-r border-slate-200 lg:flex'
+          ? 'w-72 max-w-[85vw] shadow-elevated border-r border-surface-100'
+          : 'hidden w-64 shrink-0 border-r border-surface-200/60 lg:flex'
       }`}
     >
-      <div className="border-b border-slate-100 px-6 py-5 flex items-center justify-between">
+      <div className="border-b border-surface-100 px-6 py-5 flex items-center justify-between">
         <NavLink to="/admin" onClick={onItemClick} className="block">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-green-700">LA PLOTS</p>
-          <p className="mt-1 text-sm font-medium text-slate-500">Admin Workspace</p>
+          <div className="flex items-center gap-2.5">
+            <span className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-2.5 py-1 text-white font-extrabold text-sm shadow-md shadow-primary-600/20">LA</span>
+            <div>
+              <p className="text-sm font-bold text-surface-900 font-display tracking-tight">PLOTS</p>
+              <p className="text-[10px] font-semibold text-primary-600 uppercase tracking-wider">Admin Workspace</p>
+            </div>
+          </div>
         </NavLink>
         {isMobileDrawer && (
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-xl p-1.5 text-surface-400 hover:bg-surface-100 hover:text-surface-700 transition-all duration-200"
             aria-label="Close sidebar"
           >
             <X size={20} />
@@ -53,7 +58,7 @@ export function AdminSidebar({ onItemClick, onClose, isMobileDrawer = false }) {
         )}
       </div>
 
-      <nav className="flex-1 space-y-1 p-4 overflow-y-auto" aria-label="Primary navigation">
+      <nav className="flex-1 space-y-1 p-3 overflow-y-auto" aria-label="Primary navigation">
         {navItems.map((item) => {
           const Icon = item.icon
           return (
@@ -63,10 +68,10 @@ export function AdminSidebar({ onItemClick, onClose, isMobileDrawer = false }) {
               end={item.exact}
               onClick={onItemClick}
               className={({ isActive }) =>
-                `flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
+                `flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-green-50 text-green-800 font-semibold'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-gradient-to-r from-primary-50 to-primary-50/50 text-primary-700 font-semibold shadow-sm shadow-primary-500/5'
+                    : 'text-surface-600 hover:bg-surface-50 hover:text-surface-900'
                 }`
               }
             >
@@ -77,15 +82,15 @@ export function AdminSidebar({ onItemClick, onClose, isMobileDrawer = false }) {
         })}
       </nav>
 
-      <div className="border-t border-slate-100 p-4 space-y-2">
+      <div className="border-t border-surface-100 p-3 space-y-1">
         <NavLink
           to="/admin/settings"
           onClick={onItemClick}
           className={({ isActive }) =>
-            `flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
+            `flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-200 ${
               isActive
-                ? 'bg-green-50 text-green-800 font-semibold'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-primary-50 to-primary-50/50 text-primary-700 font-semibold'
+                : 'text-surface-600 hover:bg-surface-50 hover:text-surface-900'
             }`
           }
         >
@@ -95,7 +100,7 @@ export function AdminSidebar({ onItemClick, onClose, isMobileDrawer = false }) {
         <NavLink
           to="/"
           onClick={onItemClick}
-          className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+          className="flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-sm font-medium text-surface-500 hover:bg-surface-50 hover:text-surface-700 transition-all duration-200"
         >
           <Home size={18} aria-hidden="true" />
           View Public Site

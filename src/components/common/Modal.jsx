@@ -6,7 +6,7 @@ export function Modal({ title, children, onClose, open = true }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4 transition-opacity"
+      className="fixed inset-0 z-50 grid place-items-center bg-surface-950/40 backdrop-blur-sm p-4 animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget && onClose) {
           onClose()
@@ -17,16 +17,16 @@ export function Modal({ title, children, onClose, open = true }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-elevated max-h-[90vh] overflow-y-auto animate-scale-in border border-surface-100"
       >
         <div className="flex items-center justify-between">
-          <h2 id="modal-title" className="text-lg font-semibold text-slate-900">
+          <h2 id="modal-title" className="text-lg font-bold text-surface-900 font-display">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 transition"
+            className="rounded-xl p-2 text-surface-400 hover:bg-surface-100 hover:text-surface-600 transition-all duration-200 active:scale-95"
             aria-label="Close dialog"
           >
             <X size={18} />
@@ -37,4 +37,3 @@ export function Modal({ title, children, onClose, open = true }) {
     </div>
   )
 }
-

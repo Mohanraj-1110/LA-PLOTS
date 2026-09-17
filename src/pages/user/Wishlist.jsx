@@ -49,7 +49,7 @@ export function Wishlist() {
           action={
             <Link
               to="/login"
-              className="inline-flex rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
+              className="btn-primary inline-flex rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
             >
               Sign In
             </Link>
@@ -61,24 +61,28 @@ export function Wishlist() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div className="flex items-center gap-3">
-        <Heart className="text-red-500 fill-red-500" size={28} />
+      <div className="flex items-center gap-4 animate-slide-up">
+        <div className="size-14 rounded-2xl bg-gradient-to-br from-red-400 to-red-600 text-white grid place-items-center shadow-glow">
+          <Heart size={28} className="fill-white" />
+        </div>
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">My Wishlist</h1>
-          <p className="mt-1 text-sm text-slate-500">Your curated collection of favorite plots</p>
+          <h1 className="text-3xl font-extrabold font-display text-surface-900">My Wishlist</h1>
+          <p className="mt-1 text-sm text-surface-500">Your curated collection of favorite plots</p>
         </div>
       </div>
 
       {loading ? (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-80 animate-pulse rounded-2xl bg-slate-200" />
+            <div key={i} className="h-80 animate-pulse rounded-2xl bg-surface-200" />
           ))}
         </div>
       ) : plots.length > 0 ? (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {plots.map((plot) => (
-            <PlotCard key={plot.id} plot={plot} />
+          {plots.map((plot, idx) => (
+            <div key={plot.id} className="animate-slide-up" style={{ animationDelay: `${idx * 0.08}s` }}>
+              <PlotCard plot={plot} />
+            </div>
           ))}
         </div>
       ) : (
@@ -90,7 +94,7 @@ export function Wishlist() {
             action={
               <Link
                 to="/plots"
-                className="inline-flex rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
+                className="btn-primary inline-flex rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
               >
                 Browse Plots
               </Link>

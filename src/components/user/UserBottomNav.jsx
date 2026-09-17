@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { Home, Compass, Heart, Send, User, CalendarDays } from 'lucide-react'
+import { Home, Compass, Heart, Send, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 export function UserBottomNav() {
@@ -8,15 +8,15 @@ export function UserBottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-slate-200 bg-white/95 px-2 backdrop-blur md:hidden shadow-lg"
+      className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-surface-200/60 bg-white/90 px-2 backdrop-blur-xl md:hidden shadow-lg shadow-surface-900/5"
       aria-label="Customer Mobile Navigation"
     >
       <NavLink
         to="/"
         end
         className={({ isActive }) =>
-          `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-medium transition ${
-            isActive ? 'text-green-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+          `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-semibold transition-all duration-200 ${
+            isActive ? 'text-primary-600' : 'text-surface-400 hover:text-surface-600'
           }`
         }
       >
@@ -27,8 +27,8 @@ export function UserBottomNav() {
       <NavLink
         to="/plots"
         className={({ isActive }) =>
-          `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-medium transition ${
-            isActive ? 'text-green-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+          `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-semibold transition-all duration-200 ${
+            isActive ? 'text-primary-600' : 'text-surface-400 hover:text-surface-600'
           }`
         }
       >
@@ -39,7 +39,7 @@ export function UserBottomNav() {
       {/* Central Action Button: Enquire Now */}
       <Link
         to="/enquiry"
-        className="-mt-5 flex size-12 items-center justify-center rounded-full bg-green-600 text-white shadow-lg ring-4 ring-white hover:bg-green-700 transition active:scale-95"
+        className="-mt-5 flex size-12 items-center justify-center rounded-full bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-600/30 ring-4 ring-white hover:from-primary-700 hover:to-primary-600 transition-all duration-200 active:scale-90"
         title="Quick Enquiry"
       >
         <Send size={20} className="ml-0.5" />
@@ -48,8 +48,8 @@ export function UserBottomNav() {
       <NavLink
         to="/wishlist"
         className={({ isActive }) =>
-          `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-medium transition ${
-            isActive ? 'text-green-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+          `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-semibold transition-all duration-200 ${
+            isActive ? 'text-primary-600' : 'text-surface-400 hover:text-surface-600'
           }`
         }
       >
@@ -61,8 +61,8 @@ export function UserBottomNav() {
         <NavLink
           to="/profile"
           className={({ isActive }) =>
-            `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-medium transition ${
-              isActive ? 'text-green-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+            `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-semibold transition-all duration-200 ${
+              isActive ? 'text-primary-600' : 'text-surface-400 hover:text-surface-600'
             }`
           }
         >
@@ -73,8 +73,8 @@ export function UserBottomNav() {
         <NavLink
           to="/login"
           className={({ isActive }) =>
-            `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-medium transition ${
-              isActive ? 'text-green-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+            `flex min-w-12 flex-col items-center gap-1 py-1 text-[11px] font-semibold transition-all duration-200 ${
+              isActive ? 'text-primary-600' : 'text-surface-400 hover:text-surface-600'
             }`
           }
         >

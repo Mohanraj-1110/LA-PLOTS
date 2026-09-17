@@ -62,7 +62,6 @@ export function Enquiry() {
 
       await createEnquiry(enquiryPayload)
 
-      // If user is logged in and booking a site visit, also save directly into appointments
       if (isVisit && user?.uid) {
         try {
           await createAppointment({
@@ -90,16 +89,31 @@ export function Enquiry() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      {/* Gradient Header */}
+      <div className="rounded-t-3xl bg-gradient-to-r from-primary-600 to-primary-500 px-6 sm:px-8 pt-8 pb-6 text-center text-white">
+        <p className="text-xs font-bold uppercase tracking-widest text-primary-200">
+          {isVisit ? 'Free Layout Tour' : 'Get in Touch'}
+        </p>
+        <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold font-display">
+          {isVisit ? 'Schedule a Free Site Inspection' : 'Property Enquiry & Details'}
+        </h1>
+        <p className="mt-2 text-sm text-primary-100">
+          {isVisit
+            ? 'Complimentary pickup, layout tour, legal paper scrutiny, and return drop.'
+            : 'Tell us your investment preferences and our property consultants will assist you immediately.'}
+        </p>
+      </div>
+
+      <div className="rounded-b-3xl border border-surface-200 border-t-0 bg-white p-6 sm:p-8 shadow-elevated">
         {/* Type Toggle Tabs */}
-        <div className="flex rounded-2xl bg-slate-100 p-1.5 mb-8">
+        <div className="flex rounded-2xl bg-surface-100 p-1.5 mb-8">
           <button
             type="button"
             onClick={() => setIsVisit(false)}
             className={`flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-bold transition ${
               !isVisit
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-surface-900 shadow-card'
+                : 'text-surface-600 hover:text-surface-900'
             }`}
           >
             General Property Enquiry
@@ -109,8 +123,8 @@ export function Enquiry() {
             onClick={() => setIsVisit(true)}
             className={`flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1.5 ${
               isVisit
-                ? 'bg-green-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-card'
+                : 'text-surface-600 hover:text-surface-900'
             }`}
           >
             <CalendarDays size={16} />
@@ -118,27 +132,15 @@ export function Enquiry() {
           </button>
         </div>
 
-        <div className="text-center mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-green-700">
-            {isVisit ? 'Free Layout Tour' : 'Get in Touch'}
-          </p>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-900">
-            {isVisit ? 'Schedule a Free Site Inspection' : 'Property Enquiry & Details'}
-          </h1>
-          <p className="mt-2 text-sm text-slate-500">
-            {isVisit
-              ? 'Complimentary pickup, layout tour, legal paper scrutiny, and return drop.'
-              : 'Tell us your investment preferences and our property consultants will assist you immediately.'}
-          </p>
-        </div>
-
         {submitted ? (
           <div className="text-center py-10">
-            <CheckCircle className="mx-auto text-green-600 size-16" />
-            <h2 className="mt-4 text-2xl font-bold text-slate-900">
+            <div className="mx-auto size-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 grid place-items-center animate-bounce">
+              <CheckCircle className="text-primary-600 size-10" />
+            </div>
+            <h2 className="mt-6 text-2xl font-bold text-surface-900 font-display">
               {isVisit ? 'Site Visit Booked!' : 'Enquiry Submitted!'}
             </h2>
-            <p className="mt-2 text-sm text-slate-600 max-w-md mx-auto">
+            <p className="mt-2 text-sm text-surface-600 max-w-md mx-auto">
               {isVisit
                 ? `Thank you, ${customerName}. Your site visit is requested for ${new Date(visitDate).toLocaleDateString('en-IN')} at ${visitTime}. Our tour executive will call you to confirm pickup details.`
                 : 'Thank you for your interest. An executive from LA PLOTS will contact you via phone shortly.'}
@@ -147,14 +149,14 @@ export function Enquiry() {
               {isVisit && user && (
                 <Link
                   to="/appointments"
-                  className="rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition"
+                  className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-5 py-2.5 text-sm font-semibold text-white shadow-card hover:shadow-elevated transition"
                 >
                   View My Appointments
                 </Link>
               )}
               <Link
                 to="/plots"
-                className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                className="rounded-xl border border-surface-200 bg-white px-5 py-2.5 text-sm font-semibold text-surface-700 hover:bg-surface-50 transition"
               >
                 Continue Browsing
               </Link>
@@ -169,66 +171,66 @@ export function Enquiry() {
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700">Full Name *</label>
+              <label className="block text-xs font-semibold text-surface-700">Full Name *</label>
               <input
                 type="text"
                 required
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="Mohan Raj"
-                className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-900 outline-none focus:border-green-500"
+                className="input-modern mt-1"
               />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-700">Mobile Number (+91) *</label>
+                <label className="block text-xs font-semibold text-surface-700">Mobile Number (+91) *</label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-900 outline-none focus:border-green-500"
+                  className="input-modern mt-1"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700">Email Address</label>
+                <label className="block text-xs font-semibold text-surface-700">Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-900 outline-none focus:border-green-500"
+                  className="input-modern mt-1"
                 />
               </div>
             </div>
 
             {/* Site Visit Specific Fields */}
             {isVisit && (
-              <div className="rounded-2xl border border-green-200 bg-green-50/50 p-4 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold text-green-800 uppercase tracking-wider">
+              <div className="rounded-2xl border border-primary-200 bg-primary-50/50 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-primary-800 uppercase tracking-wider">
                   <Clock size={15} /> Preferred Date & Time Slot
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Visit Date</label>
+                    <label className="block text-xs font-medium text-surface-600 mb-1">Visit Date</label>
                     <input
                       type="date"
                       required
                       value={visitDate}
                       min={new Date().toISOString().slice(0, 10)}
                       onChange={(e) => setVisitDate(e.target.value)}
-                      className="w-full min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+                      className="input-modern mt-0"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Time Slot</label>
+                    <label className="block text-xs font-medium text-surface-600 mb-1">Time Slot</label>
                     <select
                       value={visitTime}
                       onChange={(e) => setVisitTime(e.target.value)}
-                      className="w-full min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-green-500"
+                      className="input-modern mt-0"
                     >
                       {TIME_SLOTS.map((slot) => (
                         <option key={slot} value={slot}>
@@ -244,9 +246,9 @@ export function Enquiry() {
                     type="checkbox"
                     checked={pickupNeeded}
                     onChange={(e) => setPickupNeeded(e.target.checked)}
-                    className="size-4 rounded accent-green-600"
+                    className="size-4 rounded accent-primary-600"
                   />
-                  <span className="text-xs font-medium text-slate-700">
+                  <span className="text-xs font-medium text-surface-700">
                     Need complimentary AC cab pickup & drop from my location
                   </span>
                 </label>
@@ -255,41 +257,41 @@ export function Enquiry() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700">Project / Area</label>
+                <label className="block text-xs font-semibold text-surface-700">Project / Area</label>
                 <input
                   type="text"
                   value={projectId}
                   onChange={(e) => setProjectId(e.target.value)}
                   placeholder="e.g. Lakeview Township"
-                  className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-900 outline-none focus:border-green-500"
+                  className="input-modern mt-1"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700">Plot Number (Optional)</label>
+                <label className="block text-xs font-semibold text-surface-700">Plot Number (Optional)</label>
                 <input
                   type="text"
                   value={plotNumber}
                   onChange={(e) => setPlotNumber(e.target.value)}
                   placeholder="e.g. A-12"
-                  className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-900 outline-none focus:border-green-500"
+                  className="input-modern mt-1"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700">Approx Budget (INR)</label>
+                <label className="block text-xs font-semibold text-surface-700">Approx Budget (INR)</label>
                 <input
                   type="number"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
                   placeholder="e.g. 2500000"
-                  className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-900 outline-none focus:border-green-500"
+                  className="input-modern mt-1"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-surface-700">
                 {isVisit ? 'Special Requirements / Pickup Landmark' : 'Specific Requirements / Notes'}
               </label>
               <textarea
@@ -301,14 +303,14 @@ export function Enquiry() {
                     ? 'Near Anna Nagar roundtana, coming with family of 3...'
                     : 'Looking for north-facing 1500 sq.ft plot, need loan guidance...'
                 }
-                className="mt-1 w-full rounded-xl border border-slate-200 p-3.5 text-sm text-slate-900 outline-none focus:border-green-500"
+                className="input-modern mt-1 min-h-[80px] resize-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={busy}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-600 font-bold text-white hover:bg-green-700 disabled:opacity-60 transition shadow-sm"
+              className="btn-primary flex min-h-12 w-full items-center justify-center gap-2 disabled:opacity-60"
             >
               <Send size={16} />
               {busy ? 'Submitting...' : isVisit ? 'Confirm Site Visit Booking' : 'Submit Property Enquiry'}

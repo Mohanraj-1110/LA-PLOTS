@@ -78,26 +78,26 @@ export function Faq() {
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto">
-        <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3.5 py-1 text-xs font-semibold text-green-800 mb-3">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-800 mb-3">
           <HelpCircle size={14} />
           Buyer Knowledge Base
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-surface-900 font-display">
           Frequently Asked Questions
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-surface-600">
           Everything you need to know about layout approvals, documentation, bank loans, and site visits.
         </p>
 
         {/* Search */}
         <div className="mt-6 relative max-w-md mx-auto">
-          <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-surface-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search questions (approvals, loans, patta...)"
-            className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none focus:border-green-500 shadow-sm"
+            className="input-modern pl-10"
           />
         </div>
       </div>
@@ -107,9 +107,11 @@ export function Faq() {
         {filteredCategories.length > 0 ? (
           filteredCategories.map((category, catIdx) => (
             <div key={category.category}>
-              <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <ShieldCheck size={20} className="text-green-600" />
-                {category.category}
+              <h2 className="text-lg font-bold text-surface-900 mb-4 flex items-center gap-3">
+                <div className="size-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white grid place-items-center shadow-card">
+                  <ShieldCheck size={18} />
+                </div>
+                <span className="font-display">{category.category}</span>
               </h2>
               <div className="space-y-3">
                 {category.items.map((item, itemIdx) => {
@@ -118,26 +120,34 @@ export function Faq() {
                   return (
                     <div
                       key={itemIdx}
-                      className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm transition"
+                      className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+                        isOpen
+                          ? 'border-primary-200 bg-white shadow-card'
+                          : 'border-surface-200 bg-white shadow-sm hover:shadow-card'
+                      }`}
                     >
                       <button
                         type="button"
                         onClick={() => toggleItem(catIdx, itemIdx)}
-                        className="flex w-full items-center justify-between p-5 text-left font-semibold text-slate-900 hover:text-green-700"
+                        className="flex w-full items-center justify-between p-5 text-left font-semibold text-surface-900 hover:text-primary-700 transition-colors"
                       >
                         <span className="text-base leading-snug pr-4">{item.q}</span>
                         <ChevronDown
                           size={18}
-                          className={`text-slate-400 shrink-0 transition-transform duration-200 ${
-                            isOpen ? 'rotate-180 text-green-600' : ''
+                          className={`text-surface-400 shrink-0 transition-transform duration-300 ${
+                            isOpen ? 'rotate-180 text-primary-600' : ''
                           }`}
                         />
                       </button>
-                      {isOpen && (
-                        <div className="border-t border-slate-100 px-5 pb-5 pt-3 text-sm leading-relaxed text-slate-600 bg-slate-50/50">
+                      <div
+                        className={`transition-all duration-300 ease-in-out ${
+                          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                        } overflow-hidden`}
+                      >
+                        <div className="border-t border-surface-100 px-5 pb-5 pt-3 text-sm leading-relaxed text-surface-600 bg-surface-50/50">
                           {item.a}
                         </div>
-                      )}
+                      </div>
                     </div>
                   )
                 })}
@@ -145,30 +155,30 @@ export function Faq() {
             </div>
           ))
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 text-sm">
+          <div className="rounded-2xl border border-dashed border-surface-300 p-10 text-center text-surface-500 text-sm">
             No questions match "{search}". Have a specific query? Contact our property consultants below!
           </div>
         )}
       </div>
 
       {/* Help Banner */}
-      <div className="mt-16 rounded-3xl bg-slate-900 p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+      <div className="mt-16 rounded-3xl bg-gradient-to-r from-surface-900 to-surface-800 p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-elevated">
         <div>
-          <h3 className="text-xl font-bold">Have more questions or need legal vetting?</h3>
-          <p className="mt-1 text-sm text-slate-300">
+          <h3 className="text-xl font-bold font-display">Have more questions or need legal vetting?</h3>
+          <p className="mt-1 text-sm text-surface-300">
             Our property advisors and documentation lawyers are available 7 days a week.
           </p>
         </div>
         <div className="flex gap-3 shrink-0">
           <Link
             to="/enquiry"
-            className="rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition"
+            className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-5 py-2.5 text-sm font-semibold text-white shadow-card hover:shadow-elevated transition"
           >
             Submit Enquiry
           </Link>
           <a
             href="tel:+919876543210"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition"
+            className="inline-flex items-center gap-2 rounded-xl border border-surface-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-surface-700 transition"
           >
             <Phone size={15} /> +91 98765 43210
           </a>

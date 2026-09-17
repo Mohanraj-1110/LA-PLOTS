@@ -33,9 +33,9 @@ import {
 } from '../../services/users'
 
 const ROLE_OPTIONS = [
-  { value: 'admin', label: 'Admin', color: 'bg-purple-50 text-purple-700 border-purple-200' },
-  { value: 'agent', label: 'Agent', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { value: 'customer', label: 'Customer', color: 'bg-green-50 text-green-700 border-green-200' },
+  { value: 'admin', label: 'Admin', color: 'bg-purple-50 text-purple-700 border border-purple-200' },
+  { value: 'agent', label: 'Agent', color: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  { value: 'customer', label: 'Customer', color: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
 ]
 
 export function Users() {
@@ -243,7 +243,7 @@ export function Users() {
           <button
             type="button"
             onClick={() => setAddModalOpen(true)}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-green-700 transition"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-4 text-sm font-bold text-white shadow-card hover:from-primary-700 hover:to-primary-600 transition hover:shadow-elevated"
           >
             <UserPlus size={18} />
             <span>Add / Invite User</span>
@@ -260,7 +260,7 @@ export function Users() {
       </div>
 
       {/* Filters and Controls */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="card-modern flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full sm:max-w-xs">
           <SearchBar
             value={search}
@@ -270,7 +270,7 @@ export function Users() {
         </div>
 
         {/* Role Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 sm:border-0 sm:pt-0">
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-surface-100 pt-3 sm:border-0 sm:pt-0">
           {[
             { id: 'all', label: `All (${stats.total})` },
             { id: 'admin', label: `Admins (${stats.admins})` },
@@ -281,10 +281,10 @@ export function Users() {
               key={tab.id}
               type="button"
               onClick={() => setRoleFilter(tab.id)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
                 roleFilter === tab.id
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-card'
+                  : 'bg-surface-100 text-surface-600 hover:bg-surface-200'
               }`}
             >
               {tab.label}
@@ -295,11 +295,11 @@ export function Users() {
 
       {/* Users Data List */}
       {loading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-12">
+        <div className="card-modern p-12">
           <LoadingState message="Loading users directory..." />
         </div>
       ) : filteredUsers.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-8">
+        <div className="card-modern p-8">
           <EmptyState
             title="No users match your criteria"
             description={
@@ -315,7 +315,7 @@ export function Users() {
                     setSearch('')
                     setRoleFilter('all')
                   }}
-                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  className="rounded-xl border border-surface-300 px-4 py-2 text-sm font-semibold text-surface-700 hover:bg-surface-50 transition"
                 >
                   Clear Filters
                 </button>
@@ -324,11 +324,11 @@ export function Users() {
           />
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="card-modern overflow-hidden p-0">
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-700">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <table className="w-full text-left text-sm text-surface-700">
+              <thead className="border-b border-surface-200 bg-surface-50 text-xs font-bold uppercase tracking-wider text-surface-500">
                 <tr>
                   <th className="px-6 py-4">User</th>
                   <th className="px-6 py-4">Contact</th>
@@ -337,7 +337,7 @@ export function Users() {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-surface-100">
                 {filteredUsers.map((u) => {
                   const isCurrent = u.uid === firebaseUser?.uid
                   const currentRole = u.role || 'customer'
@@ -345,7 +345,7 @@ export function Users() {
                     ROLE_OPTIONS.find((r) => r.value === currentRole) || ROLE_OPTIONS[2]
 
                   return (
-                    <tr key={u.uid} className="hover:bg-slate-50/75 transition">
+                    <tr key={u.uid} className="hover:bg-primary-50/30 transition-colors">
                       {/* User Info */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -353,31 +353,31 @@ export function Users() {
                             <img
                               src={u.photoURL}
                               alt=""
-                              className="size-10 rounded-full object-cover border border-slate-200"
+                              className="size-10 rounded-full object-cover border-2 border-surface-200"
                             />
                           ) : (
-                            <div className="flex size-10 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 border border-slate-200 text-xs">
+                            <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-600 font-bold text-white border-2 border-primary-200 text-xs shadow-card">
                               {getInitials(u.name)}
                             </div>
                           )}
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-semibold text-slate-900">{u.name || 'User'}</span>
+                              <span className="font-semibold text-surface-900">{u.name || 'User'}</span>
                               {isCurrent && (
-                                <span className="rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-bold text-green-800">
+                                <span className="rounded-full bg-gradient-to-r from-primary-500 to-primary-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
                                   YOU
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-slate-500">{u.email || 'No email'}</p>
+                            <p className="text-xs text-surface-500">{u.email || 'No email'}</p>
                           </div>
                         </div>
                       </td>
 
                       {/* Contact Details */}
-                      <td className="px-6 py-4 text-xs text-slate-600">
+                      <td className="px-6 py-4 text-xs text-surface-600">
                         <p>{u.phone || 'No phone number'}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className="text-[11px] text-surface-400 mt-0.5">
                           {u.createdAt?.seconds
                             ? `Joined ${new Date(u.createdAt.seconds * 1000).toLocaleDateString()}`
                             : 'Active User'}
@@ -387,7 +387,7 @@ export function Users() {
                       {/* Current Role Badge */}
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold capitalize ${roleConfig.color}`}
+                          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold capitalize ${roleConfig.color}`}
                         >
                           {currentRole === 'admin' ? (
                             <ShieldCheck size={13} />
@@ -405,7 +405,7 @@ export function Users() {
                         <select
                           value={currentRole}
                           onChange={(e) => handleRoleChange(u.uid, e.target.value)}
-                          className="min-h-9 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 shadow-sm outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 cursor-pointer"
+                          className="input-modern min-h-9 cursor-pointer text-xs"
                         >
                           <option value="admin">Admin (Full Control)</option>
                           <option value="agent">Agent (Workspace Access)</option>
@@ -427,7 +427,7 @@ export function Users() {
                                 role: currentRole,
                               })
                             }}
-                            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+                            className="rounded-xl p-2 text-surface-500 hover:bg-primary-50 hover:text-primary-700 transition"
                           >
                             <Pencil size={16} />
                           </button>
@@ -437,7 +437,7 @@ export function Users() {
                             title={isCurrent ? 'Cannot delete own account' : 'Delete User'}
                             disabled={isCurrent}
                             onClick={() => setDeleteUser(u)}
-                            className="rounded-lg p-2 text-red-500 hover:bg-red-50 hover:text-red-700 transition disabled:opacity-30 disabled:hover:bg-transparent"
+                            className="rounded-xl p-2 text-red-500 hover:bg-red-50 hover:text-red-700 transition disabled:opacity-30 disabled:hover:bg-transparent"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -451,7 +451,7 @@ export function Users() {
           </div>
 
           {/* Mobile Cards View */}
-          <div className="divide-y divide-slate-100 md:hidden">
+          <div className="divide-y divide-surface-100 md:hidden">
             {filteredUsers.map((u) => {
               const isCurrent = u.uid === firebaseUser?.uid
               const currentRole = u.role || 'customer'
@@ -459,38 +459,38 @@ export function Users() {
                 ROLE_OPTIONS.find((r) => r.value === currentRole) || ROLE_OPTIONS[2]
 
               return (
-                <div key={u.uid} className="p-4 space-y-3">
+                <div key={u.uid} className="p-4 space-y-3 hover:bg-primary-50/30 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 text-xs border border-slate-200">
+                      <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-600 font-bold text-white text-xs shadow-card">
                         {getInitials(u.name)}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-slate-900">{u.name || 'User'}</span>
+                          <span className="font-semibold text-surface-900">{u.name || 'User'}</span>
                           {isCurrent && (
-                            <span className="rounded bg-green-100 px-1.5 py-0.2 text-[9px] font-bold text-green-800">
+                            <span className="rounded-full bg-gradient-to-r from-primary-500 to-primary-600 px-2 py-0.5 text-[9px] font-bold text-white">
                               YOU
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500">{u.email}</p>
+                        <p className="text-xs text-surface-500">{u.email}</p>
                       </div>
                     </div>
                     <span
-                      className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${roleConfig.color}`}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${roleConfig.color}`}
                     >
                       {roleConfig.label}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
+                  <div className="flex items-center justify-between pt-2 border-t border-surface-100 text-xs text-surface-500">
                     <span>{u.phone || 'No phone'}</span>
                     <div className="flex items-center gap-2">
                       <select
                         value={currentRole}
                         onChange={(e) => handleRoleChange(u.uid, e.target.value)}
-                        className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800"
+                        className="input-modern rounded-lg px-2 py-1 text-xs"
                       >
                         <option value="admin">Admin</option>
                         <option value="agent">Agent</option>
@@ -507,7 +507,7 @@ export function Users() {
                             role: currentRole,
                           })
                         }}
-                        className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100"
+                        className="rounded-lg p-1.5 text-surface-600 hover:bg-primary-50 hover:text-primary-700"
                       >
                         <Pencil size={15} />
                       </button>
@@ -537,59 +537,59 @@ export function Users() {
         >
           <form onSubmit={handleAddSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700">Full Name</label>
+              <label className="block text-sm font-bold text-surface-700">Full Name</label>
               <input
                 required
                 type="text"
                 placeholder="e.g. Ramesh Kumar"
                 value={addForm.name}
                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                className="input-modern mt-1 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Email Address</label>
+              <label className="block text-sm font-bold text-surface-700">Email Address</label>
               <input
                 required
                 type="email"
                 placeholder="e.g. ramesh@example.com"
                 value={addForm.email}
                 onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                className="input-modern mt-1 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Phone Number (Optional)</label>
+              <label className="block text-sm font-bold text-surface-700">Phone Number (Optional)</label>
               <input
                 type="tel"
                 placeholder="+91 98765 43210"
                 value={addForm.phone}
                 onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                className="input-modern mt-1 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Assign Role</label>
+              <label className="block text-sm font-bold text-surface-700 mb-1.5">Assign Role</label>
               <div className="grid grid-cols-3 gap-2">
                 {ROLE_OPTIONS.map((r) => (
                   <button
                     key={r.value}
                     type="button"
                     onClick={() => setAddForm({ ...addForm, role: r.value })}
-                    className={`py-2 px-3 text-xs font-semibold rounded-xl border transition ${
+                    className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all ${
                       addForm.role === r.value
-                        ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
-                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        ? 'border-primary-600 bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-card'
+                        : 'border-surface-200 bg-white text-surface-700 hover:bg-surface-50'
                     }`}
                   >
                     {r.label}
                   </button>
                 ))}
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-surface-500">
                 {addForm.role === 'admin'
                   ? 'Full system access to all management modules and user settings.'
                   : addForm.role === 'agent'
@@ -598,19 +598,19 @@ export function Users() {
               </p>
             </div>
 
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex justify-end gap-3 pt-3 border-t border-surface-100">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => setAddModalOpen(false)}
-                className="min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                className="btn-secondary min-h-11"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="min-h-11 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 transition disabled:opacity-60"
+                className="btn-primary min-h-11 disabled:opacity-60"
               >
                 {busy ? 'Saving...' : 'Add User'}
               </button>
@@ -627,48 +627,48 @@ export function Users() {
         >
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700">User Email</label>
+              <label className="block text-sm font-bold text-surface-700">User Email</label>
               <input
                 disabled
                 type="text"
                 value={editUser?.email || ''}
-                className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-slate-100 px-3 text-sm text-slate-500 cursor-not-allowed"
+                className="input-modern mt-1 w-full bg-surface-100 text-surface-400 cursor-not-allowed"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Full Name</label>
+              <label className="block text-sm font-bold text-surface-700">Full Name</label>
               <input
                 required
                 type="text"
                 value={editForm.name}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                className="input-modern mt-1 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Phone Number</label>
+              <label className="block text-sm font-bold text-surface-700">Phone Number</label>
               <input
                 type="tel"
                 value={editForm.phone}
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 text-sm text-slate-900 outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                className="input-modern mt-1 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">User Role</label>
+              <label className="block text-sm font-bold text-surface-700 mb-1.5">User Role</label>
               <div className="grid grid-cols-3 gap-2">
                 {ROLE_OPTIONS.map((r) => (
                   <button
                     key={r.value}
                     type="button"
                     onClick={() => setEditForm({ ...editForm, role: r.value })}
-                    className={`py-2 px-3 text-xs font-semibold rounded-xl border transition ${
+                    className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all ${
                       editForm.role === r.value
-                        ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
-                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        ? 'border-primary-600 bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-card'
+                        : 'border-surface-200 bg-white text-surface-700 hover:bg-surface-50'
                     }`}
                   >
                     {r.label}
@@ -677,19 +677,19 @@ export function Users() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex justify-end gap-3 pt-3 border-t border-surface-100">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => setEditUser(null)}
-                className="min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                className="btn-secondary min-h-11"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="min-h-11 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 transition disabled:opacity-60"
+                className="btn-primary min-h-11 disabled:opacity-60"
               >
                 {busy ? 'Saving...' : 'Save Changes'}
               </button>
@@ -705,17 +705,25 @@ export function Users() {
           title="Remove User Account"
         >
           <div className="space-y-4">
-            <p className="text-sm text-slate-600">
-              Are you sure you want to remove user{' '}
-              <strong className="text-slate-900">{deleteUser?.name || deleteUser?.email}</strong> from the
-              platform? This action will remove their role and permissions.
-            </p>
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex items-start gap-3 rounded-2xl bg-red-50 border border-red-200 p-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                <Trash2 size={18} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-red-800">Are you sure?</p>
+                <p className="mt-1 text-sm text-red-700">
+                  You are about to remove{' '}
+                  <strong>{deleteUser?.name || deleteUser?.email}</strong> from the
+                  platform. This action will remove their role and permissions.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => setDeleteUser(null)}
-                className="min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                className="btn-secondary min-h-11"
               >
                 Cancel
               </button>
@@ -723,7 +731,7 @@ export function Users() {
                 type="button"
                 disabled={busy}
                 onClick={handleDeleteSubmit}
-                className="min-h-11 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white hover:bg-red-700 transition disabled:opacity-60"
+                className="btn-danger min-h-11 disabled:opacity-60"
               >
                 {busy ? 'Deleting...' : 'Confirm Remove'}
               </button>

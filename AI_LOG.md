@@ -183,3 +183,22 @@ What was done:
 - Added Add/Invite User, Edit User, and Delete User modals with confirmation and Toast alerts.
 - Added `/admin/users` route and navigation link in `AdminSidebar.jsx` with `UserCog` icon.
 Next step: Continue testing and refining admin and customer portal features.
+
+### 2026-09-17 — Antigravity
+Phase worked on: Full Codebase Audit, Bug-Fix Pass & Feature Completion (Phases 14 & 15)
+Status: done
+Files changed: vite.config.js, index.html, src/index.css, src/context/AuthContext.jsx, src/services/users.js, src/services/wishlists.js, src/components/user/UserBottomNav.jsx, src/components/common/WhatsAppButton.jsx, src/pages/user/EmiCalculator.jsx, src/pages/user/Faq.jsx, src/components/user/UserLayout.jsx, src/components/user/UserHeader.jsx, src/components/user/PlotCard.jsx, src/pages/user/PlotDetails.jsx, src/pages/user/Enquiry.jsx, src/pages/user/Reviews.jsx, src/pages/user/MyAppointments.jsx, src/routes/UserRoutes.jsx, src/components/admin/AdminLayout.jsx, src/components/admin/AdminSidebar.jsx, src/pages/admin/Appointments.jsx, src/pages/admin/Customers.jsx, src/pages/admin/Plots.jsx, src/pages/admin/Users.jsx, src/hooks/useFirestore.js, PROJECT_STATUS.md
+What was done:
+- Fixed fatal Vite build failure by removing empty `tailwindcss` import in `vite.config.js`.
+- Fixed ESLint errors across catch blocks (`AuthContext.jsx`, `users.js`, `wishlists.js`) and unused variables.
+- Prevented runtime crash in `Reviews.jsx` on fractional ratings by clamping star count.
+- Added interactive Mobile Drawer in `AdminLayout.jsx` for responsive navigation on mobile/tablet screens.
+- Created standalone `/emi` Loan EMI Calculator and embedded interactive EMI widget on `PlotDetails.jsx`.
+- Created `/faq` Buyer Knowledge Base and Support accordion page.
+- Added fixed Customer Mobile Bottom Navigation (`UserBottomNav.jsx`) and floating WhatsApp click-to-chat button.
+- Added Wishlist Heart toggle to `PlotCard.jsx` and synchronized `isSaved` initial state on `PlotDetails.jsx`.
+- Connected site visit bookings on `Enquiry.jsx` with appointment creation for immediate visibility on `MyAppointments.jsx`.
+- Added Google Fonts (Outfit & Inter) and SEO meta tags in `index.html`.
+- Production build verified (`vite build` passing in 2.69s) and ESLint passing with 0 errors.
+Next step: Phase 16 — Firestore Security Rules hardening + analytics event wiring.
+
