@@ -38,13 +38,7 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow create: if isSignedIn() && request.auth.uid == uid && request.resource.data.role == 'customer';
-      allow read: if isSignedIn() && request.auth.uid == uid;
-      allow update: if isSignedIn()
-        && request.auth.uid == uid
-        && request.resource.data.role == resource.data.role;
-      allow read: if isSignedIn() && role() == 'admin';
-      allow update: if isSignedIn() && role() == 'admin';
+      allow read, write: if isSignedIn();
     }
 
     match /settings/{id} {

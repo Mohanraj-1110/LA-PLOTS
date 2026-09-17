@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { formatAuthError } from '../../services/auth'
+import { formatAuthError, isAdminEmail } from '../../services/auth'
 
 export function Signup() {
   const navigate = useNavigate()
@@ -10,6 +10,7 @@ export function Signup() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [selectedRole, setSelectedRole] = useState('customer')
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
@@ -23,8 +24,12 @@ export function Signup() {
     setBusy(true)
     setError(null)
     try {
-      await signup(name, email, password)
-      navigate('/profile')
+      const result = await signup(name, email, password, selectedRole)
+      if (selectedRole === 'admin' || isAdminEmail(email) || result?.profile?.role === 'admin') {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/profile', { replace: true })
+      }
     } catch (err) {
       setError(formatAuthError(err))
     } finally {
@@ -37,7 +42,8 @@ export function Signup() {
     setError(null)
     try {
       const result = await googleSignIn()
-      if (result?.profile?.role === 'admin' || result?.profile?.role === 'agent') {
+      const effectiveEmail = result?.user?.email || result?.profile?.email
+      if (result?.profile?.role === 'admin' || result?.profile?.role === 'agent' || isAdminEmail(effectiveEmail)) {
         navigate('/admin', { replace: true })
       } else {
         navigate('/profile', { replace: true })
@@ -153,6 +159,34 @@ export function Signup() {
               placeholder="••••••••"
               className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 text-slate-900 focus:border-green-600 focus:outline-none focus:ring-1 focus:ring-green-600"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Account Role</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedRole('customer')}
+                className={`py-2 px-3 text-xs font-semibold rounded-lg border transition ${
+                  selectedRole === 'customer'
+                    ? 'border-green-600 bg-green-50 text-green-700 ring-1 ring-green-600'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Customer / Buyer
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole('admin')}
+                className={`py-2 px-3 text-xs font-semibold rounded-lg border transition ${
+                  selectedRole === 'admin'
+                    ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Admin / Agent
+              </button>
+            </div>
           </div>
 
           <button

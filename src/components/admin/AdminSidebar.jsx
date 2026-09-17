@@ -7,6 +7,7 @@ import {
   MessageSquare,
   Settings,
   TrendingUp,
+  UserCog,
   Users,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
@@ -21,6 +22,7 @@ const navItems = [
   { label: 'Reports', to: '/admin/reports', icon: FileText },
   { label: 'Enquiries', to: '/admin/enquiries', icon: Users },
   { label: 'Messages', to: '/admin/messages', icon: MessageSquare },
+  { label: 'Users & Roles', to: '/admin/users', icon: UserCog },
 ]
 
 export function AdminSidebar() {

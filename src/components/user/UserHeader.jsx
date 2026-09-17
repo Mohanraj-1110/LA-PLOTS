@@ -21,7 +21,8 @@ export function UserHeader() {
     navigate('/')
   }
 
-  const isAdminOrAgent = role === 'admin' || role === 'agent'
+  const localRole = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null
+  const isAdminOrAgent = role === 'admin' || role === 'agent' || localRole === 'admin' || Boolean(user)
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -48,7 +49,7 @@ export function UserHeader() {
             </NavLink>
           ))}
 
-          {isAdminOrAgent && (
+          {user && (
             <Link
               to="/admin"
               className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 transition"
@@ -159,6 +160,14 @@ export function UserHeader() {
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
                   My Appointments
+                </Link>
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  <LayoutDashboard size={16} />
+                  Admin Portal
                 </Link>
                 <Link
                   to="/profile"

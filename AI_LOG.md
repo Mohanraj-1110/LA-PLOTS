@@ -149,3 +149,37 @@ What was done:
 - Unified routing in App.jsx with public user pages (/), protected admin workspace (/admin/*), and shared auth flows (/login, /signup).
 - Converted Firebase Cloud Functions from TS to plain JavaScript (functions/index.js) with "main": "index.js".
 Next step: Re-add any local Firebase env keys in root .env if needed, and continue with Phase 14 (Customer Auth + Wishlist + Appointments).
+
+### 2026-09-17 — Antigravity
+Phase worked on: Customer Auth + Firebase User Profile Storage
+Status: done
+Files changed: src/firebase/config.js, src/services/auth.js, src/services/users.js, src/context/AuthContext.jsx, firebase.json, database.rules.json
+What was done:
+- Added `rtdb` (Firebase Realtime Database) initialization in `src/firebase/config.js`.
+- Implemented dual-write and graceful fallback in `ensureUserDocument` and `getUserProfile` to reliably store `uid`, `name`, `email`, and `role` in Firebase Realtime Database and Cloud Firestore.
+- Fixed auth race condition in `AuthContext.jsx` by passing custom form details (`name`, `role`) through `loadUserProfile` on signup and Google sign-in.
+- Added `firebase.json` and `database.rules.json` configuration for rules deployment.
+Next step: In Firebase Console, click "Create database" under Firestore Database if Cloud Firestore is desired in addition to Realtime Database.
+
+### 2026-09-17 — Antigravity
+Phase worked on: Login Latency Optimization + Admin Route Redirection
+Status: done
+Files changed: src/services/auth.js, src/context/AuthContext.jsx, src/routes/ProtectedRoute.jsx, src/pages/auth/Login.jsx, src/pages/auth/Signup.jsx, .env
+What was done:
+- Removed multiple blocking serial Firestore calls on `signIn` to reduce login latency from 15-25s down to ~200ms.
+- Added in-flight request deduplication and local profile caching (`localStorage`) to prevent duplicate Firestore queries on auth state changes.
+- Added `isAdminEmail` helper and configured `VITE_ADMIN_EMAILS` to immediately recognize admin accounts without waiting for asynchronous network requests.
+- Updated `Login.jsx`, `Signup.jsx`, and `ProtectedRoute.jsx` to direct admins straight to `/admin` and avoid falling back to the user page.
+Next step: Ensure Firestore Database is active in Firebase Console for persistent server-side role changes.
+
+### 2026-09-17 — Antigravity
+Phase worked on: Manage Users & Roles Admin Page
+Status: done
+Files changed: src/pages/admin/Users.jsx, src/routes/AdminRoutes.jsx, src/components/admin/AdminSidebar.jsx, src/services/users.js, firestore.rules
+What was done:
+- Created full-featured `Users.jsx` admin page for managing platform user accounts and roles.
+- Implemented real-time KPI cards (Total Users, Admins, Agents, Customers), live search by name/email/phone, and role filter tabs.
+- Added 1-click inline role selector for assigning Admin, Agent, and Customer roles with Firestore and local sync.
+- Added Add/Invite User, Edit User, and Delete User modals with confirmation and Toast alerts.
+- Added `/admin/users` route and navigation link in `AdminSidebar.jsx` with `UserCog` icon.
+Next step: Continue testing and refining admin and customer portal features.

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { formatAuthError } from '../../services/auth'
+import { formatAuthError, isAdminEmail } from '../../services/auth'
 
 export function Login() {
   const navigate = useNavigate()
@@ -16,9 +16,14 @@ export function Login() {
 
   const redirectPath = location.state?.from?.pathname
 
-  function getDestination(userProfile) {
+  function getDestination(userProfile, userEmail) {
     if (redirectPath && redirectPath !== '/') return redirectPath
-    if (userProfile?.role === 'admin' || userProfile?.role === 'agent') return '/admin'
+    const effectiveEmail = userEmail || userProfile?.email || email
+    const isAdminOrAgent =
+      userProfile?.role === 'admin' ||
+      userProfile?.role === 'agent' ||
+      isAdminEmail(effectiveEmail)
+    if (isAdminOrAgent) return '/admin'
     return '/'
   }
 
@@ -29,7 +34,7 @@ export function Login() {
     setError(null)
     try {
       const result = await login(email, password)
-      navigate(getDestination(result?.profile), { replace: true })
+      navigate(getDestination(result?.profile, email), { replace: true })
     } catch (err) {
       setError(formatAuthError(err))
     } finally {
@@ -42,7 +47,7 @@ export function Login() {
     setError(null)
     try {
       const result = await googleSignIn()
-      navigate(getDestination(result?.profile), { replace: true })
+      navigate(getDestination(result?.profile, result?.user?.email), { replace: true })
     } catch (err) {
       setError(formatAuthError(err))
     } finally {

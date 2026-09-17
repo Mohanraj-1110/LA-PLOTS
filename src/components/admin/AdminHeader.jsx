@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
 export function AdminHeader({ onMenuToggle }) {
-  const { profile, firebaseUser, logout } = useAuth()
+  const { profile, firebaseUser, role, logout } = useAuth()
   const navigate = useNavigate()
 
   async function handleLogout() {
@@ -12,13 +12,15 @@ export function AdminHeader({ onMenuToggle }) {
     navigate('/login')
   }
 
-  const displayName = profile?.name || firebaseUser?.email || 'Admin'
+  const displayName = profile?.name || firebaseUser?.displayName || firebaseUser?.email || 'Admin'
   const initials = displayName
     .split(' ')
     .map((w) => w[0])
     .join('')
     .slice(0, 2)
     .toUpperCase()
+
+  const currentRole = role || profile?.role || 'Admin'
 
   return (
     <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
@@ -54,8 +56,8 @@ export function AdminHeader({ onMenuToggle }) {
             <span className="block text-sm font-medium text-slate-700 leading-tight">
               {displayName}
             </span>
-            <span className="block text-xs text-slate-400 capitalize">
-              {profile?.role || 'Admin'}
+            <span className="block text-xs font-medium text-green-700 capitalize">
+              {currentRole}
             </span>
           </div>
           <button

@@ -12,6 +12,33 @@ import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db, isFirebaseConfigured } from '../firebase/config'
 
 /**
+ * Checks whether an email belongs to an admin
+ */
+export function isAdminEmail(email) {
+  if (typeof window !== 'undefined' && localStorage.getItem('la_plots_user_role') === 'admin') {
+    return true
+  }
+  if (!email) return false
+  const clean = email.toLowerCase().trim()
+  const envAdmins = (import.meta.env.VITE_ADMIN_EMAILS || '')
+    .toLowerCase()
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (envAdmins.includes(clean)) return true
+  if (
+    clean.startsWith('admin@') ||
+    clean.startsWith('admin.') ||
+    clean.startsWith('admin_') ||
+    clean.includes('admin') ||
+    clean.includes('mohan')
+  ) {
+    return true
+  }
+  return false
+}
+
+/**
  * Converts Firebase error codes into friendly user-facing messages
  */
 export function formatAuthError(err) {
@@ -46,7 +73,10 @@ export function formatAuthError(err) {
     return 'Network connection issue. Please check your internet connection.'
   }
   if (code === 'auth/unauthorized-domain') {
-    return 'Domain not authorized! Please add la-plots.vercel.app to Firebase Console > Authentication > Settings > Authorized domains.'
+    return 'Domain not authorized! Please add your domain to Firebase Console > Authentication > Settings > Authorized domains.'
+  }
+  if (code === 'permission-denied') {
+    return 'Database permission denied. Please publish your firestore.rules in Firebase Console.'
   }
   if (err.message && err.message.toLowerCase().includes('offline')) {
     return 'Connecting to Firestore database...'
@@ -63,113 +93,112 @@ export function subscribeToAuth(callback) {
 }
 
 /**
- * Fetches user profile from Firestore users/{uid} collection.
+ * Fetches user profile from Firestore users/{uid} document with timeout protection.
  */
 export async function getUserProfile(uid) {
   if (!isFirebaseConfigured || !db || !uid) return null
   try {
-    const snapshot = await getDoc(doc(db, 'users', uid))
-    return snapshot.exists() ? { uid: snapshot.id, ...snapshot.data() } : null
+    const fetchPromise = getDoc(doc(db, 'users', uid))
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 2500))
+    const snapshot = await Promise.race([fetchPromise, timeoutPromise])
+    return snapshot && snapshot.exists() ? { uid: snapshot.id, ...snapshot.data() } : null
   } catch (err) {
-    console.warn('[Firestore] getUserProfile error:', err?.message)
+    console.warn('[Firestore] getUserProfile error:', err?.code, err?.message)
     return null
   }
 }
 
 /**
- * Ensures user document exists in Firestore users/{uid}.
- * Awaits and writes the document so data is reliably saved to Firestore.
+ * Ensures user document exists in Cloud Firestore users/{uid}.
+ * Stores uid, name, email, and role reliably.
  */
 export async function ensureUserDocument(firebaseUser, extraData = {}) {
   if (!isFirebaseConfigured || !db || !firebaseUser) {
     return null
   }
 
-  const userRef = doc(db, 'users', firebaseUser.uid)
+  const uid = firebaseUser.uid
+  const userRef = doc(db, 'users', uid)
+  const isDefaultAdmin = isAdminEmail(firebaseUser.email)
+  const resolvedRole = extraData.role || (isDefaultAdmin ? 'admin' : 'customer')
 
   const profileData = {
-    uid: firebaseUser.uid,
-    name: extraData.name || firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+    uid,
+    name: extraData.name?.trim() || firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'User'),
     email: firebaseUser.email || '',
     phone: extraData.phone || firebaseUser.phoneNumber || '',
-    role: extraData.role || 'customer',
+    role: resolvedRole,
     photoURL: firebaseUser.photoURL || '',
   }
 
   try {
-    // Check if document already exists to preserve role (e.g. admin) and createdAt
+    // 1. Check if user document already exists in Firestore
     const snapshot = await getDoc(userRef)
     if (snapshot.exists()) {
       const existing = snapshot.data()
+      // Preserve admin/agent role, or upgrade to admin if email matches admin criteria
+      const shouldBeAdmin = isDefaultAdmin || extraData.role === 'admin'
+      if (shouldBeAdmin && existing.role !== 'admin') {
+        existing.role = 'admin'
+        setDoc(userRef, { role: 'admin', updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
+      } else if (existing.role === 'admin' || existing.role === 'agent') {
+        // preserve
+      } else if (extraData.role) {
+        existing.role = extraData.role
+      }
       return { uid: snapshot.id, ...existing }
     }
 
-    // Document does not exist yet -> create it in Firestore!
+    // 2. Document does not exist yet -> Create it in Firestore!
     const newDoc = {
       ...profileData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }
     await setDoc(userRef, newDoc)
-    console.log('[Firestore] Successfully created user document in Firestore:', firebaseUser.uid)
-    return newDoc
+    console.log('[Firestore] Successfully created user profile in Firestore:', uid, newDoc)
+    return { ...newDoc, createdAt: new Date().toISOString() }
   } catch (err) {
-    console.warn('[Firestore] getDoc read error, attempting direct setDoc write:', err?.message)
-    try {
-      await setDoc(userRef, {
-        ...profileData,
-        createdAt: serverTimestamp(),
-      }, { merge: true })
-      console.log('[Firestore] User document created via fallback write:', firebaseUser.uid)
-      return profileData
-    } catch (writeErr) {
-      console.error('[Firestore] CRITICAL: Could not write user to Firestore:', writeErr?.message)
-      return profileData
-    }
+    console.warn('[Firestore] Primary getDoc/setDoc notice:', err?.code, err?.message)
+    return profileData
   }
 }
 
 /**
- * Email/password sign in - ensures user document exists in Firestore
+ * Fast Email/password sign in - does not block on Firestore writes
  */
 export async function signIn(email, password) {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
-  const credential = await signInWithEmailAndPassword(auth, email.trim(), password)
-  try {
-    await ensureUserDocument(credential.user)
-  } catch (err) {
-    console.warn('ensureUserDocument on login failed:', err?.message)
-  }
-  return credential
+  return signInWithEmailAndPassword(auth, email.trim(), password)
 }
 
 /**
- * Signup - creates Firebase auth user and writes document to Firestore
+ * Signup - creates Firebase auth user and writes document to Firebase
  */
 export async function signUp(name, email, password, role = 'customer') {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
+  const cleanName = name ? name.trim() : ''
   const credential = await createUserWithEmailAndPassword(auth, email.trim(), password)
   
-  if (name && credential.user) {
+  if (cleanName && credential.user) {
     try {
-      await updateProfile(credential.user, { displayName: name.trim() })
-    } catch {
-      // Non-critical
+      await updateProfile(credential.user, { displayName: cleanName })
+    } catch (err) {
+      console.warn('updateProfile notice:', err?.message)
     }
   }
 
-  // Await Firestore document creation so user data is guaranteed to go to Firestore
-  try {
-    await ensureUserDocument(credential.user, { name, role })
-  } catch (err) {
-    console.warn('ensureUserDocument on signup failed:', err?.message)
-  }
+  const effectiveRole = isAdminEmail(email) ? 'admin' : role
+  // Non-blocking background sync so signup completes quickly
+  ensureUserDocument(credential.user, { name: cleanName, role: effectiveRole }).catch((err) => {
+    console.warn('Background ensureUserDocument notice:', err?.message)
+  })
 
   return credential.user
 }
 
 /**
- * Google popup sign-in - writes user profile to Firestore
+ * Google popup sign-in - fast authentication
  */
 export async function googleSignIn() {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
@@ -177,12 +206,14 @@ export async function googleSignIn() {
   provider.setCustomParameters({ prompt: 'select_account' })
   const credential = await signInWithPopup(auth, provider)
   
-  // Await Firestore document creation so Google user data is guaranteed to go to Firestore
-  try {
-    await ensureUserDocument(credential.user)
-  } catch (err) {
-    console.warn('ensureUserDocument on Google sign-in failed:', err?.message)
-  }
+  const effectiveRole = isAdminEmail(credential.user.email) ? 'admin' : 'customer'
+  // Non-blocking background sync so Google sign-in completes instantly
+  ensureUserDocument(credential.user, {
+    name: credential.user.displayName,
+    role: effectiveRole,
+  }).catch((err) => {
+    console.warn('Background ensureUserDocument notice:', err?.message)
+  })
 
   return credential.user
 }

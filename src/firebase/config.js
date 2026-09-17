@@ -8,7 +8,6 @@ import { getAnalytics, isSupported } from 'firebase/analytics'
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyA6hRTAzpI2jXFX_MjjMWKBjq-JHlYXojI',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'la-plots.firebaseapp.com',
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || 'https://la-plots-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'la-plots',
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'la-plots.firebasestorage.app',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '300884376441',
@@ -23,7 +22,11 @@ export const firebaseApp = getApps().length > 0
   : initializeApp(firebaseConfig)
 
 export const auth = isFirebaseConfigured ? getAuth(firebaseApp) : null
-export const db = isFirebaseConfigured ? getFirestore(firebaseApp) : null
+export const db = isFirebaseConfigured 
+  ? (import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID 
+      ? getFirestore(firebaseApp, import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID)
+      : getFirestore(firebaseApp))
+  : null
 export const storage = isFirebaseConfigured ? getStorage(firebaseApp) : null
 export const functions = isFirebaseConfigured ? getFunctions(firebaseApp) : null
 

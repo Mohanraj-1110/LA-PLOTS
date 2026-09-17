@@ -12,6 +12,7 @@ import { Reports } from '../pages/admin/Reports'
 import { Enquiries } from '../pages/admin/Enquiries'
 import { Messages } from '../pages/admin/Messages'
 import { Settings } from '../pages/admin/Settings'
+import { Users } from '../pages/admin/Users'
 
 export function getAdminRoutes() {
   return (
@@ -35,6 +36,7 @@ export function getAdminRoutes() {
         <Route path="reports" element={<Reports />} />
         <Route path="enquiries" element={<Enquiries />} />
         <Route path="messages" element={<Messages />} />
+        <Route path="users" element={<Users />} />
         <Route path="settings" element={<Settings />} />
       </Route>
     </Route>
