@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, FileText, Heart, MapPin, Phone, Trees } from 'lucide-react'
+import { ArrowLeft, Calculator, CalendarDays, FileText, Heart, MapPin, Phone, ShieldCheck, Trees } from 'lucide-react'
 import { getPublicPlot, subscribeToPublicPlots } from '../../services/plots'
-import { toggleWishlist } from '../../services/wishlists'
+import { isPlotWishlisted, toggleWishlist } from '../../services/wishlists'
 import { useAuth } from '../../context/AuthContext'
 import { PlotMap } from '../../components/user/PlotMap'
 import { PlotCard } from '../../components/user/PlotCard'
@@ -26,6 +26,11 @@ export function PlotDetails() {
   const [isSaved, setIsSaved] = useState(false)
   const [notice, setNotice] = useState(null)
 
+  // EMI Calculator widget state
+  const [loanPercent, setLoanPercent] = useState(80)
+  const [interestRate, setInterestRate] = useState(8.5)
+  const [tenureYears, setTenureYears] = useState(15)
+
   useEffect(() => {
     if (!plotId) return
     setLoading(true)
@@ -46,25 +51,47 @@ export function PlotDetails() {
     return () => unsub()
   }, [plotId])
 
+  // Sync wishlist status
+  useEffect(() => {
+    if (user?.uid && plotId) {
+      setIsSaved(isPlotWishlisted(user.uid, plotId))
+    }
+  }, [user, plotId])
+
   async function handleWishlistToggle() {
     if (!user) {
       navigate('/login')
       return
     }
+    const nextSaved = !isSaved
+    setIsSaved(nextSaved)
+    setNotice(nextSaved ? 'Saved to your wishlist!' : 'Removed from wishlist')
+    setTimeout(() => setNotice(null), 3000)
     try {
       await toggleWishlist(user.uid, plotId, isSaved)
-      setIsSaved(!isSaved)
-      setNotice(isSaved ? 'Removed from wishlist' : 'Saved to your wishlist!')
-      setTimeout(() => setNotice(null), 3000)
     } catch {
       setNotice('Could not update wishlist.')
     }
   }
 
+  // Calculate estimated EMI for this specific plot
+  const { emiAmount, loanAmount } = useMemo(() => {
+    const total = plot?.totalAmount || 0
+    const P = (total * loanPercent) / 100
+    const N = tenureYears * 12
+    const r = interestRate / 12 / 100
+    if (P <= 0 || r <= 0 || N <= 0) return { emiAmount: 0, loanAmount: 0 }
+    const calculated = (P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1)
+    return {
+      loanAmount: Math.round(P),
+      emiAmount: Math.round(calculated),
+    }
+  }, [plot?.totalAmount, loanPercent, interestRate, tenureYears])
+
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-        <div className="h-96 animate-pulse rounded-2xl bg-slate-200" />
+        <div className="h-96 animate-pulse rounded-3xl bg-slate-200" />
       </div>
     )
   }
@@ -165,9 +192,91 @@ export function PlotDetails() {
               </div>
               <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-100">
                 <dt className="text-xs text-slate-500">Approvals</dt>
-                <dd className="mt-1 text-base font-bold text-green-700">DTCP & RERA</dd>
+                <dd className="mt-1 text-base font-bold text-green-700">DTCP & RERA Approved</dd>
               </div>
             </dl>
+          </article>
+
+          {/* Interactive Plot Loan EMI Widget */}
+          <article className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="size-9 rounded-xl bg-green-100 text-green-700 grid place-items-center">
+                  <Calculator size={18} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">Estimated Monthly EMI</h2>
+                  <p className="text-xs text-slate-500">Bank finance available up to 80%</p>
+                </div>
+              </div>
+              <Link to="/emi" className="text-xs font-bold text-green-700 hover:underline">
+                Full EMI Calculator →
+              </Link>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div>
+                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                  Bank Loan: {loanPercent}%
+                </label>
+                <input
+                  type="range"
+                  min="50"
+                  max="80"
+                  step="5"
+                  value={loanPercent}
+                  onChange={(e) => setLoanPercent(Number(e.target.value))}
+                  className="w-full accent-green-600 cursor-pointer h-1.5 bg-slate-200 rounded"
+                />
+                <span className="text-[11px] text-slate-500">{currency.format(loanAmount)}</span>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                  Interest: {interestRate}%
+                </label>
+                <input
+                  type="range"
+                  min="7.5"
+                  max="12.0"
+                  step="0.5"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(Number(e.target.value))}
+                  className="w-full accent-green-600 cursor-pointer h-1.5 bg-slate-200 rounded"
+                />
+                <span className="text-[11px] text-slate-500">Annual rate</span>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                  Tenure: {tenureYears} Yrs
+                </label>
+                <input
+                  type="range"
+                  min="5"
+                  max="25"
+                  step="5"
+                  value={tenureYears}
+                  onChange={(e) => setTenureYears(Number(e.target.value))}
+                  className="w-full accent-green-600 cursor-pointer h-1.5 bg-slate-200 rounded"
+                />
+                <span className="text-[11px] text-slate-500">{tenureYears * 12} Months</span>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-100">
+              <div>
+                <span className="text-xs text-slate-500">Estimated EMI</span>
+                <p className="text-2xl font-extrabold text-green-700">
+                  {currency.format(emiAmount)}
+                  <span className="text-xs font-normal text-slate-500"> / month</span>
+                </p>
+              </div>
+              <Link
+                to={`/enquiry?plotId=${plot.id}&budget=${loanAmount}&requirement=Financing assistance for Plot #${plot.plotNumber}`}
+                className="rounded-xl bg-green-50 px-4 py-2 text-xs font-bold text-green-800 hover:bg-green-100 transition border border-green-200"
+              >
+                Apply for Loan Assistance
+              </Link>
+            </div>
           </article>
 
           {/* Map Location */}
@@ -233,8 +342,8 @@ export function PlotDetails() {
             </div>
 
             <p className="mt-4 flex items-center text-sm text-slate-500">
-              <MapPin size={16} className="mr-1 text-slate-400" />
-              {plot.location || 'Chennai Outer Growth Corridor'}
+              <MapPin size={16} className="mr-1 text-slate-400 shrink-0" />
+              <span>{plot.location || 'Chennai Outer Growth Corridor'}</span>
             </p>
 
             <div className="mt-6 border-t border-slate-100 pt-6">
@@ -275,9 +384,12 @@ export function PlotDetails() {
                 Enquire for this Plot
               </Link>
               <Link
-                to={`/enquiry?plotId=${plot.id}&type=visit`}
-                className="flex min-h-12 w-full items-center justify-center rounded-xl border border-green-600 font-bold text-green-700 hover:bg-green-50 transition"
+                to={`/enquiry?plotId=${plot.id}&plotNumber=${plot.plotNumber}&projectId=${encodeURIComponent(
+                  plot.projectId
+                )}&type=visit`}
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-green-600 font-bold text-green-700 hover:bg-green-50 transition"
               >
+                <CalendarDays size={18} />
                 Book Guided Site Visit
               </Link>
             </div>
@@ -311,3 +423,5 @@ export function PlotDetails() {
     </div>
   )
 }
+
+export default PlotDetails

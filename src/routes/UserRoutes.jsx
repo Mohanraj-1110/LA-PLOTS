@@ -10,6 +10,8 @@ import { Profile } from '../pages/user/Profile'
 import { Enquiry } from '../pages/user/Enquiry'
 import { Reviews } from '../pages/user/Reviews'
 import { Contact } from '../pages/user/Contact'
+import { EmiCalculator } from '../pages/user/EmiCalculator'
+import { Faq } from '../pages/user/Faq'
 
 export function getUserRoutes() {
   return (
@@ -21,6 +23,8 @@ export function getUserRoutes() {
       <Route path="appointments" element={<MyAppointments />} />
       <Route path="profile" element={<Profile />} />
       <Route path="enquiry" element={<Enquiry />} />
+      <Route path="emi" element={<EmiCalculator />} />
+      <Route path="faq" element={<Faq />} />
       <Route path="reviews" element={<Reviews />} />
       <Route path="contact" element={<Contact />} />
     </Route>

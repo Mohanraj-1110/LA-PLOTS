@@ -60,7 +60,7 @@ export function Plots() {
       openNewModal()
       setSearchParams({})
     }
-  }, [searchParams])
+  }, [searchParams, setSearchParams])
 
   const filteredPlots = useMemo(() => {
     if (!plots) return []

@@ -56,7 +56,9 @@ export function getCachedUsers() {
         return parsed
       }
     }
-  } catch {}
+  } catch {
+    // Ignore parse or access errors
+  }
   return getInitialSeedUsers()
 }
 
@@ -64,7 +66,9 @@ export function saveCachedUsers(usersList) {
   if (typeof window === 'undefined' || !Array.isArray(usersList)) return
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(usersList))
-  } catch {}
+  } catch {
+    // Ignore storage write errors
+  }
 }
 
 function mergeUsers(firestoreUsers) {
@@ -223,7 +227,9 @@ export async function changeUserRole(uid, role) {
       if (auth?.currentUser?.uid === uid) {
         localStorage.setItem('la_plots_user_role', role)
       }
-    } catch {}
+    } catch {
+      // Ignore local storage sync errors
+    }
   }
 
   if (isFirebaseConfigured && db) {

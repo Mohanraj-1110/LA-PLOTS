@@ -50,7 +50,7 @@ export function Appointments() {
       openNewModal()
       setSearchParams({})
     }
-  }, [searchParams])
+  }, [searchParams, setSearchParams])
 
   const filteredAppointments = useMemo(() => {
     if (!appointments) return []

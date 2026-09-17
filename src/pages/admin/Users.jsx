@@ -39,7 +39,7 @@ const ROLE_OPTIONS = [
 ]
 
 export function Users() {
-  const { firebaseUser, profile: currentProfile, refreshProfile } = useAuth()
+  const { firebaseUser, refreshProfile } = useAuth()
   const [users, setUsers] = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')

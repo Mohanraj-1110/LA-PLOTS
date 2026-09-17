@@ -29,7 +29,9 @@ function saveCachedProfile(uid, profileData) {
   if (!uid || !profileData || typeof window === 'undefined') return
   try {
     localStorage.setItem(`la_plots_profile_${uid}`, JSON.stringify(profileData))
-  } catch {}
+  } catch {
+    // Ignore storage quota or access errors in restricted modes
+  }
 }
 
 function buildFallbackProfile(user, extra = {}) {

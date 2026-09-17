@@ -83,8 +83,17 @@ export function MyAppointments() {
                   </div>
                   <p className="mt-1 flex items-center text-sm text-slate-500">
                     <Clock size={15} className="mr-1 text-slate-400" />
-                    {item.date?.toDate?.().toLocaleDateString('en-IN') || 'Date pending'} · {item.time || '10:00 AM'}
+                    {(() => {
+                      if (item.date?.toDate) return item.date.toDate().toLocaleDateString('en-IN')
+                      if (typeof item.date === 'string' && item.date) return new Date(item.date).toLocaleDateString('en-IN')
+                      return 'Date pending'
+                    })()} · {item.time || '10:00 AM'}
                   </p>
+                  {item.plotId && (
+                    <p className="mt-1 text-xs font-semibold text-green-700">
+                      Target: {item.plotId}
+                    </p>
+                  )}
                   {item.notes && (
                     <p className="mt-2 text-xs text-slate-600 bg-slate-50 p-2 rounded-lg inline-block">
                       Note: {item.notes}

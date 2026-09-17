@@ -55,7 +55,7 @@ export function Customers() {
       openNewModal()
       setSearchParams({})
     }
-  }, [searchParams])
+  }, [searchParams, setSearchParams])
 
   const filteredCustomers = useMemo(() => {
     if (!customers) return []

@@ -15,8 +15,16 @@
     --app-background: #f8fafc;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-slate-50 text-slate-900 antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', sans-serif;
   }
 }

@@ -115,7 +115,7 @@ export function Reviews() {
                   </p>
                 </div>
                 <div className="flex gap-0.5 text-amber-400">
-                  {Array.from({ length: item.rating || 5 }).map((_, i) => (
+                  {Array.from({ length: Math.max(1, Math.min(5, Math.round(Number(item.rating) || 5))) }).map((_, i) => (
                     <Star key={i} size={16} fill="currentColor" />
                   ))}
                 </div>

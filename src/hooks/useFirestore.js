@@ -21,6 +21,7 @@ export function useFirestore(subscribeFn, deps = []) {
     return () => {
       if (typeof unsubscribe === 'function') unsubscribe()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 
   return { data, loading, error }
