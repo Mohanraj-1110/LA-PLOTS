@@ -45,6 +45,9 @@ export function formatAuthError(err) {
   if (code === 'auth/network-request-failed') {
     return 'Network connection issue. Please check your internet connection.'
   }
+  if (code === 'auth/unauthorized-domain') {
+    return 'Domain not authorized! Please add la-plots.vercel.app to Firebase Console > Authentication > Settings > Authorized domains.'
+  }
   if (err.message && err.message.toLowerCase().includes('offline')) {
     return 'Connecting to Firestore database...'
   }
