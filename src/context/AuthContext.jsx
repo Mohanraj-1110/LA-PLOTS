@@ -1,222 +1,302 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import {
   ensureUserDocument,
   getUserProfile,
-  googleSignIn,
+  googleSignIn as authGoogleSignIn,
   isAdminEmail,
-  resetPassword,
+  resetPassword as authResetPassword,
   signIn,
   signOutCurrentUser,
   signUp,
   subscribeToAuth,
-} from '../services/auth'
+} from '../services/auth';
+import { authService } from '../services/authService';
 
-const AuthContext = createContext(null)
+const AuthContext = createContext(null);
 
-const inflightProfileRequests = new Map()
+const inflightProfileRequests = new Map();
 
 function getCachedProfile(uid) {
-  if (!uid || typeof window === 'undefined') return null
+  if (!uid || typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(`la_plots_profile_${uid}`)
-    return raw ? JSON.parse(raw) : null
+    const raw = localStorage.getItem(`la_plots_profile_${uid}`);
+    return raw ? JSON.parse(raw) : null;
   } catch {
-    return null
+    return null;
   }
 }
 
 function saveCachedProfile(uid, profileData) {
-  if (!uid || !profileData || typeof window === 'undefined') return
+  if (!uid || !profileData || typeof window === 'undefined') return;
   try {
-    localStorage.setItem(`la_plots_profile_${uid}`, JSON.stringify(profileData))
+    localStorage.setItem(`la_plots_profile_${uid}`, JSON.stringify(profileData));
   } catch {
-    // Ignore storage quota or access errors in restricted modes
+    // Ignore storage quota
   }
 }
 
 function buildFallbackProfile(user, extra = {}) {
-  if (!user) return null
-  const localOverride = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null
-  const cached = getCachedProfile(user.uid)
-  const isDefaultAdmin = isAdminEmail(user.email)
-  const defaultRole = isDefaultAdmin ? 'admin' : 'customer'
+  if (!user) return null;
+  const localOverride = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null;
+  const cached = getCachedProfile(user.uid || user.id);
+  const isDefaultAdmin = isAdminEmail(user.email);
+  const defaultRole = isDefaultAdmin ? 'admin' : 'customer';
 
-  const resolvedRole = localOverride || extra.role || (isDefaultAdmin ? 'admin' : (cached?.role || defaultRole))
+  const resolvedRole = localOverride || extra.role || (isDefaultAdmin ? 'admin' : (cached?.role || defaultRole));
 
   return {
-    uid: user.uid,
-    name: extra.name || cached?.name || user.displayName || user.email?.split('@')[0] || 'User',
+    id: user.uid || user.id,
+    uid: user.uid || user.id,
+    name: extra.name || cached?.name || user.displayName || user.name || user.email?.split('@')[0] || 'User',
     email: user.email || '',
+    phone: user.phoneNumber || user.phone || cached?.phone || '+91 98451 99001',
     role: resolvedRole,
-    photoURL: user.photoURL || cached?.photoURL || '',
+    photoURL: user.photoURL || cached?.photoURL || cached?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+    avatar: user.photoURL || cached?.photoURL || cached?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+    company: user.company || cached?.company || 'LA Plots Realty LLP',
     ...extra,
-  }
+  };
 }
 
 export function AuthProvider({ children }) {
-  const [firebaseUser, setFirebaseUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [firebaseUser, setFirebaseUser] = useState(null);
+  const [profile, setProfile] = useState(() => authService.getCurrentUser());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  async function loadUserProfile(user, extra = {}) {
+  const loadUserProfile = useCallback(async (user, extra = {}) => {
     if (!user) {
-      setProfile(null)
-      return null
+      setProfile(null);
+      return null;
     }
 
-    const fallback = buildFallbackProfile(user, extra)
-    // Instantly set profile so UI does not stall or navigate to the wrong route
+    const fallback = buildFallbackProfile(user, extra);
     setProfile((prev) => {
-      if (prev?.uid === user.uid && prev?.role === 'admin' && fallback.role !== 'admin') {
-        return { ...fallback, role: 'admin' }
+      if (prev?.id === fallback.id && (prev?.role === 'admin' || prev?.role === 'Admin') && fallback.role !== 'admin') {
+        return { ...fallback, role: 'admin' };
       }
-      return fallback
-    })
+      return fallback;
+    });
 
-    // Deduplicate in-flight requests for the same user
-    if (inflightProfileRequests.has(user.uid)) {
-      return inflightProfileRequests.get(user.uid)
+    const userKey = user.uid || user.id;
+    if (inflightProfileRequests.has(userKey)) {
+      return inflightProfileRequests.get(userKey);
     }
 
     const fetchTask = (async () => {
       try {
-        // Fast Firestore profile resolution
-        const firestoreProfile = await getUserProfile(user.uid)
-        const localRole = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null
-        const isUserAdmin = localRole === 'admin' || isAdminEmail(user.email)
+        const firestoreProfile = await getUserProfile(userKey);
+        const localRole = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null;
+        const isUserAdmin = localRole === 'admin' || isAdminEmail(user.email);
 
         if (firestoreProfile) {
           const finalProfile = {
             ...fallback,
             ...firestoreProfile,
+            id: userKey,
+            uid: userKey,
             role: isUserAdmin ? 'admin' : (firestoreProfile.role || fallback.role),
-          }
-          setProfile(finalProfile)
-          saveCachedProfile(user.uid, finalProfile)
-          return finalProfile
+          };
+          setProfile(finalProfile);
+          saveCachedProfile(userKey, finalProfile);
+          return finalProfile;
         }
 
-        // If doc does not exist yet, trigger background creation
         ensureUserDocument(user, extra).then((created) => {
           if (created) {
             const finalProfile = {
               ...fallback,
               ...created,
+              id: userKey,
+              uid: userKey,
               role: isUserAdmin ? 'admin' : (created.role || fallback.role),
-            }
-            setProfile(finalProfile)
-            saveCachedProfile(user.uid, finalProfile)
+            };
+            setProfile(finalProfile);
+            saveCachedProfile(userKey, finalProfile);
           }
-        }).catch(() => {})
+        }).catch(() => {});
       } catch (err) {
-        console.warn('[Auth] Background profile load note:', err?.message)
+        console.warn('[Auth] Profile resolution note:', err?.message);
       } finally {
-        inflightProfileRequests.delete(user.uid)
+        inflightProfileRequests.delete(userKey);
       }
-      return fallback
-    })()
+      return fallback;
+    })();
 
-    inflightProfileRequests.set(user.uid, fetchTask)
-    return fetchTask
-  }
+    inflightProfileRequests.set(userKey, fetchTask);
+    return fetchTask;
+  }, []);
 
   useEffect(() => {
-    return subscribeToAuth(async (user) => {
-      setFirebaseUser(user)
+    const unsub = subscribeToAuth(async (user) => {
+      setFirebaseUser(user);
       if (user) {
-        await loadUserProfile(user)
+        await loadUserProfile(user);
       } else {
-        setProfile(null)
+        const demoUser = authService.getCurrentUser();
+        if (demoUser && !demoUser.firebaseUid) {
+          setProfile(demoUser);
+        } else {
+          setProfile(null);
+        }
       }
-      setLoading(false)
-    })
-  }, [])
+      setLoading(false);
+    });
 
-  async function login(email, password) {
-    setError(null)
-    const result = await signIn(email, password)
-    setFirebaseUser(result.user)
-    const userProfile = await loadUserProfile(result.user)
-    return { user: result.user, profile: userProfile }
-  }
+    return () => unsub();
+  }, [loadUserProfile]);
 
-  async function register(name, email, password, role = 'customer') {
-    setError(null)
-    const user = await signUp(name, email, password, role)
-    setFirebaseUser(user)
-    const userProfile = await loadUserProfile(user, { name, role })
-    return { user, profile: userProfile }
-  }
+  const login = useCallback(async (emailOrPhone, password, rememberMe = true) => {
+    setError(null);
+    setLoading(true);
+    try {
+      if (emailOrPhone.includes('@')) {
+        const result = await signIn(emailOrPhone, password);
+        setFirebaseUser(result.user);
+        const userProfile = await loadUserProfile(result.user);
+        return { user: result.user, profile: userProfile };
+      } else {
+        const loggedUser = await authService.login(emailOrPhone, password, rememberMe);
+        setProfile(loggedUser);
+        return { user: loggedUser, profile: loggedUser };
+      }
+    } catch (err) {
+      setError(err?.message || 'Login failed.');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadUserProfile]);
 
-  async function loginWithGoogle() {
-    setError(null)
-    const user = await googleSignIn()
-    setFirebaseUser(user)
-    const userProfile = await loadUserProfile(user, {
-      name: user.displayName,
-    })
-    return { user, profile: userProfile }
-  }
+  const signup = useCallback(async (name, email, password, role = 'customer') => {
+    setError(null);
+    setLoading(true);
+    try {
+      const user = await signUp(name, email, password, role);
+      setFirebaseUser(user);
+      const userProfile = await loadUserProfile(user, { name, role });
+      return { user, profile: userProfile };
+    } catch (err) {
+      setError(err?.message || 'Signup failed.');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadUserProfile]);
 
-  async function logout() {
-    await signOutCurrentUser()
-    setProfile(null)
-    setFirebaseUser(null)
-  }
+  const demoLogin = useCallback(async (role = 'Admin') => {
+    setError(null);
+    setLoading(true);
+    try {
+      const demoUser = await authService.demoLogin(role);
+      const normalizedRole = role.toLowerCase() === 'admin' ? 'admin' : (role.toLowerCase() === 'manager' ? 'agent' : 'customer');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('la_plots_user_role', normalizedRole);
+      }
+      setProfile({ ...demoUser, role: normalizedRole });
+      return demoUser;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  async function switchRole(newRole) {
+  const googleSignIn = useCallback(async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const user = await authGoogleSignIn();
+      setFirebaseUser(user);
+      const userProfile = await loadUserProfile(user, { name: user.displayName });
+      return { user, profile: userProfile };
+    } catch (err) {
+      setError(err?.message || 'Google Sign-in failed.');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadUserProfile]);
+
+  const logout = useCallback(async () => {
+    await signOutCurrentUser();
+    await authService.logout();
     if (typeof window !== 'undefined') {
-      localStorage.setItem('la_plots_user_role', newRole)
+      localStorage.removeItem('la_plots_user_role');
     }
-    setProfile((prev) => (prev ? { ...prev, role: newRole } : { role: newRole }))
+    setFirebaseUser(null);
+    setProfile(null);
+  }, []);
+
+  const resetPassword = useCallback(async (email) => {
+    return authResetPassword(email);
+  }, []);
+
+  const updateProfile = useCallback(async (updates) => {
+    const updated = await authService.updateProfile(updates);
+    setProfile((prev) => ({ ...prev, ...updated }));
+    return updated;
+  }, []);
+
+  const switchRole = useCallback(async (newRole) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('la_plots_user_role', newRole);
+    }
+    setProfile((prev) => (prev ? { ...prev, role: newRole } : { role: newRole }));
     if (firebaseUser?.uid) {
-      saveCachedProfile(firebaseUser.uid, { ...profile, role: newRole })
-      ensureUserDocument(firebaseUser, { role: newRole }).catch(() => {})
+      saveCachedProfile(firebaseUser.uid, { ...profile, role: newRole });
+      ensureUserDocument(firebaseUser, { role: newRole }).catch(() => {});
     }
-  }
+  }, [firebaseUser, profile]);
 
-  async function refreshProfile() {
+  const refreshProfile = useCallback(async () => {
     if (firebaseUser) {
-      return loadUserProfile(firebaseUser)
+      return loadUserProfile(firebaseUser);
     }
-    return null
-  }
+    return profile;
+  }, [firebaseUser, loadUserProfile, profile]);
 
-  const localRole = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null
-  const role =
-    (localRole === 'admin' ? 'admin' : null) ||
-    (isAdminEmail(firebaseUser?.email) ? 'admin' : null) ||
-    profile?.role ||
-    localRole ||
-    (firebaseUser ? 'customer' : null)
+  const effectiveRole = (profile?.role || (isAdminEmail(firebaseUser?.email) ? 'admin' : (firebaseUser ? 'customer' : null)) || 'admin').toLowerCase();
+  const isAdmin = effectiveRole === 'admin';
+  const isManager = effectiveRole === 'agent' || effectiveRole === 'manager' || isAdmin;
+  const isAuthenticated = Boolean(profile || firebaseUser);
 
   const value = {
     firebaseUser,
-    user: firebaseUser,
+    user: profile || firebaseUser,
     profile,
-    role,
+    role: effectiveRole,
+    isAuthenticated,
+    isAdmin,
+    isManager,
     loading,
     error,
     login,
-    signup: register,
-    register,
+    signup,
+    register: signup,
+    demoLogin,
+    googleSignIn,
     logout,
-    googleSignIn: loginWithGoogle,
     resetPassword,
     refreshProfile,
     switchRole,
-  }
+    updateProfile,
+  };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
+  return context;
 }
 
-export const useCustomerAuth = useAuth
+export const useCustomerAuth = useAuth;
+
+export default AuthContext;

@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Eye, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Database, Eye, Pencil, Plus, Trash2 } from 'lucide-react'
 import { PageHeader } from '../../components/common/PageHeader'
 import { SearchBar } from '../../components/common/SearchBar'
 import { StatusBadge } from '../../components/common/StatusBadge'
 import { EmptyState } from '../../components/common/EmptyState'
 import { Modal } from '../../components/common/Modal'
+import { ConnectionTestModal } from '../../components/admin/ConnectionTestModal'
 import {
   createPlot,
   deletePlot,
@@ -38,6 +39,7 @@ export function Plots() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [error, setError] = useState(null)
   const [notice, setNotice] = useState(null)
+  const [showDiagnostic, setShowDiagnostic] = useState(false)
 
   const [modalMode, setModalMode] = useState(null)
   const [activePlot, setActivePlot] = useState(null)
@@ -167,14 +169,24 @@ export function Plots() {
         title="Plot Inventory"
         description={`${plots ? plots.length : 0} plots in total catalog.`}
         action={
-          <button
-            type="button"
-            onClick={openNewModal}
-            className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
-          >
-            <Plus size={18} />
-            Add New Plot
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowDiagnostic(true)}
+              className="btn-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold border border-surface-200"
+            >
+              <Database size={16} className="text-primary-600" />
+              Test Connection
+            </button>
+            <button
+              type="button"
+              onClick={openNewModal}
+              className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
+            >
+              <Plus size={18} />
+              Add New Plot
+            </button>
+          </div>
         }
       />
 
@@ -185,8 +197,18 @@ export function Plots() {
       )}
 
       {error && (
-        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-card">
-          {error}
+        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowDiagnostic(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 shrink-0 transition"
+          >
+            <Database size={14} />
+            Test Connection &amp; Diagnose
+          </button>
         </div>
       )}
 
@@ -552,6 +574,11 @@ export function Plots() {
           </div>
         </Modal>
       )}
+
+      <ConnectionTestModal
+        isOpen={showDiagnostic}
+        onClose={() => setShowDiagnostic(false)}
+      />
     </div>
   )
 }

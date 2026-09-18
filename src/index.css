@@ -135,3 +135,33 @@
     -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
   }
 }
+
+/* Mobile tap highlight reset */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Print styles for reports */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  aside,
+  header,
+  nav,
+  .no-print,
+  .bottom-nav,
+  .fab-button {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+}
+

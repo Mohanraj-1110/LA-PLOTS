@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { Building2, Info, LockKeyhole, Palette, UserCog, UserRound } from 'lucide-react'
+import { Building2, Database, Info, LockKeyhole, Palette, UserCog, UserRound } from 'lucide-react'
 import { PageHeader } from '../../components/common/PageHeader'
 import { Toast } from '../../components/common/Toast'
 import { EmptyState } from '../../components/common/EmptyState'
 import { useAuth } from '../../context/AuthContext'
+import { DatabaseSettingsPanel } from '../../components/admin/DatabaseSettingsPanel'
 import {
   changePassword,
   changeUserRole,
@@ -16,6 +17,7 @@ import {
 
 const sections = [
   { id: 'profile', label: 'Profile', icon: UserRound },
+  { id: 'database', label: 'Database & Connection', icon: Database },
   { id: 'company', label: 'Company', icon: Building2 },
   { id: 'users', label: 'Users & Roles', icon: UserCog },
   { id: 'security', label: 'Security', icon: LockKeyhole },
@@ -111,6 +113,7 @@ export function Settings() {
           {section === 'profile' && (
             <ProfileForm profile={profile} onSuccess={done} onError={setError} onRefresh={refreshProfile} />
           )}
+          {section === 'database' && <DatabaseSettingsPanel />}
           {section === 'company' && (
             <CompanyForm company={company} isAdmin={profile.role === 'admin'} onSuccess={done} onError={setError} />
           )}

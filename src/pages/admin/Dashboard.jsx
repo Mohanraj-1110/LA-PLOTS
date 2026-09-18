@@ -4,6 +4,7 @@ import {
   BarChart3,
   CalendarDays,
   CircleDollarSign,
+  Database,
   FileText,
   Home,
   IndianRupee,
@@ -24,6 +25,7 @@ import { PageHeader } from '../../components/common/PageHeader'
 import { StatCard } from '../../components/common/StatCard'
 import { StatusBadge } from '../../components/common/StatusBadge'
 import { EmptyState } from '../../components/common/EmptyState'
+import { ConnectionTestModal } from '../../components/admin/ConnectionTestModal'
 import { subscribeToDashboardData } from '../../services/dashboard'
 
 const currency = new Intl.NumberFormat('en-IN', {
@@ -46,6 +48,7 @@ const iconGradients = [
 export function Dashboard() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
+  const [showDiagnostic, setShowDiagnostic] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -67,9 +70,18 @@ export function Dashboard() {
     return (
       <>
         <PageHeader title="Admin Dashboard" description="Overview of business operations" />
-        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 shadow-card">
-          {error}
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <span className="font-medium">{error}</span>
+          <button
+            type="button"
+            onClick={() => setShowDiagnostic(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 transition shrink-0 shadow-sm"
+          >
+            <Database size={15} />
+            Test Firestore Connection
+          </button>
         </div>
+        <ConnectionTestModal isOpen={showDiagnostic} onClose={() => setShowDiagnostic(false)} />
       </>
     )
   }
@@ -104,13 +116,23 @@ export function Dashboard() {
         title="Admin Dashboard"
         description="Real-time monitoring of plots, customer inquiries, and sales revenue."
         action={
-          <Link
-            to="/admin/reports"
-            className="btn-primary inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
-          >
-            <BarChart3 size={16} />
-            View Reports
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowDiagnostic(true)}
+              className="btn-secondary inline-flex min-h-10 items-center gap-2 rounded-xl px-3.5 text-xs font-semibold border border-surface-200"
+            >
+              <Database size={15} className="text-primary-600" />
+              Test DB Connection
+            </button>
+            <Link
+              to="/admin/reports"
+              className="btn-primary inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-xs font-semibold"
+            >
+              <BarChart3 size={15} />
+              View Reports
+            </Link>
+          </div>
         }
       />
 
@@ -237,6 +259,11 @@ export function Dashboard() {
           </Link>
         </div>
       </section>
+
+      <ConnectionTestModal
+        isOpen={showDiagnostic}
+        onClose={() => setShowDiagnostic(false)}
+      />
     </div>
   )
 }

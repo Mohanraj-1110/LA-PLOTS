@@ -73,6 +73,19 @@ service cloud.firestore {
     match /wishlists/{userId}/plots/{plotId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
+
+    match /_connection_test/{id} {
+      allow read, write: if true;
+    }
+
+    match /reviews/{id} {
+      allow read, create: if true;
+      allow update, delete: if isAuthorizedAdmin();
+    }
+
+    match /sales/{id} {
+      allow read, write: if isAuthorizedAdmin();
+    }
   }
 }
 

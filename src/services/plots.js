@@ -36,27 +36,48 @@ async function confirmServerSync(actionName = 'save') {
   }
 }
 
+import { initialPlots } from '../data/mockPlots'
+
 /**
  * Maps raw plot data to a standardized plot object
  */
 export function formatPlot(id, data = {}) {
+  let geo = typeof data.geo === 'object' && data.geo !== null && data.geo.lat ? data.geo : null;
+  if (!geo && data.coordinates && typeof data.coordinates === 'string') {
+    const parts = data.coordinates.split(',');
+    if (parts.length >= 2) {
+      geo = {
+        lat: parseFloat(parts[0]) || 13.0827,
+        lng: parseFloat(parts[1]) || 80.2707,
+      };
+    }
+  }
+  if (!geo) {
+    geo = { lat: 13.0827, lng: 80.2707 };
+  }
+
   return {
     id,
-    projectId: String(data.projectId || ''),
+    projectId: String(data.projectId || 'proj-01'),
+    projectName: String(data.projectName || data.projectId || 'Greenfield Meadows'),
     plotNumber: String(data.plotNumber || ''),
     surveyNumber: String(data.surveyNumber || ''),
     areaSqft: Number(data.areaSqft || 0),
     ratePerSqft: Number(data.ratePerSqft || 0),
     totalAmount: Number(data.totalAmount || (data.areaSqft && data.ratePerSqft ? data.areaSqft * data.ratePerSqft : 0)),
     status: data.status || 'available',
-    facing: String(data.facing || ''),
-    roadWidth: Number(data.roadWidth || 0),
-    photos: Array.isArray(data.photos) ? data.photos.filter((item) => typeof item === 'string') : [],
+    facing: String(data.facing || 'East'),
+    roadWidth: Number(data.roadWidth || 30),
+    photos: Array.isArray(data.photos) && data.photos.length > 0
+      ? data.photos.filter((item) => typeof item === 'string')
+      : ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80'],
     documents: Array.isArray(data.documents) ? data.documents.filter((item) => typeof item === 'string') : [],
-    geo: typeof data.geo === 'object' && data.geo !== null ? data.geo : { lat: 0, lng: 0 },
-    location: typeof data.location === 'string' ? data.location : '',
+    geo,
+    coordinates: data.coordinates || `${geo.lat}° N, ${geo.lng}° E`,
+    location: typeof data.location === 'string' ? data.location : 'Bengaluru',
     description: typeof data.description === 'string' ? data.description : '',
-    createdAt: data.createdAt || null,
+    amenities: Array.isArray(data.amenities) ? data.amenities : ['Gated Community', 'Clear Title', 'Tar Road'],
+    createdAt: data.createdAt || new Date().toISOString(),
     updatedAt: data.updatedAt || null,
   }
 }
@@ -64,31 +85,48 @@ export function formatPlot(id, data = {}) {
 // Admin: subscribe to all plots
 export function subscribeToPlots(onChange, onError) {
   if (!isFirebaseConfigured || !db) {
-    onChange([])
+    onChange(initialPlots)
     return () => undefined
   }
   return onSnapshot(
     collection(db, 'plots'),
     (snapshot) => {
-      onChange(snapshot.docs.map((item) => formatPlot(item.id, item.data())))
+      if (snapshot.empty) {
+        onChange(initialPlots)
+      } else {
+        onChange(snapshot.docs.map((item) => formatPlot(item.id, item.data())))
+      }
     },
-    onError
+    (err) => {
+      console.warn('subscribeToPlots fallback to mockPlots:', err?.message)
+      onChange(initialPlots)
+      if (onError) onError(err)
+    }
   )
 }
 
 // Public: subscribe to available & reserved plots
 export function subscribeToPublicPlots(onChange, onError) {
+  const defaultPublic = initialPlots.filter((p) => p.status === 'available' || p.status === 'reserved');
   if (!isFirebaseConfigured || !db) {
-    onChange([])
+    onChange(defaultPublic)
     return () => undefined
   }
   const q = query(collection(db, 'plots'), where('status', 'in', ['available', 'reserved']))
   return onSnapshot(
     q,
     (snapshot) => {
-      onChange(snapshot.docs.map((item) => formatPlot(item.id, item.data())))
+      if (snapshot.empty) {
+        onChange(defaultPublic)
+      } else {
+        onChange(snapshot.docs.map((item) => formatPlot(item.id, item.data())))
+      }
     },
-    onError
+    (err) => {
+      console.warn('subscribeToPublicPlots fallback to mockPlots:', err?.message)
+      onChange(defaultPublic)
+      if (onError) onError(err)
+    }
   )
 }
 
@@ -128,7 +166,9 @@ export async function createPlot(input) {
     )
   )
 
-  return Promise.race([addPromise, timeoutPromise])
+  const docRef = await Promise.race([addPromise, timeoutPromise])
+  await confirmServerSync('create')
+  return docRef
 }
 
 // Update plot
@@ -157,7 +197,8 @@ export async function updatePlot(plotId, input) {
     )
   )
 
-  return Promise.race([updatePromise, timeoutPromise])
+  await Promise.race([updatePromise, timeoutPromise])
+  await confirmServerSync('update')
 }
 
 // Delete plot

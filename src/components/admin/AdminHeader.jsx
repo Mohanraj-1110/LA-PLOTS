@@ -1,11 +1,13 @@
-import React from 'react'
-import { Bell, LogOut, Menu, Search } from 'lucide-react'
+import React, { useState } from 'react'
+import { Bell, Database, LogOut, Menu, Search } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { ConnectionTestModal } from './ConnectionTestModal'
 
 export function AdminHeader({ onMenuToggle }) {
   const { profile, firebaseUser, role, logout } = useAuth()
   const navigate = useNavigate()
+  const [showTestModal, setShowTestModal] = useState(false)
 
   async function handleLogout() {
     await logout()
@@ -43,6 +45,16 @@ export function AdminHeader({ onMenuToggle }) {
         </label>
         <button
           type="button"
+          onClick={() => setShowTestModal(true)}
+          title="Test Firebase & Firestore Database Connection"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-surface-200 bg-surface-50 px-2.5 py-1.5 text-xs font-semibold text-surface-700 hover:bg-surface-100 hover:border-surface-300 transition-all duration-200"
+        >
+          <Database size={15} className="text-primary-600" />
+          <span className="hidden sm:inline">DB Test</span>
+          <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+        </button>
+        <button
+          type="button"
           className="rounded-xl p-2 text-surface-500 hover:bg-surface-100 hover:text-surface-700 transition-all duration-200 relative"
           aria-label="Notifications"
         >
@@ -71,6 +83,11 @@ export function AdminHeader({ onMenuToggle }) {
           </button>
         </div>
       </div>
+
+      <ConnectionTestModal
+        isOpen={showTestModal}
+        onClose={() => setShowTestModal(false)}
+      />
     </header>
   )
 }

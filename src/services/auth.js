@@ -9,7 +9,7 @@ import {
   updateProfile,
 } from 'firebase/auth'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { auth, db, isFirebaseConfigured } from '../firebase/config'
+import { auth, db, isFirebaseConfigured } from '../firebase/config.js'
 
 /**
  * Checks whether an email belongs to an admin
@@ -20,7 +20,7 @@ export function isAdminEmail(email) {
   }
   if (!email) return false
   const clean = email.toLowerCase().trim()
-  const envAdmins = (import.meta.env.VITE_ADMIN_EMAILS || '')
+  const envAdmins = ((typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_EMAILS) || '')
     .toLowerCase()
     .split(',')
     .map((s) => s.trim())
