@@ -38,19 +38,22 @@ function saveCachedProfile(uid, profileData) {
 
 function buildFallbackProfile(user, extra = {}) {
   if (!user) return null;
-  const localOverride = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null;
   const cached = getCachedProfile(user.uid || user.id);
   const isDefaultAdmin = isAdminEmail(user.email);
   const defaultRole = isDefaultAdmin ? 'admin' : 'customer';
 
-  const resolvedRole = localOverride || extra.role || (isDefaultAdmin ? 'admin' : (cached?.role || defaultRole));
+  // Only allow admin role if email matches admin list
+  let resolvedRole = isDefaultAdmin ? 'admin' : (cached?.role || defaultRole);
+  if (extra.role && (extra.role !== 'admin' || isDefaultAdmin)) {
+    resolvedRole = extra.role;
+  }
 
   return {
     id: user.uid || user.id,
     uid: user.uid || user.id,
     name: extra.name || cached?.name || user.displayName || user.name || user.email?.split('@')[0] || 'User',
     email: user.email || '',
-    phone: user.phoneNumber || user.phone || cached?.phone || '+91 98451 99001',
+    phone: user.phoneNumber || user.phone || cached?.phone || '',
     role: resolvedRole,
     photoURL: user.photoURL || cached?.photoURL || cached?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
     avatar: user.photoURL || cached?.photoURL || cached?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
@@ -72,12 +75,7 @@ export function AuthProvider({ children }) {
     }
 
     const fallback = buildFallbackProfile(user, extra);
-    setProfile((prev) => {
-      if (prev?.id === fallback.id && (prev?.role === 'admin' || prev?.role === 'Admin') && fallback.role !== 'admin') {
-        return { ...fallback, role: 'admin' };
-      }
-      return fallback;
-    });
+    setProfile(fallback);
 
     const userKey = user.uid || user.id;
     if (inflightProfileRequests.has(userKey)) {
@@ -87,8 +85,7 @@ export function AuthProvider({ children }) {
     const fetchTask = (async () => {
       try {
         const firestoreProfile = await getUserProfile(userKey);
-        const localRole = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null;
-        const isUserAdmin = localRole === 'admin' || isAdminEmail(user.email);
+        const isUserAdmin = isAdminEmail(user.email) || firestoreProfile?.role === 'admin';
 
         if (firestoreProfile) {
           const finalProfile = {
@@ -96,7 +93,7 @@ export function AuthProvider({ children }) {
             ...firestoreProfile,
             id: userKey,
             uid: userKey,
-            role: isUserAdmin ? 'admin' : (firestoreProfile.role || fallback.role),
+            role: isUserAdmin ? 'admin' : (firestoreProfile.role || 'customer'),
           };
           setProfile(finalProfile);
           saveCachedProfile(userKey, finalProfile);
@@ -110,7 +107,7 @@ export function AuthProvider({ children }) {
               ...created,
               id: userKey,
               uid: userKey,
-              role: isUserAdmin ? 'admin' : (created.role || fallback.role),
+              role: isUserAdmin ? 'admin' : (created.role || 'customer'),
             };
             setProfile(finalProfile);
             saveCachedProfile(userKey, finalProfile);
@@ -238,8 +235,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   const switchRole = useCallback(async (newRole) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('la_plots_user_role', newRole);
+    const userEmail = firebaseUser?.email || profile?.email;
+    if (newRole === 'admin' && !isAdminEmail(userEmail)) {
+      throw new Error('Access denied: Admin role requires authorized administrator email.');
     }
     setProfile((prev) => (prev ? { ...prev, role: newRole } : { role: newRole }));
     if (firebaseUser?.uid) {
@@ -255,10 +253,13 @@ export function AuthProvider({ children }) {
     return profile;
   }, [firebaseUser, loadUserProfile, profile]);
 
-  const effectiveRole = (profile?.role || (isAdminEmail(firebaseUser?.email) ? 'admin' : (firebaseUser ? 'customer' : null)) || 'admin').toLowerCase();
-  const isAdmin = effectiveRole === 'admin';
-  const isManager = effectiveRole === 'agent' || effectiveRole === 'manager' || isAdmin;
-  const isAuthenticated = Boolean(profile || firebaseUser);
+  const isAuthenticated = Boolean(firebaseUser || (profile && profile.id));
+  const userEmail = firebaseUser?.email || profile?.email;
+  const isEmailAdmin = isAdminEmail(userEmail);
+  const rawRole = isEmailAdmin ? 'admin' : (profile?.role || (isAuthenticated ? 'customer' : null));
+  const effectiveRole = rawRole ? rawRole.toLowerCase() : null;
+  const isAdmin = effectiveRole === 'admin' && isAuthenticated;
+  const isManager = (effectiveRole === 'agent' || effectiveRole === 'manager' || isAdmin) && isAuthenticated;
 
   const value = {
     firebaseUser,

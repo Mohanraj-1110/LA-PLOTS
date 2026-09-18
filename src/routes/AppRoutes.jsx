@@ -125,7 +125,7 @@ export function AppRoutes() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'agent', 'manager']}>
+            <ProtectedRoute allowedRoles={['admin']}>
               <AppLayout />
             </ProtectedRoute>
           }

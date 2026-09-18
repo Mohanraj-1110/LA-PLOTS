@@ -202,3 +202,21 @@ What was done:
 - Production build verified (`vite build` passing in 2.69s) and ESLint passing with 0 errors.
 Next step: Phase 16 — Firestore Security Rules hardening + analytics event wiring.
 
+### 2026-09-18 — Antigravity
+Phase worked on: Full Database Persistence Migration to MongoDB Atlas (Firebase Auth Only)
+Status: done
+Files changed: package.json, vite.config.js, .env, .env.example, server/db.js, server/models/*, server/routes/*, server/seed.js, server/server.js, src/firebase/config.js, src/services/api.js, src/services/auth.js, src/services/authService.js, src/services/plotService.js, src/services/plots.js, src/services/customerService.js, src/services/customers.js, src/services/appointmentService.js, src/services/appointments.js, src/services/salesService.js, src/services/sales.js, src/services/documentService.js, src/services/documents.js, src/services/enquiryService.js, src/services/enquiries.js, src/services/messageService.js, src/services/messages.js, src/services/users.js, src/services/wishlists.js, src/services/reviews.js, src/services/dashboard.js, src/services/reports.js, src/services/connectionTest.js, src/components/common/FirebaseConnectionTest.jsx, src/shared/types.js, PROJECT_STATUS.md
+What was done:
+- Migrated all database persistence, models, and operations from Firebase Firestore & Storage to MongoDB Atlas.
+- Scoped Firebase strictly and exclusively to Authentication (`initializeApp` + `getAuth`). Completely eliminated `firebase/firestore`, `firebase/storage`, and `firebase/functions` imports from frontend services.
+- Created Express.js API backend in `server/` with Mongoose models (`Plot`, `Customer`, `Appointment`, `Sale`, `Document`, `Enquiry`, `Message`, `User`, `Wishlist`, `Review`) and auto-seeder (`server/seed.js`).
+- Created resilient MongoDB Atlas connection helper (`server/db.js`) with offline fallback so app runs reliably even if MONGODB_URI is empty or cluster is initializing.
+- Integrated Express backend directly into Vite dev server via `expressPlugin` in `vite.config.js` so a single `npm run dev` serves frontend and backend concurrently.
+- Created centralized API client (`src/services/api.js`) with automatic Firebase ID Token attachment and MongoDB `_id` -> `id` normalization.
+- Refactored all data services (`plotService`, `customerService`, `appointmentService`, `salesService`, `documentService`, `enquiryService`, `messageService`, `users`, `wishlists`, `reviews`, `dashboard`, `reports`) to use `/api/*`.
+- Configured file/document uploads to use client-side data URLs and `/api/upload` endpoint, replacing Firebase Storage.
+- Updated Settings Diagnostics (`FirebaseConnectionTest.jsx` & `firestoreTest.js`) to test MongoDB Atlas CRUD and Firebase Auth.
+- Validated with `npm run lint` (0 errors) and `npm run build` (success in 1.1s).
+Next step: Phase 17 — Responsive testing and final QA.
+
+

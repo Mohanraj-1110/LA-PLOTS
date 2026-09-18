@@ -8,34 +8,24 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth'
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { auth, db, isFirebaseConfigured } from '../firebase/config.js'
+import { auth, isFirebaseConfigured } from '../firebase/config.js'
+import { api } from './api.js'
 
 /**
- * Checks whether an email belongs to an admin
+ * Checks whether an email belongs to an authorized admin
  */
 export function isAdminEmail(email) {
-  if (typeof window !== 'undefined' && localStorage.getItem('la_plots_user_role') === 'admin') {
-    return true
-  }
   if (!email) return false
   const clean = email.toLowerCase().trim()
-  const envAdmins = ((typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_EMAILS) || '')
+  const rawAdmins =
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_EMAILS) ||
+    'admin@gmail.com,admin@laplots.com,mohan@gmail.com,lkproperties153@gmail.com'
+  const envAdmins = rawAdmins
     .toLowerCase()
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-  if (envAdmins.includes(clean)) return true
-  if (
-    clean.startsWith('admin@') ||
-    clean.startsWith('admin.') ||
-    clean.startsWith('admin_') ||
-    clean.includes('admin') ||
-    clean.includes('mohan')
-  ) {
-    return true
-  }
-  return false
+  return envAdmins.includes(clean)
 }
 
 /**
@@ -75,12 +65,6 @@ export function formatAuthError(err) {
   if (code === 'auth/unauthorized-domain') {
     return 'Domain not authorized! Please add your domain to Firebase Console > Authentication > Settings > Authorized domains.'
   }
-  if (code === 'permission-denied') {
-    return 'Database permission denied. Please publish your firestore.rules in Firebase Console.'
-  }
-  if (err.message && err.message.toLowerCase().includes('offline')) {
-    return 'Connecting to Firestore database...'
-  }
   return err.message || 'Authentication failed. Please try again.'
 }
 
@@ -93,34 +77,28 @@ export function subscribeToAuth(callback) {
 }
 
 /**
- * Fetches user profile from Firestore users/{uid} document with timeout protection.
+ * Fetches user profile from MongoDB Atlas /api/users/:uid
  */
 export async function getUserProfile(uid) {
-  if (!isFirebaseConfigured || !db || !uid) return null
+  if (!uid) return null
   try {
-    const fetchPromise = getDoc(doc(db, 'users', uid))
-    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 2500))
-    const snapshot = await Promise.race([fetchPromise, timeoutPromise])
-    return snapshot && snapshot.exists() ? { uid: snapshot.id, ...snapshot.data() } : null
+    const user = await api.get(`/users/${uid}`)
+    return user
   } catch (err) {
-    console.warn('[Firestore] getUserProfile error:', err?.code, err?.message)
+    console.warn('[MongoDB Atlas] getUserProfile note:', err?.message)
     return null
   }
 }
 
 /**
- * Ensures user document exists in Cloud Firestore users/{uid}.
- * Stores uid, name, email, and role reliably.
+ * Ensures user document exists in MongoDB Atlas users collection
  */
 export async function ensureUserDocument(firebaseUser, extraData = {}) {
-  if (!isFirebaseConfigured || !db || !firebaseUser) {
-    return null
-  }
+  if (!firebaseUser) return null
 
   const uid = firebaseUser.uid
-  const userRef = doc(db, 'users', uid)
   const isDefaultAdmin = isAdminEmail(firebaseUser.email)
-  const resolvedRole = extraData.role || (isDefaultAdmin ? 'admin' : 'customer')
+  const resolvedRole = isDefaultAdmin ? 'admin' : (extraData.role === 'admin' ? 'customer' : (extraData.role || 'customer'))
 
   const profileData = {
     uid,
@@ -129,43 +107,20 @@ export async function ensureUserDocument(firebaseUser, extraData = {}) {
     phone: extraData.phone || firebaseUser.phoneNumber || '',
     role: resolvedRole,
     photoURL: firebaseUser.photoURL || '',
+    company: extraData.company || 'LA Plots Realty LLP',
   }
 
   try {
-    // 1. Check if user document already exists in Firestore
-    const snapshot = await getDoc(userRef)
-    if (snapshot.exists()) {
-      const existing = snapshot.data()
-      // Preserve admin/agent role, or upgrade to admin if email matches admin criteria
-      const shouldBeAdmin = isDefaultAdmin || extraData.role === 'admin'
-      if (shouldBeAdmin && existing.role !== 'admin') {
-        existing.role = 'admin'
-        setDoc(userRef, { role: 'admin', updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
-      } else if (existing.role === 'admin' || existing.role === 'agent') {
-        // preserve
-      } else if (extraData.role) {
-        existing.role = extraData.role
-      }
-      return { uid: snapshot.id, ...existing }
-    }
-
-    // 2. Document does not exist yet -> Create it in Firestore!
-    const newDoc = {
-      ...profileData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    }
-    await setDoc(userRef, newDoc)
-    console.log('[Firestore] Successfully created user profile in Firestore:', uid, newDoc)
-    return { ...newDoc, createdAt: new Date().toISOString() }
+    const saved = await api.post('/users', profileData)
+    return saved
   } catch (err) {
-    console.warn('[Firestore] Primary getDoc/setDoc notice:', err?.code, err?.message)
+    console.warn('[MongoDB Atlas] ensureUserDocument notice:', err?.message)
     return profileData
   }
 }
 
 /**
- * Fast Email/password sign in - does not block on Firestore writes
+ * Fast Email/password sign in
  */
 export async function signIn(email, password) {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
@@ -173,7 +128,7 @@ export async function signIn(email, password) {
 }
 
 /**
- * Signup - creates Firebase auth user and writes document to Firebase
+ * Signup - creates Firebase auth user and syncs profile to MongoDB Atlas
  */
 export async function signUp(name, email, password, role = 'customer') {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
@@ -188,17 +143,17 @@ export async function signUp(name, email, password, role = 'customer') {
     }
   }
 
-  const effectiveRole = isAdminEmail(email) ? 'admin' : role
-  // Non-blocking background sync so signup completes quickly
+  const effectiveRole = isAdminEmail(email) ? 'admin' : (role === 'admin' ? 'customer' : role)
+  // Sync profile to MongoDB Atlas
   ensureUserDocument(credential.user, { name: cleanName, role: effectiveRole }).catch((err) => {
-    console.warn('Background ensureUserDocument notice:', err?.message)
+    console.warn('Background MongoDB Atlas ensureUserDocument notice:', err?.message)
   })
 
   return credential.user
 }
 
 /**
- * Google popup sign-in - fast authentication
+ * Google popup sign-in - fast authentication + MongoDB Atlas user record sync
  */
 export async function googleSignIn() {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
@@ -207,12 +162,12 @@ export async function googleSignIn() {
   const credential = await signInWithPopup(auth, provider)
   
   const effectiveRole = isAdminEmail(credential.user.email) ? 'admin' : 'customer'
-  // Non-blocking background sync so Google sign-in completes instantly
+  // Sync user profile into MongoDB Atlas
   ensureUserDocument(credential.user, {
     name: credential.user.displayName,
     role: effectiveRole,
   }).catch((err) => {
-    console.warn('Background ensureUserDocument notice:', err?.message)
+    console.warn('Background MongoDB Atlas ensureUserDocument notice:', err?.message)
   })
 
   return credential.user

@@ -1,13 +1,4 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  serverTimestamp,
-} from 'firebase/firestore'
-import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
-import { db, isFirebaseConfigured, storage } from '../firebase/config'
+import { api } from './api.js'
 
 export const documentCategories = [
   'Land Documents',
@@ -20,59 +11,61 @@ export const documentCategories = [
 ]
 
 export function subscribeToDocuments(onChange, onError) {
-  if (!isFirebaseConfigured || !db) {
-    onChange([])
-    return () => undefined
+  let isMounted = true
+
+  const fetchDocs = async () => {
+    try {
+      const docs = await api.get('/documents')
+      if (isMounted) {
+        onChange(Array.isArray(docs) ? docs : [])
+      }
+    } catch (err) {
+      if (isMounted) {
+        console.warn('[MongoDB Atlas] subscribeToDocuments notice:', err?.message)
+        onChange([])
+        if (onError) onError(err)
+      }
+    }
   }
-  return onSnapshot(
-    collection(db, 'documents'),
-    (snapshot) => {
-      onChange(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
-    },
-    onError
-  )
+
+  fetchDocs()
+  const intervalId = setInterval(fetchDocs, 10000)
+
+  return () => {
+    isMounted = false
+    clearInterval(intervalId)
+  }
 }
 
 export async function uploadDocument(file, metadata, onProgress) {
-  if (!isFirebaseConfigured || !storage || !db) throw new Error('Firebase is not configured.')
   if (file.size > 10 * 1024 * 1024) throw new Error('Documents must be 10 MB or smaller.')
   if (file.type !== 'application/pdf') throw new Error('Only PDF documents are supported.')
 
-  const fileRef = ref(storage, `documents/${Date.now()}-${file.name}`)
-  const upload = uploadBytesResumable(fileRef, file)
-
-  const url = await new Promise((resolve, reject) => {
-    upload.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
-        onProgress?.(progress)
-      },
-      reject,
-      async () => {
-        const downloadUrl = await getDownloadURL(upload.snapshot.ref)
-        resolve(downloadUrl)
-      }
-    )
+  // Read file as base64 data URL
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      onProgress?.(100)
+      resolve(reader.result)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
   })
 
-  const document = await addDoc(collection(db, 'documents'), {
+  // Save document to MongoDB Atlas
+  const document = await api.post('/documents', {
     ...metadata,
-    fileUrl: url,
-    createdAt: serverTimestamp(),
+    name: metadata.name || file.name,
+    fileUrl: dataUrl,
+    fileSize: `${Math.round(file.size / 1024)} KB`,
+    fileType: file.type,
+    uploadedAt: new Date().toISOString(),
   })
 
   return document.id
 }
 
 export async function deleteDocument(document) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  await deleteDoc(doc(db, 'documents', document.id))
-  if (storage && document.fileUrl) {
-    try {
-      await deleteObject(ref(storage, document.fileUrl))
-    } catch {
-      // Storage object might already be removed or unreachable
-    }
-  }
+  if (!document?.id) return
+  return api.delete(`/documents/${document.id}`)
 }

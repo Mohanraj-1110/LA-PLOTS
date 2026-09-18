@@ -93,7 +93,7 @@ export function ReportsPage() {
 
   // Export handlers
   const handleExportCsv = () => {
-    let rows = [];
+    let rows;
     if (activeTab === 'sales' || activeTab === 'profit') {
       rows = sales.map((s) => ({
         Plot: s.plotNumber,

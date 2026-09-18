@@ -7,7 +7,7 @@
  * @property {'admin' | 'agent' | 'customer'} role
  * @property {string} photoURL
  * @property {string[]} [kycDocuments]
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -18,7 +18,7 @@
  * @property {string} description
  * @property {number} totalPlots
  * @property {string} coverImage
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -51,7 +51,7 @@
  * @property {string} interestedProjectId
  * @property {string} interestedPlotId
  * @property {string} status
- * @property {import('firebase/firestore').Timestamp} nextFollowupDate
+ * @property {string | Date} nextFollowupDate
  * @property {string} notes
  * @property {string} assignedAgentId
  */
@@ -62,7 +62,7 @@
  * @property {string} customerId
  * @property {string} plotId
  * @property {'site visit' | 'meeting' | 'call' | 'registration' | 'payment'} type
- * @property {import('firebase/firestore').Timestamp} date
+ * @property {string | Date} date
  * @property {string} time
  * @property {string} status
  * @property {string} notes
@@ -76,7 +76,7 @@
  * @property {number} saleAmount
  * @property {number} cost
  * @property {number} profit
- * @property {import('firebase/firestore').Timestamp} saleDate
+ * @property {string | Date} saleDate
  * @property {string} paymentStatus
  */
 
@@ -90,7 +90,7 @@
  * @property {string} plotId
  * @property {string} customerId
  * @property {string} uploadedBy
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -105,7 +105,7 @@
  * @property {string} [requirement]
  * @property {string} [assignedAgentId]
  * @property {string} [assignedAgentName]
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -113,7 +113,7 @@
  * @property {string} id
  * @property {string} customerId
  * @property {string} plotId
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -123,7 +123,7 @@
  * @property {string} customerName
  * @property {string} agentId
  * @property {string} body
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -134,7 +134,7 @@
  * @property {string} [projectId]
  * @property {number} rating
  * @property {string} comment
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -145,7 +145,7 @@
  * @property {string} message
  * @property {string} type
  * @property {boolean} isRead
- * @property {import('firebase/firestore').Timestamp} createdAt
+ * @property {string | Date} createdAt
  */
 
 /**
@@ -155,7 +155,7 @@
  * @property {string} phone
  * @property {string} email
  * @property {string} address
- * @property {import('firebase/firestore').Timestamp} updatedAt
+ * @property {string | Date} updatedAt
  */
 
 export {}

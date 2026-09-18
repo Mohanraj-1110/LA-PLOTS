@@ -8,10 +8,11 @@ import { useToast } from '../../context/ToastContext';
 import { loginSchema } from '../../utils/validators';
 import { ROUTES } from '../../routes/routePaths';
 import { FormInput } from '../../components/forms/FormInput';
+import { isAdminEmail } from '../../services/auth';
 import { Mail, Lock, ArrowRight, ShieldCheck, Sparkles, User, UserPlus, Database } from 'lucide-react';
 
 export function LoginPage() {
-  const { login, signup, demoLogin, googleSignIn } = useAuth();
+  const { login, signup, googleSignIn } = useAuth();
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,7 +24,6 @@ export function LoginPage() {
   const [signupName, setSignupName] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
-  const [signupRole, setSignupRole] = useState('Agent');
 
   const from = location.state?.from?.pathname || ROUTES.HOME;
 
@@ -34,8 +34,8 @@ export function LoginPage() {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      emailOrPhone: 'vikram.mehta@laplots.com',
-      password: 'password123',
+      emailOrPhone: '',
+      password: '',
       rememberMe: true,
     },
   });
@@ -43,9 +43,17 @@ export function LoginPage() {
   const onSignInSubmit = async (data) => {
     setSubmitting(true);
     try {
-      await login(data.emailOrPhone, data.password, data.rememberMe);
+      const result = await login(data.emailOrPhone, data.password, data.rememberMe);
       success('Welcome back to LA PLOTS!', 'Logged In Successfully');
-      navigate(from, { replace: true });
+      const userProfile = result?.profile;
+      const isAdm = userProfile?.role === 'admin' || isAdminEmail(data.emailOrPhone);
+      if (from && from !== '/' && from !== '/login') {
+        navigate(from, { replace: true });
+      } else if (isAdm) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       toastError(err.message || 'Invalid email or password', 'Login Failed');
     } finally {
@@ -66,24 +74,16 @@ export function LoginPage() {
 
     setSubmitting(true);
     try {
-      await signup(signupEmail.trim(), signupPassword, signupName.trim(), signupRole);
-      success(`Welcome ${signupName}! Your account has been registered with Firebase.`, 'Account Created');
-      navigate(from, { replace: true });
+      await signup(signupEmail.trim(), signupPassword, signupName.trim(), 'customer');
+      success(`Welcome ${signupName}! Your account has been registered.`, 'Account Created');
+      const isAdm = isAdminEmail(signupEmail);
+      if (isAdm) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       toastError(err.message || 'Registration failed', 'Firebase Auth Error');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDemo = async (role) => {
-    setSubmitting(true);
-    try {
-      await demoLogin(role);
-      success(`Logged in as ${role} for quick preview!`, 'Demo Access');
-      navigate(from, { replace: true });
-    } catch (err) {
-      toastError(err.message || 'Demo login failed');
     } finally {
       setSubmitting(false);
     }
@@ -346,40 +346,10 @@ export function LoginPage() {
                   required
                 />
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Account Role
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSignupRole('Agent')}
-                      className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all cursor-pointer text-center ${
-                        signupRole === 'Agent'
-                          ? 'bg-emerald-50 border-emerald-500 text-emerald-800'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      Sales Agent
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSignupRole('Admin')}
-                      className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all cursor-pointer text-center ${
-                        signupRole === 'Admin'
-                          ? 'bg-emerald-50 border-emerald-500 text-emerald-800'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      Project Admin
-                    </button>
-                  </div>
-                </div>
-
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-4"
                 >
                   {submitting ? (
                     <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -393,33 +363,6 @@ export function LoginPage() {
               </form>
             </div>
           )}
-
-          {/* Quick 1-Click Demo Login options */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <p className="text-[11px] font-semibold text-slate-500 text-center mb-2.5">
-              Fast Preview (One-Click Sign In)
-            </p>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => handleDemo('Admin')}
-                disabled={submitting}
-                className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Admin View</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemo('Agent')}
-                disabled={submitting}
-                className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-xl text-xs font-bold border border-blue-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                <span>Agent View</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

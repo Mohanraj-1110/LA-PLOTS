@@ -1,61 +1,54 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  onSnapshot,
-  serverTimestamp,
-  Timestamp,
-  updateDoc,
-} from 'firebase/firestore'
-import { db, isFirebaseConfigured } from '../firebase/config'
-
-function toCustomerData(input) {
-  return {
-    ...input,
-    budget: Number(input.budget) || 0,
-    nextFollowupDate: input.nextFollowupDate
-      ? Timestamp.fromDate(new Date(`${input.nextFollowupDate}T00:00:00`))
-      : null,
-    updatedAt: serverTimestamp(),
-  }
-}
+import { api } from './api.js'
 
 export function subscribeToCustomers(onChange, onError) {
-  if (!isFirebaseConfigured || !db) {
-    onChange([])
-    return () => undefined
+  let isMounted = true
+
+  const fetchCustomers = async () => {
+    try {
+      const customers = await api.get('/customers')
+      if (isMounted) {
+        onChange(Array.isArray(customers) ? customers : [])
+      }
+    } catch (err) {
+      if (isMounted) {
+        console.warn('[MongoDB Atlas] subscribeToCustomers notice:', err?.message)
+        onChange([])
+        if (onError) onError(err)
+      }
+    }
   }
-  return onSnapshot(
-    collection(db, 'customers'),
-    (snapshot) => {
-      onChange(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
-    },
-    onError
-  )
+
+  fetchCustomers()
+  const intervalId = setInterval(fetchCustomers, 10000)
+
+  return () => {
+    isMounted = false
+    clearInterval(intervalId)
+  }
 }
 
 export async function getCustomer(customerId) {
-  if (!isFirebaseConfigured || !db) return null
-  const snapshot = await getDoc(doc(db, 'customers', customerId))
-  return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null
+  if (!customerId) return null
+  try {
+    return await api.get(`/customers/${customerId}`)
+  } catch {
+    return null
+  }
 }
 
 export async function createCustomer(input) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  return addDoc(collection(db, 'customers'), {
-    ...toCustomerData(input),
-    createdAt: serverTimestamp(),
-  })
+  const customerData = {
+    ...input,
+    budget: Number(input.budget) || 0,
+    createdAt: new Date().toISOString(),
+  }
+  return api.post('/customers', customerData)
 }
 
 export async function updateCustomer(customerId, input) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  await updateDoc(doc(db, 'customers', customerId), toCustomerData(input))
+  return api.put(`/customers/${customerId}`, input)
 }
 
 export async function deleteCustomer(customerId) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  await deleteDoc(doc(db, 'customers', customerId))
+  return api.delete(`/customers/${customerId}`)
 }

@@ -1,43 +1,46 @@
-import {
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  serverTimestamp,
-  updateDoc,
-} from 'firebase/firestore'
-import { db, isFirebaseConfigured } from '../firebase/config'
+import { api } from './api.js'
 
 export function subscribeToEnquiries(onChange, onError) {
-  if (!isFirebaseConfigured || !db) {
-    onChange([])
-    return () => undefined
+  let isMounted = true
+
+  const fetchEnquiries = async () => {
+    try {
+      const enqs = await api.get('/enquiries')
+      if (isMounted) {
+        onChange(Array.isArray(enqs) ? enqs : [])
+      }
+    } catch (err) {
+      if (isMounted) {
+        console.warn('[MongoDB Atlas] subscribeToEnquiries notice:', err?.message)
+        onChange([])
+        if (onError) onError(err)
+      }
+    }
   }
-  return onSnapshot(
-    collection(db, 'enquiries'),
-    (snapshot) => {
-      onChange(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
-    },
-    onError
-  )
+
+  fetchEnquiries()
+  const intervalId = setInterval(fetchEnquiries, 10000)
+
+  return () => {
+    isMounted = false
+    clearInterval(intervalId)
+  }
 }
 
 export async function createEnquiry(data) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  return addDoc(collection(db, 'enquiries'), {
+  const enqData = {
     ...data,
     status: data.status || 'New',
-    createdAt: serverTimestamp(),
-  })
+    createdAt: new Date().toISOString(),
+  }
+  return api.post('/enquiries', enqData)
 }
 
 export async function updateEnquiry(id, values) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  await updateDoc(doc(db, 'enquiries', id), values)
+  return api.put(`/enquiries/${id}`, values)
 }
 
 export async function convertEnquiry(item, agentId) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
   const customer = {
     name: item.customerName,
     phone: item.phone,
@@ -50,8 +53,8 @@ export async function convertEnquiry(item, agentId) {
     nextFollowupDate: null,
     notes: item.requirement || '',
     assignedAgentId: agentId,
-    createdAt: serverTimestamp(),
+    createdAt: new Date().toISOString(),
   }
-  await addDoc(collection(db, 'customers'), customer)
+  await api.post('/customers', customer)
   await updateEnquiry(item.id, { status: 'Converted', assignedAgentId: agentId })
 }

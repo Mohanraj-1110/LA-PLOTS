@@ -1,12 +1,4 @@
-import {
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore'
-import { db, isFirebaseConfigured } from '../firebase/config'
+import { api } from './api.js'
 
 const CACHE_PREFIX = 'la_plots_wishlist_'
 
@@ -16,7 +8,6 @@ export function getLocalWishlist(uid) {
     const raw = localStorage.getItem(`${CACHE_PREFIX}${uid}`)
     return raw ? JSON.parse(raw) : []
   } catch {
-    // ignore parse or storage errors
     return []
   }
 }
@@ -26,7 +17,7 @@ export function saveLocalWishlist(uid, ids) {
   try {
     localStorage.setItem(`${CACHE_PREFIX}${uid}`, JSON.stringify(ids))
   } catch {
-    // ignore storage quota errors
+    // ignore
   }
 }
 
@@ -42,30 +33,37 @@ export function subscribeToWishlist(uid, onChange, onError) {
     return () => undefined
   }
 
-  // Pre-seed with local cached IDs so UI renders immediately without waiting for network
+  // Pre-seed with local cached IDs
   const localCached = getLocalWishlist(uid)
   if (localCached.length > 0) {
     onChange(localCached.map((id) => ({ id, plotId: id })))
   }
 
-  if (!isFirebaseConfigured || !db) {
-    onChange(localCached.map((id) => ({ id, plotId: id })))
-    return () => undefined
+  let isMounted = true
+
+  const fetchWishlist = async () => {
+    try {
+      const items = await api.get(`/wishlists?customerId=${uid}`)
+      if (isMounted && Array.isArray(items)) {
+        const ids = items.map((i) => i.plotId || i.id)
+        saveLocalWishlist(uid, ids)
+        onChange(items)
+      }
+    } catch (err) {
+      if (isMounted) {
+        console.warn('[MongoDB Atlas] subscribeToWishlist note:', err?.message)
+        if (onError) onError(err)
+      }
+    }
   }
 
-  return onSnapshot(
-    collection(db, 'wishlists', uid, 'plots'),
-    (snapshot) => {
-      const items = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
-      const ids = items.map((i) => i.plotId || i.id)
-      saveLocalWishlist(uid, ids)
-      onChange(items)
-    },
-    (err) => {
-      console.warn('[Wishlist] subscription note:', err?.message)
-      if (onError) onError(err)
-    }
-  )
+  fetchWishlist()
+  const intervalId = setInterval(fetchWishlist, 10000)
+
+  return () => {
+    isMounted = false
+    clearInterval(intervalId)
+  }
 }
 
 export async function toggleWishlist(uid, plotId, currentlySaved) {
@@ -77,22 +75,11 @@ export async function toggleWishlist(uid, plotId, currentlySaved) {
 
   saveLocalWishlist(uid, updatedList)
 
-  if (isFirebaseConfigured && db) {
-    try {
-      const refDoc = doc(db, 'wishlists', uid, 'plots', plotId)
-      if (currentlySaved) {
-        await deleteDoc(refDoc)
-      } else {
-        await setDoc(refDoc, {
-          customerId: uid,
-          plotId,
-          createdAt: serverTimestamp(),
-        })
-      }
-    } catch (err) {
-      console.warn('[Wishlist] Firestore update note:', err?.message)
-    }
+  try {
+    const res = await api.post('/wishlists/toggle', { customerId: uid, plotId })
+    return res.isSaved
+  } catch (err) {
+    console.warn('[MongoDB Atlas] toggleWishlist local fallback:', err?.message)
+    return !currentlySaved
   }
-
-  return !currentlySaved
 }

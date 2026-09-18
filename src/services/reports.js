@@ -1,26 +1,42 @@
-import { collection, onSnapshot } from 'firebase/firestore'
-import { db, isFirebaseConfigured } from '../firebase/config'
+import { api } from './api.js'
 
 const emptyData = () => ({ plots: [], customers: [], appointments: [], sales: [] })
 
 export function subscribeToReports(onChange, onError) {
-  if (!isFirebaseConfigured || !db) {
-    onChange(emptyData())
-    return () => undefined
+  let isMounted = true
+
+  const fetchAll = async () => {
+    try {
+      const [plots, customers, appointments, sales] = await Promise.all([
+        api.get('/plots'),
+        api.get('/customers'),
+        api.get('/appointments'),
+        api.get('/sales'),
+      ])
+      if (isMounted) {
+        onChange({
+          plots: Array.isArray(plots) ? plots : [],
+          customers: Array.isArray(customers) ? customers : [],
+          appointments: Array.isArray(appointments) ? appointments : [],
+          sales: Array.isArray(sales) ? sales : [],
+        })
+      }
+    } catch (err) {
+      if (isMounted) {
+        console.warn('[MongoDB Atlas] subscribeToReports fallback:', err?.message)
+        onChange(emptyData())
+        if (onError) onError(err)
+      }
+    }
   }
-  const data = emptyData()
-  const collections = Object.keys(data)
-  const unsubscribes = collections.map((name) =>
-    onSnapshot(
-      collection(db, name),
-      (snapshot) => {
-        data[name] = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
-        onChange({ ...data })
-      },
-      onError
-    )
-  )
-  return () => unsubscribes.forEach((unsubscribe) => unsubscribe())
+
+  fetchAll()
+  const intervalId = setInterval(fetchAll, 15000)
+
+  return () => {
+    isMounted = false
+    clearInterval(intervalId)
+  }
 }
 
 export function reportDate(value) {

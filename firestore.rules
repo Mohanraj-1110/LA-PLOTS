@@ -48,6 +48,10 @@ service cloud.firestore {
       allow read, create: if isAuthorizedAdmin();
     }
 
+    match /conversations/{id} {
+      allow read, write: if isAuthorizedAdmin();
+    }
+
     match /customers/{id} {
       allow read, write: if isAuthorizedAdmin();
     }

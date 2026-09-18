@@ -1,78 +1,82 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  onSnapshot,
-  query,
-  serverTimestamp,
-  Timestamp,
-  updateDoc,
-  where,
-} from 'firebase/firestore'
-import { db, isFirebaseConfigured } from '../firebase/config'
+import { api } from './api.js'
 
 export const appointmentTypes = ['site visit', 'meeting', 'call', 'registration', 'payment']
 
-function appointmentData(input) {
-  return {
-    ...input,
-    date: input.date ? Timestamp.fromDate(new Date(`${input.date}T00:00:00`)) : null,
-    updatedAt: serverTimestamp(),
-  }
-}
-
-// Admin: subscribe to all appointments
 export function subscribeToAppointments(onChange, onError) {
-  if (!isFirebaseConfigured || !db) {
-    onChange([])
-    return () => undefined
+  let isMounted = true
+
+  const fetchAppts = async () => {
+    try {
+      const appts = await api.get('/appointments')
+      if (isMounted) {
+        onChange(Array.isArray(appts) ? appts : [])
+      }
+    } catch (err) {
+      if (isMounted) {
+        console.warn('[MongoDB Atlas] subscribeToAppointments notice:', err?.message)
+        onChange([])
+        if (onError) onError(err)
+      }
+    }
   }
-  return onSnapshot(
-    collection(db, 'appointments'),
-    (snapshot) => {
-      onChange(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
-    },
-    onError
-  )
+
+  fetchAppts()
+  const intervalId = setInterval(fetchAppts, 10000)
+
+  return () => {
+    isMounted = false
+    clearInterval(intervalId)
+  }
 }
 
-// Customer: subscribe to personal appointments
 export function subscribeToCustomerAppointments(uid, onChange, onError) {
-  if (!isFirebaseConfigured || !db) {
-    onChange([])
-    return () => undefined
+  let isMounted = true
+
+  const fetchCustomerAppts = async () => {
+    try {
+      const appts = await api.get(`/appointments?customerId=${uid}`)
+      if (isMounted) {
+        onChange(Array.isArray(appts) ? appts : [])
+      }
+    } catch (err) {
+      if (isMounted) {
+        console.warn('[MongoDB Atlas] subscribeToCustomerAppointments fallback:', err?.message)
+        onChange([])
+        if (onError) onError(err)
+      }
+    }
   }
-  return onSnapshot(
-    query(collection(db, 'appointments'), where('customerId', '==', uid)),
-    (snapshot) => {
-      onChange(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
-    },
-    onError
-  )
+
+  fetchCustomerAppts()
+  const intervalId = setInterval(fetchCustomerAppts, 10000)
+
+  return () => {
+    isMounted = false
+    clearInterval(intervalId)
+  }
 }
 
 export async function getAppointment(appointmentId) {
-  if (!isFirebaseConfigured || !db) return null
-  const snapshot = await getDoc(doc(db, 'appointments', appointmentId))
-  return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null
+  if (!appointmentId) return null
+  try {
+    return await api.get(`/appointments/${appointmentId}`)
+  } catch {
+    return null
+  }
 }
 
 export async function createAppointment(input) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  return addDoc(collection(db, 'appointments'), {
-    ...appointmentData(input),
-    createdAt: serverTimestamp(),
-  })
+  const apptData = {
+    ...input,
+    createdAt: new Date().toISOString(),
+  }
+  return api.post('/appointments', apptData)
 }
 
 export async function updateAppointment(appointmentId, input) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  await updateDoc(doc(db, 'appointments', appointmentId), appointmentData(input))
+  return api.put(`/appointments/${appointmentId}`, input)
 }
 
 export async function deleteAppointment(appointmentId) {
-  if (!isFirebaseConfigured || !db) throw new Error('Firebase is not configured.')
-  await deleteDoc(doc(db, 'appointments', appointmentId))
+  return api.delete(`/appointments/${appointmentId}`)
 }

@@ -10,7 +10,6 @@ export function Signup() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [selectedRole, setSelectedRole] = useState('customer')
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
@@ -24,8 +23,8 @@ export function Signup() {
     setBusy(true)
     setError(null)
     try {
-      const result = await signup(name, email, password, selectedRole)
-      if (selectedRole === 'admin' || isAdminEmail(email) || result?.profile?.role === 'admin') {
+      const result = await signup(name, email, password, 'customer')
+      if (isAdminEmail(email) || result?.profile?.role === 'admin') {
         navigate('/admin', { replace: true })
       } else {
         navigate('/profile', { replace: true })
@@ -151,34 +150,6 @@ export function Signup() {
                 placeholder="••••••••"
                 className="input-modern"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-surface-700 mb-2">Account Role</label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('customer')}
-                  className={`py-2.5 px-3 text-xs font-bold rounded-xl border-2 transition-all duration-200 ${
-                    selectedRole === 'customer'
-                      ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-sm shadow-primary-500/10'
-                      : 'border-surface-200 bg-white text-surface-600 hover:bg-surface-50 hover:border-surface-300'
-                  }`}
-                >
-                  Customer / Buyer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('admin')}
-                  className={`py-2.5 px-3 text-xs font-bold rounded-xl border-2 transition-all duration-200 ${
-                    selectedRole === 'admin'
-                      ? 'border-surface-900 bg-surface-900 text-white shadow-sm'
-                      : 'border-surface-200 bg-white text-surface-600 hover:bg-surface-50 hover:border-surface-300'
-                  }`}
-                >
-                  Admin / Agent
-                </button>
-              </div>
             </div>
 
             <button

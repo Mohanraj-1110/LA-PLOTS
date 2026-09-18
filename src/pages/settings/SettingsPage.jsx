@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { FormInput } from '../../components/forms/FormInput';
-import { initialUsers } from '../../data/mockUsers';
 import {
   User,
   Building2,
@@ -18,12 +17,8 @@ import {
   CheckCircle2,
   RefreshCw,
   Layers,
-  PlayCircle,
-  AlertTriangle,
-  ExternalLink,
 } from 'lucide-react';
-import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { FirebaseConnectionTest } from '../../components/common/FirebaseConnectionTest';
 
 const SETTINGS_TABS = [
   { id: 'profile', label: 'My Profile', icon: User },
@@ -42,20 +37,16 @@ export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
 
   // Profile Form State
-  const [name, setName] = useState(user?.name || 'Vikram Mehta');
-  const [email, setEmail] = useState(user?.email || 'vikram.mehta@laplots.com');
-  const [phone, setPhone] = useState(user?.phone || '+91 98451 99001');
-  const [designation, setDesignation] = useState(user?.designation || 'Managing Director');
+  const [name, setName] = useState(user?.name || user?.displayName || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || user?.phoneNumber || '');
+  const [designation, setDesignation] = useState(user?.designation || 'Administrator');
 
   // Company Form State
   const [companyName, setCompanyName] = useState(user?.company || 'LA Plots Realty LLP');
-  const [reraNumber, setReraNumber] = useState(
-    user?.reraNumber || 'PRM/KA/RERA/1251/309/PR/200922/003621'
-  );
-  const [gstNumber, setGstNumber] = useState(user?.gstNumber || '29ABCDE1234F1Z5');
-  const [address, setAddress] = useState(
-    'Suite 402, Prestige Meridian, MG Road, Bengaluru 560001'
-  );
+  const [reraNumber, setReraNumber] = useState(user?.reraNumber || '');
+  const [gstNumber, setGstNumber] = useState(user?.gstNumber || '');
+  const [address, setAddress] = useState(user?.address || '');
 
   // Notifications State
   const [emailAlerts, setEmailAlerts] = useState(true);
@@ -73,53 +64,6 @@ export function SettingsPage() {
 
   // Firebase state
   const [syncing, setSyncing] = useState(false);
-  const [testingDb, setTestingDb] = useState(false);
-  const [testResult, setTestResult] = useState(null);
-
-  const handleTestFirestore = async () => {
-    setTestingDb(true);
-    setTestResult(null);
-    const testId = `browser-test-${Date.now()}`;
-    const testDoc = {
-      title: 'Live Browser Test Document',
-      plotNumber: 'TEST-P1',
-      description: 'Tested directly from browser UI at ' + new Date().toLocaleTimeString(),
-      timestamp: new Date().toISOString(),
-      isTest: true,
-    };
-
-    try {
-      // 1. Write text document
-      const docRef = doc(db, 'plots', testId);
-      const writePromise = setDoc(docRef, testDoc);
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout: Cloud Firestore may not be initialized in Firebase Console yet.')), 7000)
-      );
-      await Promise.race([writePromise, timeoutPromise]);
-
-      // 2. Read back
-      const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        throw new Error('Document was written but could not be read back.');
-      }
-
-      // 3. Clean up
-      await deleteDoc(docRef);
-
-      setTestResult({
-        success: true,
-        message: `Successfully wrote, retrieved, and deleted test document (${testId}) from Cloud Firestore!`,
-      });
-      success('Cloud Firestore Write & Read verified successfully!', 'Test Passed');
-    } catch (err) {
-      setTestResult({
-        success: false,
-        message: err.message || 'Firestore connection issue',
-      });
-    } finally {
-      setTestingDb(false);
-    }
-  };
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -305,74 +249,7 @@ export function SettingsPage() {
               </div>
 
               {/* Live Firestore Verification Card */}
-              <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                      <PlayCircle className="w-4 h-4 text-emerald-600" />
-                      <span>Live Cloud Firestore Verification</span>
-                    </h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      Write a test text document to the Cloud Firestore database, verify read, and clean up.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleTestFirestore}
-                    disabled={testingDb}
-                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
-                  >
-                    {testingDb ? (
-                      <>
-                        <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                        <span>Testing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <PlayCircle className="w-3.5 h-3.5" />
-                        <span>Run Firestore Test</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {testResult && (
-                  <div
-                    className={`p-3.5 rounded-xl border text-xs leading-relaxed ${
-                      testResult.success
-                        ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
-                        : 'bg-amber-50 border-amber-300 text-amber-950'
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      {testResult.success ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                      )}
-                      <div className="space-y-1">
-                        <p className="font-bold">
-                          {testResult.success ? 'Test Passed!' : 'Firestore Database Setup Required'}
-                        </p>
-                        <p className="text-[11px]">{testResult.message}</p>
-                        {!testResult.success && (
-                          <div className="pt-1.5 flex items-center gap-2">
-                            <a
-                              href="https://console.firebase.google.com/project/la-plots/firestore"
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 hover:underline"
-                            >
-                              <span>Enable Firestore Database in Firebase Console</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <FirebaseConnectionTest />
 
               {/* Sync Actions */}
               <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -533,35 +410,26 @@ export function SettingsPage() {
               </div>
 
               <div className="space-y-3">
-                {initialUsers.map((u) => (
-                  <div
-                    key={u.id}
-                    className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100"
-                  >
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={u.avatar}
-                        alt=""
-                        className="w-9 h-9 rounded-full object-cover border border-slate-200"
-                      />
-                      <div>
-                        <p className="text-xs font-bold text-slate-900">{u.name}</p>
-                        <p className="text-[11px] text-slate-500">{u.email}</p>
-                      </div>
+                <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'}
+                      alt=""
+                      className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                    />
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">{user?.name || user?.displayName || 'Administrator'}</p>
+                      <p className="text-[11px] text-slate-500">{user?.email || 'admin@laplots.com'}</p>
                     </div>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        u.role === 'Admin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : u.role === 'Manager'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}
-                    >
-                      {u.role}
-                    </span>
                   </div>
-                ))}
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
+                    {user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Admin'}
+                  </span>
+                </div>
+
+                <div className="p-4 text-center text-xs text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  No additional team members added yet. Click "+ Invite Agent" to invite sales staff.
+                </div>
               </div>
             </div>
           )}

@@ -21,29 +21,7 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  const mockAlerts = [
-    {
-      id: 1,
-      title: 'Site Visit Confirmed',
-      desc: 'Dr. Suresh Reddy at Sunrise Enclave tomorrow 10:30 AM',
-      time: '10m ago',
-      type: 'visit',
-    },
-    {
-      id: 2,
-      title: 'Booking Advance Received',
-      desc: '₹1 Lakh token advance for plot GM-102 by Ananya Sharma',
-      time: '1h ago',
-      type: 'payment',
-    },
-    {
-      id: 3,
-      title: 'New Facebook Lead',
-      desc: 'Gaurav Kulkarni interested in Hinjewadi plot GA-08',
-      time: '3h ago',
-      type: 'lead',
-    },
-  ];
+  const alerts = [];
 
   const handleLogout = async () => {
     await logout();
@@ -134,7 +112,9 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
               aria-label="View notifications"
             >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary-500 ring-2 ring-white" />
+              {alerts.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary-500 ring-2 ring-white" />
+              )}
             </button>
 
             {showNotifications && (
@@ -148,37 +128,43 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
                       Notifications
                     </h4>
-                    <span className="text-[10px] bg-primary-100 text-primary-800 font-bold px-2 py-0.5 rounded-full">
-                      3 New
+                    <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full">
+                      {alerts.length} New
                     </span>
                   </div>
 
                   <div className="space-y-2.5 max-h-72 overflow-y-auto">
-                    {mockAlerts.map((alt) => (
-                      <div
-                        key={alt.id}
-                        className="p-2.5 rounded-xl bg-slate-50 hover:bg-primary-50/50 transition-colors border border-slate-100"
-                      >
-                        <p className="text-xs font-bold text-slate-900 leading-tight">
-                          {alt.title}
-                        </p>
-                        <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
-                          {alt.desc}
-                        </p>
-                        <span className="text-[10px] text-slate-400 font-medium block mt-1">
-                          {alt.time}
-                        </span>
+                    {alerts.length > 0 ? (
+                      alerts.map((alt) => (
+                        <div
+                          key={alt.id}
+                          className="p-2.5 rounded-xl bg-slate-50 hover:bg-primary-50/50 transition-colors border border-slate-100"
+                        >
+                          <p className="text-xs font-bold text-slate-900 leading-tight">
+                            {alt.title}
+                          </p>
+                          <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
+                            {alt.desc}
+                          </p>
+                          <span className="text-[10px] text-slate-400 font-medium block mt-1">
+                            {alt.time}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-6 text-center text-slate-400 text-xs">
+                        No new notifications
                       </div>
-                    ))}
+                    )}
                   </div>
 
                   <div className="pt-3 mt-3 border-t border-slate-100 text-center">
                     <button
                       type="button"
                       onClick={() => setShowNotifications(false)}
-                      className="text-xs font-semibold text-primary-600 hover:text-primary-700"
+                      className="text-xs font-semibold text-primary-600 hover:text-primary-700 cursor-pointer"
                     >
-                      Mark all as read
+                      Close
                     </button>
                   </div>
                 </div>

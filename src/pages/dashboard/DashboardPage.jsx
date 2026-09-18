@@ -79,36 +79,16 @@ export function DashboardPage() {
   const totalSalesRevenue = sales.reduce((acc, s) => acc + (s.saleAmount || 0), 0);
   const totalNetProfit = sales.reduce((acc, s) => acc + (s.netProfit || 0), 0);
 
-  // Today's tasks from appointments & followups
-  const todayTasks = [
-    {
-      id: 1,
-      title: 'Site Visit at Sunrise Enclave',
-      detail: 'With Dr. Suresh Reddy (SE-12 Plot)',
-      time: 'Tomorrow, 10:30 AM',
-      icon: CalendarCheck,
-      color: 'text-amber-600 bg-amber-50',
-      action: () => navigate(ROUTES.APPOINTMENTS),
-    },
-    {
-      id: 2,
-      title: 'Follow-up Call with Meera Iyer',
-      detail: 'Discuss Vedic Valley festive EMI scheme',
-      time: 'Today, 04:30 PM',
-      icon: PhoneCall,
-      color: 'text-blue-600 bg-blue-50',
-      action: () => navigate(ROUTES.CUSTOMERS),
-    },
-    {
-      id: 3,
-      title: 'Agreement Signing at Indiranagar',
-      detail: 'Ananya Sharma for GM-102 Corner Plot',
-      time: 'In 2 days, 11:00 AM',
-      icon: Building,
-      color: 'text-purple-600 bg-purple-50',
-      action: () => navigate(ROUTES.DOCUMENTS),
-    },
-  ];
+  // Today's tasks from real scheduled appointments
+  const todayTasks = appointments.slice(0, 4).map((appt, idx) => ({
+    id: appt.id || idx,
+    title: `${appt.type ? appt.type.toUpperCase() : 'APPOINTMENT'}: ${appt.customerName || 'Customer'}`,
+    detail: appt.plotNumber ? `Plot ${appt.plotNumber} • ${appt.projectName || 'Layout'}` : (appt.notes || 'Scheduled appointment'),
+    time: `${appt.date || 'Today'} ${appt.time || ''}`.trim(),
+    icon: CalendarCheck,
+    color: 'text-emerald-600 bg-emerald-50',
+    action: () => navigate(ROUTES.APPOINTMENTS),
+  }));
 
   return (
     <div className="space-y-6">
@@ -301,36 +281,42 @@ export function DashboardPage() {
             </div>
 
             <div className="space-y-3">
-              {todayTasks.map((t) => {
-                const Icon = t.icon;
-                return (
-                  <div
-                    key={t.id}
-                    onClick={t.action}
-                    className="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/60 border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${t.color}`}
-                      >
-                        <Icon className="w-4 h-4" />
+              {todayTasks.length === 0 ? (
+                <div className="py-8 text-center text-slate-400 text-xs">
+                  No upcoming tasks or appointments scheduled for today.
+                </div>
+              ) : (
+                todayTasks.map((t) => {
+                  const Icon = t.icon;
+                  return (
+                    <div
+                      key={t.id}
+                      onClick={t.action}
+                      className="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/60 border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${t.color}`}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-900 truncate">
+                            {t.title}
+                          </p>
+                          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                            {t.detail}
+                          </p>
+                          <p className="text-[10px] font-semibold text-emerald-700 mt-1">
+                            {t.time}
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-600 self-center" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-900 truncate">
-                          {t.title}
-                        </p>
-                        <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                          {t.detail}
-                        </p>
-                        <p className="text-[10px] font-semibold text-emerald-700 mt-1">
-                          {t.time}
-                        </p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-600 self-center" />
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -365,40 +351,46 @@ export function DashboardPage() {
           </div>
 
           <div className="space-y-3">
-            {plots.slice(0, 4).map((plot) => (
-              <div
-                key={plot.id}
-                onClick={() => navigate(ROUTES.plotDetailsPath(plot.id))}
-                className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <img
-                    src={plot.photos[0]}
-                    alt={plot.plotNumber}
-                    className="w-12 h-12 rounded-xl object-cover border border-slate-100 flex-shrink-0"
-                    loading="lazy"
-                  />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-slate-900">
-                        {plot.plotNumber}
-                      </span>
-                      <StatusBadge status={plot.status} />
+            {plots.length === 0 ? (
+              <div className="py-8 text-center text-slate-400 text-xs">
+                No plots added yet. Click &quot;Add Plot&quot; above to create your first plot record.
+              </div>
+            ) : (
+              plots.slice(0, 4).map((plot) => (
+                <div
+                  key={plot.id}
+                  onClick={() => navigate(ROUTES.plotDetailsPath(plot.id))}
+                  className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img
+                      src={plot.photos?.[0] || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80'}
+                      alt={plot.plotNumber}
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-100 flex-shrink-0"
+                      loading="lazy"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-extrabold text-slate-900">
+                          {plot.plotNumber}
+                        </span>
+                        <StatusBadge status={plot.status} />
+                      </div>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                        {plot.projectName} • {plot.areaSqft} sq.ft
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                      {plot.projectName} • {plot.areaSqft} sq.ft
+                  </div>
+
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs font-black text-slate-900">
+                      {formatCompactCurrency(plot.totalAmount)}
                     </p>
+                    <p className="text-[10px] text-slate-400">₹{plot.ratePerSqft}/sq.ft</p>
                   </div>
                 </div>
-
-                <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-black text-slate-900">
-                    {formatCompactCurrency(plot.totalAmount)}
-                  </p>
-                  <p className="text-[10px] text-slate-400">₹{plot.ratePerSqft}/sq.ft</p>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -419,34 +411,40 @@ export function DashboardPage() {
           </div>
 
           <div className="space-y-3">
-            {customers.slice(0, 4).map((cust) => (
-              <div
-                key={cust.id}
-                onClick={() => navigate(ROUTES.customerDetailsPath(cust.id))}
-                className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all cursor-pointer"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-extrabold text-slate-900 truncate">
-                      {cust.name}
-                    </span>
-                    <StatusBadge status={cust.status} />
-                  </div>
-                  <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                    {cust.interestedProjectName} • {cust.phone}
-                  </p>
-                </div>
-
-                <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-bold text-slate-700">
-                    {formatCompactCurrency(cust.budgetMin)} - {formatCompactCurrency(cust.budgetMax)}
-                  </p>
-                  <p className="text-[10px] font-semibold text-emerald-700">
-                    Score: {cust.leadScore || 80}/100
-                  </p>
-                </div>
+            {customers.length === 0 ? (
+              <div className="py-8 text-center text-slate-400 text-xs">
+                No customer leads in pipeline yet. Real buyer enquiries will show here.
               </div>
-            ))}
+            ) : (
+              customers.slice(0, 4).map((cust) => (
+                <div
+                  key={cust.id}
+                  onClick={() => navigate(ROUTES.customerDetailsPath(cust.id))}
+                  className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all cursor-pointer"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-extrabold text-slate-900 truncate">
+                        {cust.name}
+                      </span>
+                      <StatusBadge status={cust.status} />
+                    </div>
+                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                      {cust.interestedProjectName} • {cust.phone}
+                    </p>
+                  </div>
+
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs font-bold text-slate-700">
+                      {formatCompactCurrency(cust.budgetMin)} - {formatCompactCurrency(cust.budgetMax)}
+                    </p>
+                    <p className="text-[10px] font-semibold text-emerald-700">
+                      Score: {cust.leadScore || 80}/100
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
