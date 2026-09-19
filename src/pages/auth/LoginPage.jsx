@@ -81,19 +81,6 @@ export function LoginPage() {
     }
   }, [isAuthenticated, user, role, from, navigate, submitting]);
 
-  // Quick fill admin credentials for immediate testing
-  const handleQuickFillAdmin = () => {
-    setValue('emailOrPhone', 'admin@laplots.com');
-    setValue('password', 'Admin@123456');
-    setAuthError(null);
-  };
-
-  const handleQuickFillAgent = () => {
-    setValue('emailOrPhone', 'agent@lkproperties.com');
-    setValue('password', 'Agent@123456');
-    setAuthError(null);
-  };
-
   const onSignInSubmit = async (data) => {
     setAuthError(null);
     setAuthSuccessMsg(null);
@@ -219,7 +206,7 @@ export function LoginPage() {
 
       {/* Main Auth Container */}
       <div className="w-full max-w-5xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 border border-white/20 relative z-10">
-        
+
         {/* Left Side: Brand Showcase (Desktop) */}
         <div className="hidden lg:flex lg:col-span-5 relative bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 p-10 text-white flex-col justify-between overflow-hidden border-r border-emerald-900/40">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:20px_20px]" />
@@ -299,7 +286,7 @@ export function LoginPage() {
 
         {/* Right Side: Authentication Forms */}
         <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-white">
-          
+
           {/* Mobile Brand Header */}
           <div className="lg:hidden flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md font-black text-sm">
@@ -324,11 +311,10 @@ export function LoginPage() {
                 setAuthError(null);
                 setAuthSuccessMsg(null);
               }}
-              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 cursor-pointer ${
-                mode === 'signin'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
+              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 cursor-pointer ${mode === 'signin'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+                }`}
             >
               Sign In to Account
             </button>
@@ -339,11 +325,10 @@ export function LoginPage() {
                 setAuthError(null);
                 setAuthSuccessMsg(null);
               }}
-              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 cursor-pointer ${
-                mode === 'signup'
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
+              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 cursor-pointer ${mode === 'signup'
+                ? 'bg-white text-emerald-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+                }`}
             >
               Create New Account
             </button>
@@ -390,30 +375,6 @@ export function LoginPage() {
                 </p>
               </div>
 
-              {/* Quick Fill Test Accounts Banner */}
-              <div className="mb-6 p-3 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[11px] font-bold text-slate-600">Quick Test Credentials:</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleQuickFillAdmin}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[10px] font-extrabold transition-colors cursor-pointer border border-emerald-300/60"
-                  >
-                    Fill Admin Account
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleQuickFillAgent}
-                    className="px-2.5 py-1 rounded-lg bg-teal-100 hover:bg-teal-200 text-teal-800 text-[10px] font-extrabold transition-colors cursor-pointer border border-teal-300/60"
-                  >
-                    Fill Agent Account
-                  </button>
-                </div>
-              </div>
-
               <form onSubmit={handleSubmit(onSignInSubmit)} className="space-y-4">
                 {/* Email or Phone Input */}
                 <div>
@@ -428,9 +389,8 @@ export function LoginPage() {
                       type="text"
                       autoComplete="username"
                       placeholder="e.g. admin@laplots.com or user@gmail.com"
-                      className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-xs font-medium text-slate-800 placeholder:text-slate-400 bg-white transition-all focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${
-                        errors.emailOrPhone ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
-                      }`}
+                      className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-xs font-medium text-slate-800 placeholder:text-slate-400 bg-white transition-all focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${errors.emailOrPhone ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
+                        }`}
                       {...register('emailOrPhone')}
                     />
                   </div>
@@ -454,9 +414,8 @@ export function LoginPage() {
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
                       placeholder="••••••••"
-                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl border text-xs font-medium text-slate-800 placeholder:text-slate-400 bg-white transition-all focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${
-                        errors.password ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
-                      }`}
+                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl border text-xs font-medium text-slate-800 placeholder:text-slate-400 bg-white transition-all focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${errors.password ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
+                        }`}
                       {...register('password')}
                     />
                     <button
@@ -574,16 +533,14 @@ export function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setSignupRole('customer')}
-                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                        signupRole === 'customer'
-                          ? 'bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/20'
-                          : 'bg-white border-slate-200 hover:bg-slate-50'
-                      }`}
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${signupRole === 'customer'
+                        ? 'bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/20'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                        }`}
                     >
                       <div className="flex items-center gap-2">
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
-                          signupRole === 'customer' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
-                        }`}>
+                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${signupRole === 'customer' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                          }`}>
                           <User className="w-3.5 h-3.5" />
                         </div>
                         <span className="text-xs font-bold text-slate-900">Buyer / Investor</span>
@@ -596,16 +553,14 @@ export function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setSignupRole('agent')}
-                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                        signupRole === 'agent'
-                          ? 'bg-teal-50/80 border-teal-500 ring-2 ring-teal-500/20'
-                          : 'bg-white border-slate-200 hover:bg-slate-50'
-                      }`}
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${signupRole === 'agent'
+                        ? 'bg-teal-50/80 border-teal-500 ring-2 ring-teal-500/20'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                        }`}
                     >
                       <div className="flex items-center gap-2">
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
-                          signupRole === 'agent' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500'
-                        }`}>
+                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${signupRole === 'agent' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500'
+                          }`}>
                           <Sparkles className="w-3.5 h-3.5" />
                         </div>
                         <span className="text-xs font-bold text-slate-900">Field Agent</span>

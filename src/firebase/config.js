@@ -1,5 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
+import { getAnalytics, isSupported } from 'firebase/analytics'
+import { getStorage } from 'firebase/storage'
 
 const env = (typeof import.meta !== 'undefined' && import.meta.env) || {}
 
@@ -21,11 +23,27 @@ export const firebaseApp = getApps().length > 0
   ? getApps()[0]
   : initializeApp(firebaseConfig)
 
-// Firebase is used exclusively for Authentication
+// Firebase Authentication
 export const auth = isFirebaseConfigured ? getAuth(firebaseApp) : null
+
+// Firebase Storage (for document & image uploads if enabled)
+export const storage = isFirebaseConfigured && firebaseConfig.storageBucket
+  ? getStorage(firebaseApp)
+  : null
+
+// Firebase Analytics (supported in browser environments)
+export let analytics = null
+if (typeof window !== 'undefined' && isFirebaseConfigured && firebaseConfig.measurementId) {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(firebaseApp)
+    }
+  }).catch(() => {
+    // Ignore analytics initialization failure in unsupported environments
+  })
+}
 
 // All database persistence has migrated to MongoDB Atlas
 export const db = null
-export const storage = null
 export const functions = null
-export const analytics = null
+
