@@ -7,7 +7,7 @@ const FAQ_CATEGORIES = [
     category: 'Legal & Approvals',
     items: [
       {
-        q: 'Are all LA PLOTS layouts DTCP and RERA approved?',
+        q: 'Are all LK PROPERTIES layouts DTCP and RERA approved?',
         a: 'Yes, 100% of our residential and commercial layouts have sanctioned DTCP (Directorate of Town and Country Planning) approval orders and registered RERA registration numbers. All sanction numbers are displayed on plot detail pages.',
       },
       {
@@ -33,7 +33,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'Are there any hidden brokerage or commission charges?',
-        a: 'Zero brokerage. You deal directly with LA PLOTS / LK Vetriinfra development authorities. The rate quoted per sq.ft is direct developer pricing.',
+        a: 'Zero brokerage. You deal directly with LK PROPERTIES development authorities. The rate quoted per sq.ft is direct developer pricing.',
       },
     ],
   },

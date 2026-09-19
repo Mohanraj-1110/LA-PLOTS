@@ -1,6 +1,6 @@
-# LA PLOTS
+# LK PROPERTIES
 
-Unified real estate plot management platform built with React 19, Vite, Tailwind CSS, and Firebase.
+Unified real estate plot management platform built with React 19, Vite, Tailwind CSS, MongoDB Atlas, and Firebase Authentication.
 
 ## Project Structure
 

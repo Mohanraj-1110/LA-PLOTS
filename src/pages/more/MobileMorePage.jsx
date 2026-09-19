@@ -7,7 +7,6 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import {
   FolderLock,
   Compass,
-  MessageSquare,
   BarChart3,
   BadgePercent,
   Settings,
@@ -44,13 +43,6 @@ export function MobileMorePage() {
       color: 'bg-teal-50 text-teal-600',
     },
     {
-      to: ROUTES.MESSAGES,
-      label: 'Messages & WhatsApp Hub',
-      desc: 'Chat with buyers and send brochure updates',
-      icon: MessageSquare,
-      color: 'bg-indigo-50 text-indigo-600',
-    },
-    {
       to: ROUTES.REPORTS,
       label: 'Reports & Analytics',
       desc: 'Inventory velocity, sales, conversion reports',
@@ -66,7 +58,7 @@ export function MobileMorePage() {
     },
     {
       to: ROUTES.ABOUT,
-      label: 'About LA PLOTS',
+      label: 'About LK PROPERTIES',
       desc: 'System info, contact, and legal compliance',
       icon: Info,
       color: 'bg-amber-50 text-amber-600',

@@ -9,7 +9,6 @@ import {
   CalendarPlus,
   BadgePercent,
   FileUp,
-  MessageSquare,
 } from 'lucide-react';
 
 export function QuickAddModal({ isOpen, onClose }) {
@@ -55,14 +54,6 @@ export function QuickAddModal({ isOpen, onClose }) {
       color: 'bg-teal-500 text-white',
       hover: 'hover:bg-teal-50 hover:border-teal-200',
       path: ROUTES.DOCUMENTS,
-    },
-    {
-      title: 'Customer Messages',
-      description: 'Chat with leads, send layout brochures & updates',
-      icon: MessageSquare,
-      color: 'bg-indigo-500 text-white',
-      hover: 'hover:bg-indigo-50 hover:border-indigo-200',
-      path: ROUTES.MESSAGES,
     },
   ];
 

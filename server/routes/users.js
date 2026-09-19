@@ -68,7 +68,7 @@ usersRouter.post('/', async (req, res) => {
       phone: phone || '',
       role: assignedRole,
       photoURL: photoURL || '',
-      company: company || 'LA Plots Realty LLP',
+      company: company || 'LK Properties',
     }
 
     if (isDBConnected()) {

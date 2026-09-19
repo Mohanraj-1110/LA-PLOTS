@@ -10,6 +10,7 @@ export function Signup() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [signupRole, setSignupRole] = useState('customer') // 'customer' | 'agent'
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
@@ -23,11 +24,16 @@ export function Signup() {
     setBusy(true)
     setError(null)
     try {
-      const result = await signup(name, email, password, 'customer')
-      if (isAdminEmail(email) || result?.profile?.role === 'admin') {
+      const result = await signup(name, email, password, signupRole)
+      const role = result?.profile?.role
+      const isAdm = isAdminEmail(email) || role === 'admin'
+      const isAgnt = role === 'agent' || signupRole === 'agent'
+      if (isAdm) {
         navigate('/admin', { replace: true })
+      } else if (isAgnt) {
+        navigate('/agent', { replace: true })
       } else {
-        navigate('/profile', { replace: true })
+        navigate('/user', { replace: true })
       }
     } catch (err) {
       setError(formatAuthError(err))
@@ -42,10 +48,15 @@ export function Signup() {
     try {
       const result = await googleSignIn()
       const effectiveEmail = result?.user?.email || result?.profile?.email
-      if (result?.profile?.role === 'admin' || result?.profile?.role === 'agent' || isAdminEmail(effectiveEmail)) {
+      const role = result?.profile?.role
+      const isAdm = role === 'admin' || isAdminEmail(effectiveEmail)
+      const isAgnt = role === 'agent'
+      if (isAdm) {
         navigate('/admin', { replace: true })
+      } else if (isAgnt) {
+        navigate('/agent', { replace: true })
       } else {
-        navigate('/profile', { replace: true })
+        navigate('/user', { replace: true })
       }
     } catch (err) {
       setError(formatAuthError(err))
@@ -64,8 +75,8 @@ export function Signup() {
           {/* Brand Header */}
           <div className="text-center mb-6">
             <Link to="/" className="inline-flex items-center gap-2.5 font-extrabold text-2xl text-surface-900">
-              <span className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-3 py-1 text-white font-extrabold shadow-md shadow-primary-600/20">LA</span>
-              <span className="font-display">PLOTS</span>
+              <span className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-3 py-1 text-white font-extrabold shadow-md shadow-primary-600/20">LK</span>
+              <span className="font-display">PROPERTIES</span>
             </Link>
             <h1 className="mt-5 text-2xl font-bold text-surface-900 font-display">Create your account</h1>
             <p className="mt-1.5 text-sm text-surface-500">Save your favorite plots and schedule site visits</p>
@@ -113,6 +124,34 @@ export function Signup() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-surface-700 mb-1.5">Account Type</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSignupRole('customer')}
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    signupRole === 'customer'
+                      ? 'bg-primary-50 border-primary-500 text-primary-800 ring-1 ring-primary-400'
+                      : 'bg-white border-surface-200 text-surface-600 hover:bg-surface-50'
+                  }`}
+                >
+                  Buyer / Client
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSignupRole('agent')}
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    signupRole === 'agent'
+                      ? 'bg-primary-50 border-primary-500 text-primary-800 ring-1 ring-primary-400'
+                      : 'bg-white border-surface-200 text-surface-600 hover:bg-surface-50'
+                  }`}
+                >
+                  Property Agent
+                </button>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-surface-700 mb-1.5">Full Name</label>
               <input

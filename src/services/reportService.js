@@ -117,7 +117,7 @@ export const reportService = {
     try {
       const doc = new jsPDF();
       doc.setFontSize(16);
-      doc.text(title || 'LA PLOTS Report', 14, 20);
+      doc.text(title || 'LK PROPERTIES Report', 14, 20);
       doc.setFontSize(10);
       doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, 14, 28);
 

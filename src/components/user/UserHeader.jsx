@@ -23,15 +23,13 @@ export function UserHeader() {
     navigate('/')
   }
 
-  const localRole = typeof window !== 'undefined' ? localStorage.getItem('la_plots_user_role') : null
-  const isAdminOrAgent = role === 'admin' || role === 'agent' || localRole === 'admin' || Boolean(user)
 
   return (
     <header className="sticky top-0 z-40 glass border-b border-surface-200/60">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5 font-extrabold text-surface-900">
-          <span className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-2.5 py-1 text-white font-extrabold text-sm shadow-md shadow-primary-600/20">LA</span>
-          <span className="font-display text-lg tracking-tight">PLOTS</span>
+          <span className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-2.5 py-1 text-white font-extrabold text-sm shadow-md shadow-primary-600/20">LK</span>
+          <span className="font-display text-lg tracking-tight">PROPERTIES</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -53,13 +51,33 @@ export function UserHeader() {
             </NavLink>
           ))}
 
-          {user && (
+          {user && role === 'admin' && (
             <Link
               to="/admin"
               className="inline-flex items-center gap-1.5 rounded-xl bg-surface-900 px-3 py-2 text-xs font-bold text-white hover:bg-surface-800 transition-all duration-200 shadow-sm hover:shadow-md ml-2"
             >
               <LayoutDashboard size={14} />
               Admin Portal
+            </Link>
+          )}
+
+          {user && role === 'agent' && (
+            <Link
+              to="/agent"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-teal-700 px-3 py-2 text-xs font-bold text-white hover:bg-teal-800 transition-all duration-200 shadow-sm hover:shadow-md ml-2"
+            >
+              <LayoutDashboard size={14} />
+              Agent Portal
+            </Link>
+          )}
+
+          {user && role !== 'admin' && role !== 'agent' && (
+            <Link
+              to="/user"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-3 py-2 text-xs font-bold text-white hover:bg-primary-700 transition-all duration-200 shadow-sm hover:shadow-md ml-2"
+            >
+              <LayoutDashboard size={14} />
+              My Dashboard
             </Link>
           )}
 
@@ -150,7 +168,7 @@ export function UserHeader() {
             </NavLink>
           ))}
 
-          {isAdminOrAgent && (
+          {user && role === 'admin' && (
             <Link
               to="/admin"
               onClick={() => setMobileMenuOpen(false)}
@@ -158,6 +176,28 @@ export function UserHeader() {
             >
               <LayoutDashboard size={16} />
               Admin Portal
+            </Link>
+          )}
+
+          {user && role === 'agent' && (
+            <Link
+              to="/agent"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-bold text-white mt-2"
+            >
+              <LayoutDashboard size={16} />
+              Agent Portal
+            </Link>
+          )}
+
+          {user && role !== 'admin' && role !== 'agent' && (
+            <Link
+              to="/user"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white mt-2"
+            >
+              <LayoutDashboard size={16} />
+              My Dashboard
             </Link>
           )}
 

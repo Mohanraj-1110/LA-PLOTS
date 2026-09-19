@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import PropTypes from 'prop-types';
 import {
   ensureUserDocument,
+  formatAuthError,
   getUserProfile,
   googleSignIn as authGoogleSignIn,
   isAdminEmail,
@@ -57,7 +58,7 @@ function buildFallbackProfile(user, extra = {}) {
     role: resolvedRole,
     photoURL: user.photoURL || cached?.photoURL || cached?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
     avatar: user.photoURL || cached?.photoURL || cached?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-    company: user.company || cached?.company || 'LA Plots Realty LLP',
+    company: user.company || cached?.company || 'LK Properties',
     ...extra,
   };
 }
@@ -121,8 +122,14 @@ export function AuthProvider({ children }) {
       return fallback;
     })();
 
-    inflightProfileRequests.set(userKey, fetchTask);
-    return fetchTask;
+    // Ensure loadUserProfile never hangs UI longer than 3 seconds
+    const resilientTask = Promise.race([
+      fetchTask,
+      new Promise((resolve) => setTimeout(() => resolve(fallback), 3000)),
+    ]);
+
+    inflightProfileRequests.set(userKey, resilientTask);
+    return resilientTask;
   }, []);
 
   useEffect(() => {
@@ -131,12 +138,7 @@ export function AuthProvider({ children }) {
       if (user) {
         await loadUserProfile(user);
       } else {
-        const demoUser = authService.getCurrentUser();
-        if (demoUser && !demoUser.firebaseUid) {
-          setProfile(demoUser);
-        } else {
-          setProfile(null);
-        }
+        setProfile(null);
       }
       setLoading(false);
     });
@@ -148,55 +150,49 @@ export function AuthProvider({ children }) {
     setError(null);
     setLoading(true);
     try {
-      if (emailOrPhone.includes('@')) {
-        const result = await signIn(emailOrPhone, password);
+      const cleanEmailOrPhone = (emailOrPhone || '').trim();
+      if (cleanEmailOrPhone.includes('@')) {
+        const result = await signIn(cleanEmailOrPhone, password);
         setFirebaseUser(result.user);
         const userProfile = await loadUserProfile(result.user);
         return { user: result.user, profile: userProfile };
       } else {
-        const loggedUser = await authService.login(emailOrPhone, password, rememberMe);
+        const loggedUser = await authService.login(cleanEmailOrPhone, password, rememberMe);
         setProfile(loggedUser);
         return { user: loggedUser, profile: loggedUser };
       }
     } catch (err) {
-      setError(err?.message || 'Login failed.');
-      throw err;
+      const friendlyMsg = formatAuthError(err);
+      setError(friendlyMsg);
+      const friendlyError = new Error(friendlyMsg);
+      friendlyError.code = err?.code;
+      throw friendlyError;
     } finally {
       setLoading(false);
     }
   }, [loadUserProfile]);
 
-  const signup = useCallback(async (name, email, password, role = 'customer') => {
+  const signup = useCallback(async (name, phone, email, password) => {
     setError(null);
     setLoading(true);
     try {
-      const user = await signUp(name, email, password, role);
+      const cleanEmail = (email || '').trim().toLowerCase();
+      const cleanPhone = (phone || '').trim();
+      const cleanName = (name || '').trim();
+      const user = await signUp(cleanName, cleanPhone, cleanEmail, password);
       setFirebaseUser(user);
-      const userProfile = await loadUserProfile(user, { name, role });
+      const userProfile = await loadUserProfile(user, { name: cleanName, phone: cleanPhone, role: 'customer' });
       return { user, profile: userProfile };
     } catch (err) {
-      setError(err?.message || 'Signup failed.');
-      throw err;
+      const friendlyMsg = formatAuthError(err);
+      setError(friendlyMsg);
+      const friendlyError = new Error(friendlyMsg);
+      friendlyError.code = err?.code;
+      throw friendlyError;
     } finally {
       setLoading(false);
     }
   }, [loadUserProfile]);
-
-  const demoLogin = useCallback(async (role = 'Admin') => {
-    setError(null);
-    setLoading(true);
-    try {
-      const demoUser = await authService.demoLogin(role);
-      const normalizedRole = role.toLowerCase() === 'admin' ? 'admin' : (role.toLowerCase() === 'manager' ? 'agent' : 'customer');
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('la_plots_user_role', normalizedRole);
-      }
-      setProfile({ ...demoUser, role: normalizedRole });
-      return demoUser;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const googleSignIn = useCallback(async () => {
     setError(null);
@@ -207,8 +203,11 @@ export function AuthProvider({ children }) {
       const userProfile = await loadUserProfile(user, { name: user.displayName });
       return { user, profile: userProfile };
     } catch (err) {
-      setError(err?.message || 'Google Sign-in failed.');
-      throw err;
+      const friendlyMsg = formatAuthError(err);
+      setError(friendlyMsg);
+      const friendlyError = new Error(friendlyMsg);
+      friendlyError.code = err?.code;
+      throw friendlyError;
     } finally {
       setLoading(false);
     }
@@ -259,6 +258,7 @@ export function AuthProvider({ children }) {
   const rawRole = isEmailAdmin ? 'admin' : (profile?.role || (isAuthenticated ? 'customer' : null));
   const effectiveRole = rawRole ? rawRole.toLowerCase() : null;
   const isAdmin = effectiveRole === 'admin' && isAuthenticated;
+  const isAgent = (effectiveRole === 'agent' || isAdmin) && isAuthenticated;
   const isManager = (effectiveRole === 'agent' || effectiveRole === 'manager' || isAdmin) && isAuthenticated;
 
   const value = {
@@ -268,13 +268,13 @@ export function AuthProvider({ children }) {
     role: effectiveRole,
     isAuthenticated,
     isAdmin,
+    isAgent,
     isManager,
     loading,
     error,
     login,
     signup,
     register: signup,
-    demoLogin,
     googleSignIn,
     logout,
     resetPassword,

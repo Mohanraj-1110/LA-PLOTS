@@ -19,7 +19,7 @@ export function Contact() {
           </div>
           <h3 className="font-display font-bold text-surface-900 text-lg">Corporate Address</h3>
           <p className="mt-3 text-sm text-surface-600 leading-relaxed">
-            LA PLOTS Corporate Headquarters<br />
+            LK PROPERTIES Corporate Headquarters<br />
             Prime Plaza, Anna Nagar 2nd Avenue<br />
             Chennai, Tamil Nadu - 600040
           </p>
@@ -47,7 +47,7 @@ export function Contact() {
           <p className="mt-3 text-sm text-surface-600 leading-relaxed">
             Monday – Saturday: 9:30 AM – 7:00 PM<br />
             Sunday: 10:00 AM – 4:00 PM (Site Visits Only)<br />
-            Email: contact@laplots.in
+            Email: contact@lkproperties.in
           </p>
           <div className="mt-5 h-px bg-gradient-to-r from-transparent via-primary-200 to-transparent" />
         </div>

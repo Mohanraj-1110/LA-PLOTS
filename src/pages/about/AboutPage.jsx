@@ -18,7 +18,7 @@ export function AboutPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <PageHeader
-        title="About LA PLOTS"
+        title="About LK PROPERTIES"
         subtitle="The mobile-first real estate plot inventory & deal management system"
       />
 
@@ -32,7 +32,7 @@ export function AboutPage() {
             Manage • Grow • Close More Deals.
           </h2>
           <p className="text-emerald-100/80 text-xs sm:text-sm leading-relaxed">
-            LA PLOTS is engineered specifically for plotted land developers, layout promoters, and real estate agencies across India. It unifies plot inventory, surveyor dimensions, buyer pipeline stages, and automated profit calculations in a single responsive mobile workspace.
+            LK PROPERTIES is engineered specifically for plotted land developers, layout promoters, and real estate agencies across India. It unifies plot inventory, surveyor dimensions, buyer pipeline stages, and automated profit calculations in a single responsive mobile workspace.
           </p>
         </div>
       </div>
@@ -74,7 +74,7 @@ export function AboutPage() {
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
         <div>
           <h3 className="text-base font-bold text-slate-900">Corporate Headquarters & Support</h3>
-          <p className="text-xs text-slate-500 mt-0.5">LA Plots Realty LLP • RERA Registered Promoter</p>
+          <p className="text-xs text-slate-500 mt-0.5">LK Properties Realty LLP • RERA Registered Promoter</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -90,7 +90,7 @@ export function AboutPage() {
             <Mail className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <div>
               <p className="text-slate-400 font-medium">Official Inquiry</p>
-              <p className="font-bold text-slate-900">contact@laplots.com</p>
+              <p className="font-bold text-slate-900">contact@lkproperties.com</p>
             </div>
           </div>
 
@@ -106,13 +106,13 @@ export function AboutPage() {
             <Globe className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <div>
               <p className="text-slate-400 font-medium">Website</p>
-              <p className="font-bold text-slate-900">https://laplots.com</p>
+              <p className="font-bold text-slate-900">https://lkproperties.com</p>
             </div>
           </div>
         </div>
 
         <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
-          <p>© 2026 LA PLOTS. All rights reserved.</p>
+          <p>© 2026 LK PROPERTIES. All rights reserved.</p>
           <p className="font-semibold text-emerald-700">Version 2.4.0 Commercial SaaS Edition</p>
         </div>
       </div>

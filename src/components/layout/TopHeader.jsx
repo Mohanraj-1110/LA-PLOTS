@@ -50,11 +50,11 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
 
           <div className="lg:hidden flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white flex items-center justify-center shadow-xs font-bold text-xs">
-              LA
+              LK
             </div>
             <div>
               <span className="text-sm font-black text-slate-900 tracking-tight leading-none block font-display">
-                PLOTS
+                PROPERTIES
               </span>
               <span className="text-[9px] font-bold text-primary-700 uppercase tracking-wider">
                 Admin

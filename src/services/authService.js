@@ -17,9 +17,7 @@ export const authService = {
    * Log in user with Firebase Email and Password, sync profile with MongoDB Atlas
    */
   async login(emailOrPhone, password, rememberMe = true) {
-    const email = emailOrPhone.includes('@')
-      ? emailOrPhone.trim().toLowerCase()
-      : `${emailOrPhone.replace(/[^0-9]/g, '')}@laplots.com`
+    const email = (emailOrPhone || '').trim().toLowerCase()
 
     try {
       // 1. Attempt real Firebase Authentication
@@ -46,7 +44,7 @@ export const authService = {
           avatar:
             fbUser.photoURL ||
             'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-          company: 'LA Plots Realty LLP',
+          company: 'LK Properties',
           createdAt: new Date().toISOString(),
         }
         api.post('/users', profile).catch(() => {})
@@ -63,7 +61,7 @@ export const authService = {
           profile?.photoURL ||
           profile?.avatar ||
           'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-        company: profile?.company || 'LA Plots Realty LLP',
+        company: profile?.company || 'LK Properties',
         token: await fbUser.getIdToken(),
         firebaseUid: fbUser.uid,
       }
@@ -84,7 +82,7 @@ export const authService = {
   /**
    * Register a new user in Firebase Auth and sync to MongoDB Atlas
    */
-  async signup(email, password, name, role = 'Agent') {
+  async signup(email, password, name, phone = '') {
     const userCredential = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password)
     const fbUser = userCredential.user
 
@@ -95,10 +93,10 @@ export const authService = {
       uid: fbUser.uid,
       name,
       email: fbUser.email,
-      phone: '+91 98451 99001',
-      role,
+      phone: phone || '',
+      role: 'customer',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-      company: 'LA Plots Realty LLP',
+      company: 'LK Properties',
       createdAt: new Date().toISOString(),
     }
 
@@ -111,13 +109,6 @@ export const authService = {
     const sessionUser = { ...profile, token: await fbUser.getIdToken() }
     storage.set(AUTH_KEY, sessionUser)
     return sessionUser
-  },
-
-  /**
-   * Quick demo preview (Disabled in production)
-   */
-  async demoLogin() {
-    throw new Error('Demo login is disabled in production mode. Please sign in with your verified credentials.')
   },
 
   /**
@@ -151,7 +142,7 @@ export const authService = {
         avatar:
           currentFb.photoURL ||
           'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-        company: 'LA Plots Realty LLP',
+        company: 'LK Properties',
       }
     }
 

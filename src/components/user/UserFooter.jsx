@@ -10,8 +10,8 @@ export function UserFooter() {
           {/* Brand Col */}
           <div>
             <Link to="/" className="flex items-center gap-2.5 font-extrabold text-xl text-white">
-              <span className="rounded-xl bg-gradient-to-r from-primary-500 to-primary-400 px-2.5 py-1 text-white text-sm">LA</span>
-              <span className="font-display">PLOTS</span>
+              <span className="rounded-xl bg-gradient-to-r from-primary-500 to-primary-400 px-2.5 py-1 text-white text-sm">LK</span>
+              <span className="font-display">PROPERTIES</span>
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-surface-400">
               Trusted land investments made transparent, simple, and secure. Explore verified residential and commercial layouts.
@@ -81,14 +81,14 @@ export function UserFooter() {
               </p>
               <p className="flex items-center gap-3">
                 <Mail size={16} className="text-primary-400 shrink-0" />
-                <span>contact@laplots.in</span>
+                <span>contact@lkproperties.in</span>
               </p>
             </div>
           </div>
         </div>
 
         <div className="mt-14 border-t border-surface-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-surface-500">
-          <p>&copy; {new Date().getFullYear()} LA PLOTS. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} LK PROPERTIES. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/contact" className="hover:text-surface-300 transition-colors">Privacy Policy</Link>
             <Link to="/contact" className="hover:text-surface-300 transition-colors">Terms of Service</Link>

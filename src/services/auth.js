@@ -19,7 +19,7 @@ export function isAdminEmail(email) {
   const clean = email.toLowerCase().trim()
   const rawAdmins =
     (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_EMAILS) ||
-    'admin@gmail.com,admin@laplots.com,mohan@gmail.com,lkproperties153@gmail.com'
+    'lkproperties153@gmail.com'
   const envAdmins = rawAdmins
     .toLowerCase()
     .split(',')
@@ -44,13 +44,19 @@ export function formatAuthError(err) {
   if (code === 'auth/email-already-in-use') {
     return 'An account with this email already exists. Please sign in instead.'
   }
+  if (code === 'auth/account-exists-with-different-credential') {
+    return 'An account with this email already exists with a different sign-in method. Please sign in with your email and password.'
+  }
+  if (code === 'auth/credential-already-in-use') {
+    return 'This credential is already linked to another account.'
+  }
   if (code === 'auth/weak-password') {
     return 'Password is too weak. Please use at least 6 characters.'
   }
   if (code === 'auth/invalid-email') {
     return 'Please enter a valid email address.'
   }
-  if (code === 'auth/popup-closed-by-user') {
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
     return 'Google sign-in was closed before completing.'
   }
   if (code === 'auth/popup-blocked') {
@@ -107,7 +113,7 @@ export async function ensureUserDocument(firebaseUser, extraData = {}) {
     phone: extraData.phone || firebaseUser.phoneNumber || '',
     role: resolvedRole,
     photoURL: firebaseUser.photoURL || '',
-    company: extraData.company || 'LA Plots Realty LLP',
+    company: extraData.company || 'LK Properties',
   }
 
   try {
@@ -128,12 +134,14 @@ export async function signIn(email, password) {
 }
 
 /**
- * Signup - creates Firebase auth user and syncs profile to MongoDB Atlas
+ * Signup - creates Firebase auth user and syncs profile with phone to MongoDB Atlas
  */
-export async function signUp(name, email, password, role = 'customer') {
+export async function signUp(name, phone, email, password) {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
   const cleanName = name ? name.trim() : ''
-  const credential = await createUserWithEmailAndPassword(auth, email.trim(), password)
+  const cleanPhone = phone ? phone.trim() : ''
+  const cleanEmail = email ? email.trim().toLowerCase() : ''
+  const credential = await createUserWithEmailAndPassword(auth, cleanEmail, password)
   
   if (cleanName && credential.user) {
     try {
@@ -143,9 +151,13 @@ export async function signUp(name, email, password, role = 'customer') {
     }
   }
 
-  const effectiveRole = isAdminEmail(email) ? 'admin' : (role === 'admin' ? 'customer' : role)
+  const effectiveRole = isAdminEmail(cleanEmail) ? 'admin' : 'customer'
   // Sync profile to MongoDB Atlas
-  ensureUserDocument(credential.user, { name: cleanName, role: effectiveRole }).catch((err) => {
+  ensureUserDocument(credential.user, {
+    name: cleanName,
+    phone: cleanPhone,
+    role: effectiveRole,
+  }).catch((err) => {
     console.warn('Background MongoDB Atlas ensureUserDocument notice:', err?.message)
   })
 
@@ -164,7 +176,8 @@ export async function googleSignIn() {
   const effectiveRole = isAdminEmail(credential.user.email) ? 'admin' : 'customer'
   // Sync user profile into MongoDB Atlas
   ensureUserDocument(credential.user, {
-    name: credential.user.displayName,
+    name: credential.user.displayName || credential.user.email?.split('@')[0] || 'User',
+    phone: credential.user.phoneNumber || '',
     role: effectiveRole,
   }).catch((err) => {
     console.warn('Background MongoDB Atlas ensureUserDocument notice:', err?.message)

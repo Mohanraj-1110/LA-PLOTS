@@ -12,7 +12,6 @@ import {
   BadgePercent,
   FolderLock,
   Compass,
-  MessageSquare,
   BarChart3,
   UserCheck,
   Settings,
@@ -61,11 +60,10 @@ export function Sidebar({ className = '', isMobileDrawer = false, onClose, onIte
     { to: ROUTES.SALES, label: 'Sales & Profit', icon: BadgePercent },
     { to: ROUTES.DOCUMENTS, label: 'Documents Vault', icon: FolderLock },
     { to: ROUTES.ENQUIRIES, label: 'Enquiries', icon: Compass },
-    { to: ROUTES.MESSAGES, label: 'Messages', icon: MessageSquare },
     { to: ROUTES.REPORTS, label: 'Reports & Analytics', icon: BarChart3 },
     { to: ROUTES.USERS, label: 'Users & Roles', icon: UserCheck },
     { to: ROUTES.SETTINGS, label: 'Settings', icon: Settings },
-    { to: ROUTES.ABOUT, label: 'About LA PLOTS', icon: Info },
+    { to: ROUTES.ABOUT, label: 'About LK PROPERTIES', icon: Info },
   ];
 
   const handleLogout = async () => {
@@ -85,11 +83,11 @@ export function Sidebar({ className = '', isMobileDrawer = false, onClose, onIte
       <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
         <Link to={ROUTES.HOME} className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white flex items-center justify-center shadow-md shadow-primary-600/20 flex-shrink-0">
-            <span className="font-extrabold text-sm tracking-tight">LA</span>
+            <span className="font-extrabold text-sm tracking-tight">LK</span>
           </div>
           <div className="min-w-0">
             <h1 className="text-sm font-black tracking-tight text-slate-900 leading-none flex items-center gap-1.5 font-display">
-              <span>PLOTS</span>
+              <span>PROPERTIES</span>
               <span className="text-[9px] uppercase font-extrabold tracking-widest px-1.5 py-0.5 rounded bg-primary-100 text-primary-800">
                 ADMIN
               </span>

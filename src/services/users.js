@@ -177,9 +177,9 @@ const COMPANY_KEY = 'la_plots_company_settings'
 
 export function subscribeToCompany(onChange) {
   const defaultCompany = {
-    name: 'LA Plots Realty LLP',
+    name: 'LK Properties',
     phone: '+91 98451 99001',
-    email: 'contact@laplots.com',
+    email: 'contact@lkproperties.com',
     address: 'No. 42, GST Road, Tambaram, Chennai - 600045',
   }
   try {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { MessageCircle, X } from 'lucide-react'
 
-export function WhatsAppButton({ phoneNumber = '919876543210', defaultMessage = 'Hello LA PLOTS, I would like to inquire about available plots.' }) {
+export function WhatsAppButton({ phoneNumber = '919876543210', defaultMessage = 'Hello LK PROPERTIES, I would like to inquire about available plots.' }) {
   const [showTooltip, setShowTooltip] = useState(false)
   const encodedMsg = encodeURIComponent(defaultMessage)
   const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMsg}`

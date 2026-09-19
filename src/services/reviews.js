@@ -5,7 +5,7 @@ let initialReviews = [
     id: 'rev-1',
     customerName: 'Karthik Raja',
     rating: 5,
-    comment: 'Exceptional transparency and smooth registration experience with LA Plots team.',
+    comment: 'Exceptional transparency and smooth registration experience with LK Properties team.',
     createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
   },
   {

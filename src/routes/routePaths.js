@@ -16,12 +16,20 @@ export const ROUTES = {
   PUBLIC_FAQ: '/faq',
   PUBLIC_REVIEWS: '/reviews',
   PUBLIC_CONTACT: '/contact',
+  USER_DASHBOARD: '/user',
 
   // Authentication Routes
   LOGIN: '/login',
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
+
+  // Agent Portal Routes (prefixed with /agent)
+  AGENT_HOME: '/agent',
+  AGENT_DASHBOARD: '/agent',
+  AGENT_PLOTS: '/agent/plots',
+  AGENT_APPOINTMENTS: '/agent/appointments',
+  AGENT_ENQUIRIES: '/agent/enquiries',
 
   // Admin Portal Routes (prefixed with /admin)
   HOME: '/admin',
@@ -54,7 +62,6 @@ export const ROUTES = {
   SALES: '/admin/sales',
   DOCUMENTS: '/admin/documents',
   ENQUIRIES: '/admin/enquiries',
-  MESSAGES: '/admin/messages',
   REPORTS: '/admin/reports',
   USERS: '/admin/users',
   SETTINGS: '/admin/settings',

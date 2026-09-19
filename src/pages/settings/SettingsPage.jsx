@@ -43,7 +43,7 @@ export function SettingsPage() {
   const [designation, setDesignation] = useState(user?.designation || 'Administrator');
 
   // Company Form State
-  const [companyName, setCompanyName] = useState(user?.company || 'LA Plots Realty LLP');
+  const [companyName, setCompanyName] = useState(user?.company || 'LK Properties');
   const [reraNumber, setReraNumber] = useState(user?.reraNumber || '');
   const [gstNumber, setGstNumber] = useState(user?.gstNumber || '');
   const [address, setAddress] = useState(user?.address || '');
@@ -140,7 +140,7 @@ export function SettingsPage() {
                 />
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">{name}</h3>
-                  <p className="text-xs text-slate-500">{user?.role || 'Admin'} • LA PLOTS Workspace</p>
+                  <p className="text-xs text-slate-500">{user?.role || 'Admin'} • LK PROPERTIES Workspace</p>
                   <button
                     type="button"
                     onClick={() => success('Avatar upload simulation active!')}

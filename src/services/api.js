@@ -24,7 +24,12 @@ async function getAuthToken() {
   try {
     const currentUser = auth?.currentUser
     if (currentUser) {
-      return await currentUser.getIdToken()
+      // 4-second timeout on token retrieval
+      const tokenPromise = currentUser.getIdToken()
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Token timeout')), 4000)
+      )
+      return await Promise.race([tokenPromise, timeoutPromise])
     }
   } catch {
     // ignore token refresh errors
@@ -44,10 +49,21 @@ async function request(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  })
+  // Enforce 8-second request timeout to prevent hanging UI
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 8000)
+  const signal = options.signal || controller.signal
+
+  let response
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers,
+      signal,
+    })
+  } finally {
+    clearTimeout(timeoutId)
+  }
 
   if (!response.ok) {
     let errorMessage = `API request failed with status ${response.status}`

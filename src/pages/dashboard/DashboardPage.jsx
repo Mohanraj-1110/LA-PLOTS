@@ -95,7 +95,7 @@ export function DashboardPage() {
       {/* Page Header */}
       <PageHeader
         title="Real Estate Dashboard"
-        subtitle={`Real-time overview for ${user?.company || 'LA Plots Realty LLP'}`}
+        subtitle={`Real-time overview for ${user?.company || 'LK Properties'}`}
         actions={
           <div className="flex items-center gap-2">
             <button

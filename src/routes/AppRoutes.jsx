@@ -84,9 +84,6 @@ const DocumentListPage = lazy(() =>
 const EnquiryListPage = lazy(() =>
   import('../pages/enquiries/EnquiryListPage').then((m) => ({ default: m.EnquiryListPage || m.default }))
 );
-const MessagesPage = lazy(() =>
-  import('../pages/messages/MessagesPage').then((m) => ({ default: m.MessagesPage || m.default }))
-);
 const ReportsPage = lazy(() =>
   import('../pages/reports/ReportsPage').then((m) => ({ default: m.ReportsPage || m.default }))
 );
@@ -101,6 +98,28 @@ const AboutPage = lazy(() =>
 );
 const MobileMorePage = lazy(() =>
   import('../pages/more/MobileMorePage').then((m) => ({ default: m.MobileMorePage || m.default }))
+);
+
+// Agent Management Pages (Property Details Only, Zero Sales/Amounts)
+const AgentLayout = lazy(() =>
+  import('../components/agent/AgentLayout').then((m) => ({ default: m.AgentLayout || m.default }))
+);
+const AgentDashboardPage = lazy(() =>
+  import('../pages/agent/AgentDashboardPage').then((m) => ({ default: m.AgentDashboardPage || m.default }))
+);
+const AgentPlotsPage = lazy(() =>
+  import('../pages/agent/AgentPlotsPage').then((m) => ({ default: m.AgentPlotsPage || m.default }))
+);
+const AgentAppointmentsPage = lazy(() =>
+  import('../pages/agent/AgentAppointmentsPage').then((m) => ({ default: m.AgentAppointmentsPage || m.default }))
+);
+const AgentEnquiriesPage = lazy(() =>
+  import('../pages/agent/AgentEnquiriesPage').then((m) => ({ default: m.AgentEnquiriesPage || m.default }))
+);
+
+// Dedicated Distinct Customer / User Dashboard
+const UserDashboard = lazy(() =>
+  import('../pages/user/UserDashboard').then((m) => ({ default: m.UserDashboard || m.default }))
 );
 
 function PageFallback() {
@@ -120,6 +139,21 @@ export function AppRoutes() {
         <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
         <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
         <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
+
+        {/* Protected Field Agent Operations Portal (Property details only, zero sales amounts) */}
+        <Route
+          path="/agent"
+          element={
+            <ProtectedRoute allowedRoles={['agent', 'admin']}>
+              <AgentLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AgentDashboardPage />} />
+          <Route path="plots" element={<AgentPlotsPage />} />
+          <Route path="appointments" element={<AgentAppointmentsPage />} />
+          <Route path="enquiries" element={<AgentEnquiriesPage />} />
+        </Route>
 
         {/* Protected Admin Management Portal */}
         <Route
@@ -152,7 +186,7 @@ export function AppRoutes() {
           <Route path="sales" element={<SalesProfitPage />} />
           <Route path="documents" element={<DocumentListPage />} />
           <Route path="enquiries" element={<EnquiryListPage />} />
-          <Route path="messages" element={<MessagesPage />} />
+          <Route path="messages" element={<Navigate to="/admin" replace />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="settings" element={<SettingsPage />} />
@@ -160,9 +194,11 @@ export function AppRoutes() {
           <Route path="more" element={<MobileMorePage />} />
         </Route>
 
-        {/* Public Customer Portal Routes */}
+        {/* Customer & Public Portal Routes */}
         <Route element={<UserLayout />}>
           <Route index element={<Home />} />
+          <Route path="user" element={<UserDashboard />} />
+          <Route path="customer" element={<Navigate to="/user" replace />} />
           <Route path="plots" element={<Browse />} />
           <Route path="plots/:plotId" element={<PlotDetails />} />
           <Route path="wishlist" element={<Wishlist />} />

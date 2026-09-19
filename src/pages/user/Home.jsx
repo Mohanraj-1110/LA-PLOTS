@@ -130,11 +130,11 @@ export function Home() {
         )}
       </section>
 
-      {/* Why Choose LA PLOTS */}
+      {/* Why Choose LK PROPERTIES */}
       <section className="border-t border-surface-200 bg-surface-50 px-4 py-16 sm:px-6 lg:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="text-center max-w-2xl mx-auto">
-            <p className="text-xs font-bold uppercase tracking-widest text-primary-600">The LA PLOTS Standard</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-primary-600">The LK PROPERTIES Standard</p>
             <h2 className="mt-1 text-3xl font-extrabold font-display text-surface-900">Why Investors Choose Us</h2>
           </div>
 

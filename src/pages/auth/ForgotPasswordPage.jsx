@@ -41,7 +41,7 @@ export function ForgotPasswordPage() {
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 leading-none">LA PLOTS</h1>
+            <h1 className="text-lg font-black text-slate-900 leading-none">LK PROPERTIES</h1>
             <p className="text-xs text-emerald-700 font-semibold mt-0.5">Account Recovery</p>
           </div>
         </div>

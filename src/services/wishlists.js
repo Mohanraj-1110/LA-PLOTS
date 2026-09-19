@@ -83,3 +83,21 @@ export async function toggleWishlist(uid, plotId, currentlySaved) {
     return !currentlySaved
   }
 }
+
+export const wishlistService = {
+  getWishlist: async (uid) => {
+    if (!uid) return []
+    try {
+      const items = await api.get(`/wishlists?customerId=${uid}`)
+      if (Array.isArray(items)) {
+        return items.map((i) => i.plotId || i.id)
+      }
+    } catch {
+      // ignore
+    }
+    return getLocalWishlist(uid)
+  },
+  toggle: toggleWishlist,
+  getLocal: getLocalWishlist,
+  isPlotWishlisted,
+}

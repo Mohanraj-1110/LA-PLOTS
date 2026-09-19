@@ -47,7 +47,7 @@ export function Reviews() {
         <span className="inline-block rounded-full bg-primary-50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-700 border border-primary-200">Client Feedback</span>
         <h1 className="mt-3 font-display text-3xl font-extrabold text-surface-900">What Our Buyers Say</h1>
         <p className="mt-2 text-sm text-surface-500">
-          Real experiences from land owners and investors across LA PLOTS communities.
+          Real experiences from land owners and investors across LK PROPERTIES communities.
         </p>
       </div>
 
@@ -95,7 +95,7 @@ export function Reviews() {
               rows={3}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Share your experience purchasing land or visiting layouts with LA PLOTS..."
+              placeholder="Share your experience purchasing land or visiting layouts with LK PROPERTIES..."
               className="input-modern w-full resize-none"
             />
           </div>

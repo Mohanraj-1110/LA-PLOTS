@@ -143,7 +143,7 @@ export function Enquiry() {
             <p className="mt-2 text-sm text-surface-600 max-w-md mx-auto">
               {isVisit
                 ? `Thank you, ${customerName}. Your site visit is requested for ${new Date(visitDate).toLocaleDateString('en-IN')} at ${visitTime}. Our tour executive will call you to confirm pickup details.`
-                : 'Thank you for your interest. An executive from LA PLOTS will contact you via phone shortly.'}
+                : 'Thank you for your interest. An executive from LK PROPERTIES will contact you via phone shortly.'}
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               {isVisit && user && (

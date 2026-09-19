@@ -61,7 +61,7 @@ app.use('/api/upload', uploadRouter)
 // Root API Welcome / Status
 app.get('/api', (req, res) => {
   res.json({
-    message: 'LA PLOTS API Server running with MongoDB Atlas',
+    message: 'LK PROPERTIES API Server running with MongoDB Atlas',
     version: '2.0.0',
     authProvider: 'Firebase Authentication',
     databaseProvider: 'MongoDB Atlas',
@@ -74,7 +74,7 @@ const PORT = process.env.PORT || 5000
 if (process.argv[1]?.replace(/\\/g, '/').endsWith('server/server.js')) {
   app.listen(PORT, () => {
     console.log(`\n======================================================`)
-    console.log(`🚀 LA PLOTS Backend API running on http://localhost:${PORT}`)
+    console.log(`🚀 LK PROPERTIES Backend API running on http://localhost:${PORT}`)
     console.log(`📦 Database: MongoDB Atlas (Mongoose)`)
     console.log(`🔐 Authentication: Firebase Auth Only`)
     console.log(`======================================================\n`)

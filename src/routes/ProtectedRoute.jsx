@@ -44,7 +44,7 @@ export function ProtectedRoute({ allowedRoles = ['admin'], children }) {
         </div>
         <h1 className="text-xl font-bold text-slate-900 font-display">Access Restricted</h1>
         <p className="mt-2 text-sm text-slate-600">
-          The administration portal requires verified administrative privileges.
+          This portal requires verified {allowedRoles.map((r) => r.charAt(0).toUpperCase() + r.slice(1)).join(' or ')} privileges.
         </p>
 
         <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs space-y-1">
@@ -59,7 +59,7 @@ export function ProtectedRoute({ allowedRoles = ['admin'], children }) {
         </div>
 
         <p className="mt-3 text-xs text-slate-500">
-          To manage inventory, sales, and customers, please sign in with an authorized admin profile.
+          Please sign in with an authorized account or return to your designated dashboard.
         </p>
 
         <div className="mt-6 space-y-3">
@@ -69,15 +69,15 @@ export function ProtectedRoute({ allowedRoles = ['admin'], children }) {
             className="flex w-full min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 font-semibold text-white shadow-sm hover:bg-slate-800 transition cursor-pointer text-sm"
           >
             <LogIn size={16} />
-            <span>Sign In with Admin Account</span>
+            <span>Sign In with Different Account</span>
           </Link>
 
           <Link
-            to="/"
+            to={currentRole === 'agent' ? '/agent' : (currentRole === 'admin' ? '/admin' : '/user')}
             className="flex w-full min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 font-medium text-slate-700 hover:bg-slate-50 transition text-sm cursor-pointer"
           >
             <Home size={16} />
-            <span>Return to Customer Portal</span>
+            <span>Go to My Dashboard</span>
           </Link>
         </div>
       </div>

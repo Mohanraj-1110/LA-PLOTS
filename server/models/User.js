@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema(
       index: true,
     },
     photoURL: { type: String, default: '' },
-    company: { type: String, default: 'LA Plots Realty LLP' },
+    company: { type: String, default: 'LK Properties' },
     kycDocuments: { type: [String], default: [] },
   },
   {

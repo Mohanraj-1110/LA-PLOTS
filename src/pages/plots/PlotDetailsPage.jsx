@@ -64,7 +64,7 @@ export function PlotDetailsPage() {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `LA PLOTS - Plot ${plot.plotNumber}`,
+        title: `LK PROPERTIES - Plot ${plot.plotNumber}`,
         text: `Plot ${plot.plotNumber} at ${plot.projectName}: ${plot.areaSqft} sq.ft @ ₹${plot.ratePerSqft}/sq.ft (${formatCurrency(plot.totalAmount)})`,
         url: window.location.href,
       }).catch(() => {});
