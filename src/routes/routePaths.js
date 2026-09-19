@@ -36,6 +36,14 @@ export const ROUTES = {
   DASHBOARD: '/admin',
   ADMIN_HOME: '/admin',
 
+  // Projects Management
+  PROJECTS: '/admin/projects',
+  ADD_PROJECT: '/admin/projects/new',
+  PROJECT_DETAILS: '/admin/projects/:id',
+  projectDetailsPath: (id) => `/admin/projects/${id}`,
+  EDIT_PROJECT: '/admin/projects/:id/edit',
+  editProjectPath: (id) => `/admin/projects/${id}/edit`,
+
   // Plots Management
   PLOTS: '/admin/plots',
   ADD_PLOT: '/admin/plots/new',

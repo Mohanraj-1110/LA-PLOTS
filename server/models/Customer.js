@@ -23,7 +23,7 @@ const CustomerSchema = new mongoose.Schema(
     nextFollowup: { type: String, default: '' },
     nextFollowupDate: { type: String, default: '' },
     notes: { type: String, default: '' },
-    assignedAgent: { type: String, default: 'Vikram Mehta' },
+    assignedAgent: { type: String, default: '' },
     assignedAgentId: { type: String, default: '' },
     leadScore: { type: Number, default: 50 },
     tags: { type: [String], default: [] },

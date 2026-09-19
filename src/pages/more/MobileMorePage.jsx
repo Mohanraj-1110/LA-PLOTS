@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../routes/routePaths';
 import { PageHeader } from '../../components/layout/PageHeader';
 import {
+  Building2,
   FolderLock,
   Compass,
   BarChart3,
@@ -21,6 +22,13 @@ export function MobileMorePage() {
   const navigate = useNavigate();
 
   const menuItems = [
+    {
+      to: ROUTES.PROJECTS,
+      label: 'Manage Projects',
+      desc: 'Master layouts, project phases, and survey numbers',
+      icon: Building2,
+      color: 'bg-emerald-50 text-emerald-600',
+    },
     {
       to: ROUTES.SALES,
       label: 'Sales & Profit Margin',

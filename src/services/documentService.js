@@ -33,7 +33,7 @@ export const documentService = {
       plotNumber: data.plotNumber || '',
       customerId: data.customerId || '',
       customerName: data.customerName || '',
-      uploadedBy: data.uploadedBy || 'Vikram Mehta',
+      uploadedBy: data.uploadedBy || '',
       uploadedAt: new Date().toISOString(),
     }
 

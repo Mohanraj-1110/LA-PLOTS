@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Modal } from './Modal';
 import { ROUTES } from '../../routes/routePaths';
 import {
+  Building2,
   MapPin,
   UserPlus,
   CalendarPlus,
@@ -15,6 +16,14 @@ export function QuickAddModal({ isOpen, onClose }) {
   const navigate = useNavigate();
 
   const actions = [
+    {
+      title: 'Add New Project',
+      description: 'Create real estate layout, survey nos & amenities',
+      icon: Building2,
+      color: 'bg-primary-600 text-white',
+      hover: 'hover:bg-primary-50 hover:border-primary-200',
+      path: ROUTES.ADD_PROJECT,
+    },
     {
       title: 'Add New Plot',
       description: 'Register a plot parcel with area & rate calculations',

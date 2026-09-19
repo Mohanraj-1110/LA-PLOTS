@@ -24,15 +24,15 @@ export const enquiryService = {
       customerName: data.customerName,
       phone: data.phone,
       email: data.email || '',
-      projectId: data.projectId || 'proj-01',
-      projectName: data.projectName || 'Greenfield Meadows',
+      projectId: data.projectId || '',
+      projectName: data.projectName || '',
       budget: parseFloat(data.budget) || 0,
       source: data.source || 'Website',
       status: data.status || 'New',
       notes: data.notes || '',
       requirement: data.requirement || data.notes || '',
       assignedAgentId: data.assignedAgentId || '',
-      assignedAgentName: data.assignedAgentName || 'Vikram Mehta',
+      assignedAgentName: data.assignedAgentName || '',
       createdAt: new Date().toISOString(),
     }
 

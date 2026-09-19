@@ -38,10 +38,10 @@ usersRouter.get('/:uid', async (req, res) => {
 function isConfiguredAdminEmail(email) {
   if (!email) return false
   const clean = email.toLowerCase().trim()
-  const raw =
-    process.env.ADMIN_EMAILS ||
-    process.env.VITE_ADMIN_EMAILS ||
-    'admin@gmail.com,admin@laplots.com,mohan@gmail.com,lkproperties153@gmail.com'
+  // Admin emails MUST be explicitly configured in environment variables.
+  // No hardcoded fallback to prevent accidental privilege escalation in production.
+  const raw = process.env.ADMIN_EMAILS || process.env.VITE_ADMIN_EMAILS || ''
+  if (!raw.trim()) return false
   const list = raw
     .toLowerCase()
     .split(',')
@@ -75,7 +75,7 @@ usersRouter.post('/', async (req, res) => {
       const user = await User.findOneAndUpdate(
         { uid },
         { $setOnInsert: { createdAt: new Date() }, $set: userData },
-        { new: true, upsert: true }
+        { returnDocument: 'after', upsert: true }
       )
       return res.status(200).json(user.toJSON())
     }
@@ -109,7 +109,7 @@ usersRouter.put('/:uid', async (req, res) => {
     }
 
     if (isDBConnected()) {
-      const updated = await User.findOneAndUpdate({ uid }, { $set: updates }, { new: true })
+      const updated = await User.findOneAndUpdate({ uid }, { $set: updates }, { returnDocument: 'after' })
       if (!updated) return res.status(404).json({ error: 'User not found' })
       return res.json(updated.toJSON())
     }
@@ -141,7 +141,7 @@ usersRouter.put('/:uid/role', async (req, res) => {
     }
 
     if (isDBConnected()) {
-      const updated = await User.findOneAndUpdate({ uid }, { $set: { role } }, { new: true })
+      const updated = await User.findOneAndUpdate({ uid }, { $set: { role } }, { returnDocument: 'after' })
       if (!updated) return res.status(404).json({ error: 'User not found' })
       return res.json(updated.toJSON())
     }

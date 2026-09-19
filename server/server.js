@@ -16,6 +16,7 @@ import { reviewsRouter } from './routes/reviews.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { healthRouter } from './routes/health.js'
 import { uploadRouter } from './routes/upload.js'
+import { projectsRouter } from './routes/projects.js'
 
 dotenv.config()
 
@@ -57,6 +58,7 @@ app.use('/api/reviews', reviewsRouter)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/health', healthRouter)
 app.use('/api/upload', uploadRouter)
+app.use('/api/projects', projectsRouter)
 
 // Root API Welcome / Status
 app.get('/api', (req, res) => {

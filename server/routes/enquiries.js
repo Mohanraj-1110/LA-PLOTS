@@ -45,7 +45,7 @@ enquiriesRouter.put('/:id', async (req, res) => {
       const updated = await Enquiry.findOneAndUpdate(
         { $or: [{ id }, { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }] },
         { $set: updates },
-        { new: true }
+        { returnDocument: 'after' }
       )
       if (!updated) return res.status(404).json({ error: 'Enquiry not found' })
       return res.json(updated.toJSON())

@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useAppState } from '../../context/AppStateContext';
 import {
   LayoutDashboard,
+  Building2,
   MapPin,
   Users,
   Calendar,
@@ -36,6 +37,11 @@ export function Sidebar({ className = '', isMobileDrawer = false, onClose, onIte
 
   const navItems = [
     { to: ROUTES.HOME, label: 'Dashboard', icon: LayoutDashboard },
+    {
+      to: ROUTES.PROJECTS,
+      label: 'Manage Projects',
+      icon: Building2,
+    },
     {
       to: ROUTES.PLOTS,
       label: 'Plot Inventory',

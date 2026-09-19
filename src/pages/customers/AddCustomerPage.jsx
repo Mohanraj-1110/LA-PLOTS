@@ -78,7 +78,7 @@ export function AddCustomerPage() {
       const newCust = await addCustomer({
         ...data,
         interestedPlotId: '',
-        assignedAgent: 'Vikram Mehta',
+        assignedAgent: data.assignedAgent || '',
       });
       success(`Customer ${newCust.name} added to pipeline!`, 'Lead Recorded');
       navigate(ROUTES.CUSTOMERS);

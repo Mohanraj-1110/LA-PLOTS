@@ -19,7 +19,7 @@ const AppointmentSchema = new mongoose.Schema(
       index: true,
     },
     notes: { type: String, default: '' },
-    assignedAgent: { type: String, default: 'Vikram Mehta' },
+    assignedAgent: { type: String, default: '' },
     assignedAgentId: { type: String, default: '' },
     reminderSentDate: { type: String, default: '' },
   },

@@ -17,9 +17,11 @@ import { api } from './api.js'
 export function isAdminEmail(email) {
   if (!email) return false
   const clean = email.toLowerCase().trim()
+  // Admin emails MUST be set via VITE_ADMIN_EMAILS environment variable.
+  // No hardcoded fallback - prevents accidental privilege escalation in production.
   const rawAdmins =
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_EMAILS) ||
-    'lkproperties153@gmail.com'
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ADMIN_EMAILS) || ''
+  if (!rawAdmins.trim()) return false
   const envAdmins = rawAdmins
     .toLowerCase()
     .split(',')

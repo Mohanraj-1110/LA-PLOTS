@@ -38,6 +38,20 @@ const DashboardPage = lazy(() =>
   import('../pages/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage || m.default }))
 );
 
+// Projects CRUD
+const ProjectListPage = lazy(() =>
+  import('../pages/projects/ProjectListPage').then((m) => ({ default: m.ProjectListPage || m.default }))
+);
+const AddProjectPage = lazy(() =>
+  import('../pages/projects/AddProjectPage').then((m) => ({ default: m.AddProjectPage || m.default }))
+);
+const ProjectDetailsPage = lazy(() =>
+  import('../pages/projects/ProjectDetailsPage').then((m) => ({ default: m.ProjectDetailsPage || m.default }))
+);
+const EditProjectPage = lazy(() =>
+  import('../pages/projects/EditProjectPage').then((m) => ({ default: m.EditProjectPage || m.default }))
+);
+
 // Plots CRUD
 const PlotListPage = lazy(() =>
   import('../pages/plots/PlotListPage').then((m) => ({ default: m.PlotListPage || m.default }))
@@ -165,6 +179,12 @@ export function AppRoutes() {
           }
         >
           <Route index element={<DashboardPage />} />
+
+          {/* Admin Projects */}
+          <Route path="projects" element={<ProjectListPage />} />
+          <Route path="projects/new" element={<AddProjectPage />} />
+          <Route path="projects/:id" element={<ProjectDetailsPage />} />
+          <Route path="projects/:id/edit" element={<EditProjectPage />} />
 
           {/* Admin Plots */}
           <Route path="plots" element={<PlotListPage />} />
