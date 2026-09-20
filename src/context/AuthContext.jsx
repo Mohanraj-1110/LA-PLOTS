@@ -79,6 +79,7 @@ export function AuthProvider({ children }) {
     const userKey = user.uid || user.id;
     const isUserAdmin = isAdminEmail(user.email);
     const fallback = buildFallbackProfile(user, extra);
+    setProfile(fallback);
 
     if (inflightProfileRequests.has(userKey)) {
       return inflightProfileRequests.get(userKey);
