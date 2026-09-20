@@ -151,13 +151,26 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const cleanEmailOrPhone = (emailOrPhone || '').trim();
+      const cleanPassword = (password || '').trim();
+
+      if (!cleanEmailOrPhone) {
+        const err = new Error('Please enter your email or mobile number.');
+        err.code = 'auth/missing-email';
+        throw err;
+      }
+      if (!cleanPassword) {
+        const err = new Error('Please enter your password.');
+        err.code = 'auth/missing-password';
+        throw err;
+      }
+
       if (cleanEmailOrPhone.includes('@')) {
-        const result = await signIn(cleanEmailOrPhone, password);
+        const result = await signIn(cleanEmailOrPhone, cleanPassword);
         setFirebaseUser(result.user);
         const userProfile = await loadUserProfile(result.user);
         return { user: result.user, profile: userProfile };
       } else {
-        const loggedUser = await authService.login(cleanEmailOrPhone, password, rememberMe);
+        const loggedUser = await authService.login(cleanEmailOrPhone, cleanPassword, rememberMe);
         setProfile(loggedUser);
         return { user: loggedUser, profile: loggedUser };
       }
@@ -172,16 +185,50 @@ export function AuthProvider({ children }) {
     }
   }, [loadUserProfile]);
 
-  const signup = useCallback(async (name, phone, email, password) => {
+  const signup = useCallback(async (...args) => {
     setError(null);
     setLoading(true);
     try {
-      const cleanEmail = (email || '').trim().toLowerCase();
-      const cleanPhone = (phone || '').trim();
+      let name = '';
+      let phone = '';
+      let email = '';
+      let password = '';
+      let role = 'customer';
+
+      if (args.length >= 4 && typeof args[1] === 'string' && !args[1].includes('@') && args[2]?.includes('@')) {
+        // Called as (name, phone, email, password, role)
+        name = args[0] || '';
+        phone = args[1] || '';
+        email = args[2] || '';
+        password = args[3] || '';
+        role = args[4] || 'customer';
+      } else {
+        // Called as (name, email, password, role) or (name, email, password)
+        name = args[0] || '';
+        email = args[1] || '';
+        password = args[2] || '';
+        role = args[3] || 'customer';
+      }
+
       const cleanName = (name || '').trim();
-      const user = await signUp(cleanName, cleanPhone, cleanEmail, password);
+      const cleanPhone = (phone || '').trim();
+      const cleanEmail = (email || '').trim().toLowerCase();
+      const cleanPassword = (password || '').trim();
+
+      if (!cleanEmail) {
+        const err = new Error('Please enter your email address.');
+        err.code = 'auth/missing-email';
+        throw err;
+      }
+      if (!cleanPassword) {
+        const err = new Error('Please enter a password.');
+        err.code = 'auth/missing-password';
+        throw err;
+      }
+
+      const user = await signUp(cleanName, cleanPhone, cleanEmail, cleanPassword, role);
       setFirebaseUser(user);
-      const userProfile = await loadUserProfile(user, { name: cleanName, phone: cleanPhone, role: 'customer' });
+      const userProfile = await loadUserProfile(user, { name: cleanName, phone: cleanPhone, role });
       return { user, profile: userProfile };
     } catch (err) {
       const friendlyMsg = formatAuthError(err);

@@ -36,6 +36,12 @@ export function isAdminEmail(email) {
 export function formatAuthError(err) {
   if (!err) return 'An unexpected error occurred.'
   const code = err.code || ''
+  if (code === 'auth/missing-password') {
+    return 'Please enter your password.'
+  }
+  if (code === 'auth/missing-email') {
+    return 'Please enter your email address.'
+  }
   if (
     code === 'auth/invalid-credential' ||
     code === 'auth/wrong-password' ||
@@ -79,9 +85,10 @@ export function formatAuthError(err) {
 export function subscribeToAuth(callback) {
   if (!isFirebaseConfigured || !auth) {
     callback(null)
-    return () => undefined
+  } else {
+    return onAuthStateChanged(auth, callback)
   }
-  return onAuthStateChanged(auth, callback)
+  return () => undefined
 }
 
 /**
@@ -132,18 +139,68 @@ export async function ensureUserDocument(firebaseUser, extraData = {}) {
  */
 export async function signIn(email, password) {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
-  return signInWithEmailAndPassword(auth, email.trim(), password)
+  const cleanEmail = (email || '').trim().toLowerCase()
+  const cleanPassword = (password || '').trim()
+
+  if (!cleanEmail) {
+    const err = new Error('Please enter your email address.')
+    err.code = 'auth/missing-email'
+    throw err
+  }
+  if (!cleanPassword) {
+    const err = new Error('Please enter your password.')
+    err.code = 'auth/missing-password'
+    throw err
+  }
+
+  return signInWithEmailAndPassword(auth, cleanEmail, cleanPassword)
 }
 
 /**
- * Signup - creates Firebase auth user and syncs profile with phone to MongoDB Atlas
+ * Signup - creates Firebase auth user and syncs profile with MongoDB Atlas
+ * Supports both (name, email, password, role) and (name, phone, email, password, role)
  */
-export async function signUp(name, phone, email, password) {
+export async function signUp(...args) {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
-  const cleanName = name ? name.trim() : ''
-  const cleanPhone = phone ? phone.trim() : ''
-  const cleanEmail = email ? email.trim().toLowerCase() : ''
-  const credential = await createUserWithEmailAndPassword(auth, cleanEmail, password)
+
+  let name = ''
+  let phone = ''
+  let email = ''
+  let password = ''
+  let role = 'customer'
+
+  if (args.length >= 4 && typeof args[1] === 'string' && !args[1].includes('@') && args[2]?.includes('@')) {
+    // (name, phone, email, password, role)
+    name = args[0] || ''
+    phone = args[1] || ''
+    email = args[2] || ''
+    password = args[3] || ''
+    role = args[4] || 'customer'
+  } else {
+    // (name, email, password, role) or (name, email, password)
+    name = args[0] || ''
+    email = args[1] || ''
+    password = args[2] || ''
+    role = args[3] || 'customer'
+  }
+
+  const cleanName = (name || '').trim()
+  const cleanPhone = (phone || '').trim()
+  const cleanEmail = (email || '').trim().toLowerCase()
+  const cleanPassword = (password || '').trim()
+
+  if (!cleanEmail) {
+    const err = new Error('Please enter your email address.')
+    err.code = 'auth/missing-email'
+    throw err
+  }
+  if (!cleanPassword) {
+    const err = new Error('Please enter a password.')
+    err.code = 'auth/missing-password'
+    throw err
+  }
+
+  const credential = await createUserWithEmailAndPassword(auth, cleanEmail, cleanPassword)
   
   if (cleanName && credential.user) {
     try {
@@ -153,7 +210,7 @@ export async function signUp(name, phone, email, password) {
     }
   }
 
-  const effectiveRole = isAdminEmail(cleanEmail) ? 'admin' : 'customer'
+  const effectiveRole = isAdminEmail(cleanEmail) ? 'admin' : (role || 'customer')
   // Sync profile to MongoDB Atlas
   ensureUserDocument(credential.user, {
     name: cleanName,
