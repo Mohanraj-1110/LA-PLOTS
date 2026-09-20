@@ -6,13 +6,13 @@ import { getStorage } from 'firebase/storage'
 const env = (typeof import.meta !== 'undefined' && import.meta.env) || {}
 
 const firebaseConfig = {
-  apiKey: env.VITE_FIREBASE_API_KEY || '',
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: env.VITE_FIREBASE_APP_ID || '',
-  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID || '',
+  apiKey: env.VITE_FIREBASE_API_KEY || 'AIzaSyDeVkAV_3dpq2UlfS7S2Qr3RUUH9aGk_VY',
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || 'lk-properties-58446.firebaseapp.com',
+  projectId: env.VITE_FIREBASE_PROJECT_ID || 'lk-properties-58446',
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || 'lk-properties-58446.firebasestorage.app',
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '609964515952',
+  appId: env.VITE_FIREBASE_APP_ID || '1:609964515952:web:24b17fac843b7f127f4ab5',
+  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID || 'G-SQHDC689H3',
 }
 
 export const isFirebaseConfigured = Boolean(
