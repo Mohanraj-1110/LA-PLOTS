@@ -5,6 +5,8 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   updateProfile,
 } from 'firebase/auth'
@@ -224,25 +226,58 @@ export async function signUp(...args) {
 }
 
 /**
- * Google popup sign-in - fast authentication + MongoDB Atlas user record sync
+ * Google sign-in with automatic redirect fallback if popups are blocked
  */
 export async function googleSignIn() {
   if (!isFirebaseConfigured || !auth) throw new Error('Firebase is not configured.')
   const provider = new GoogleAuthProvider()
   provider.setCustomParameters({ prompt: 'select_account' })
-  const credential = await signInWithPopup(auth, provider)
-  
-  const effectiveRole = isAdminEmail(credential.user.email) ? 'admin' : 'customer'
-  // Sync user profile into MongoDB Atlas
-  ensureUserDocument(credential.user, {
-    name: credential.user.displayName || credential.user.email?.split('@')[0] || 'User',
-    phone: credential.user.phoneNumber || '',
-    role: effectiveRole,
-  }).catch((err) => {
-    console.warn('Background MongoDB Atlas ensureUserDocument notice:', err?.message)
-  })
 
-  return credential.user
+  try {
+    const credential = await signInWithPopup(auth, provider)
+    const effectiveRole = isAdminEmail(credential.user.email) ? 'admin' : 'customer'
+    ensureUserDocument(credential.user, {
+      name: credential.user.displayName || credential.user.email?.split('@')[0] || 'User',
+      phone: credential.user.phoneNumber || '',
+      role: effectiveRole,
+    }).catch((err) => {
+      console.warn('Background MongoDB Atlas ensureUserDocument notice:', err?.message)
+    })
+    return credential.user
+  } catch (err) {
+    if (
+      err.code === 'auth/popup-blocked' ||
+      err.code === 'auth/cancelled-popup-request'
+    ) {
+      console.info('[Auth] Popup blocked by browser, falling back to redirect...')
+      await signInWithRedirect(auth, provider)
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * Checks for Google redirect sign-in result after page reload
+ */
+export async function checkRedirectResult() {
+  if (!isFirebaseConfigured || !auth) return null
+  try {
+    const credential = await getRedirectResult(auth)
+    if (credential?.user) {
+      const effectiveRole = isAdminEmail(credential.user.email) ? 'admin' : 'customer'
+      ensureUserDocument(credential.user, {
+        name: credential.user.displayName || credential.user.email?.split('@')[0] || 'User',
+        phone: credential.user.phoneNumber || '',
+        role: effectiveRole,
+      }).catch(() => {})
+      return credential.user
+    }
+  } catch (err) {
+    console.warn('[Auth] checkRedirectResult notice:', err?.message)
+    throw err
+  }
+  return null
 }
 
 export async function resetPassword(email) {

@@ -47,6 +47,7 @@ export function Signup() {
     setError(null)
     try {
       const result = await googleSignIn()
+      if (!result) return
       const effectiveEmail = result?.user?.email || result?.profile?.email
       const role = result?.profile?.role
       const isAdm = role === 'admin' || isAdminEmail(effectiveEmail)

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
+  checkRedirectResult,
   ensureUserDocument,
   formatAuthError,
   getUserProfile,
@@ -65,7 +66,7 @@ function buildFallbackProfile(user, extra = {}) {
 
 export function AuthProvider({ children }) {
   const [firebaseUser, setFirebaseUser] = useState(null);
-  const [profile, setProfile] = useState(() => authService.getCurrentUser());
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -75,26 +76,24 @@ export function AuthProvider({ children }) {
       return null;
     }
 
-    const fallback = buildFallbackProfile(user, extra);
-    setProfile(fallback);
-
     const userKey = user.uid || user.id;
+    const isUserAdmin = isAdminEmail(user.email);
+    const fallback = buildFallbackProfile(user, extra);
+
     if (inflightProfileRequests.has(userKey)) {
       return inflightProfileRequests.get(userKey);
     }
 
     const fetchTask = (async () => {
       try {
-        const firestoreProfile = await getUserProfile(userKey);
-        const isUserAdmin = isAdminEmail(user.email) || firestoreProfile?.role === 'admin';
-
-        if (firestoreProfile) {
+        const remote = await getUserProfile(userKey);
+        if (remote) {
           const finalProfile = {
             ...fallback,
-            ...firestoreProfile,
+            ...remote,
             id: userKey,
             uid: userKey,
-            role: isUserAdmin ? 'admin' : (firestoreProfile.role || 'customer'),
+            role: isUserAdmin ? 'admin' : (remote.role || fallback.role),
           };
           setProfile(finalProfile);
           saveCachedProfile(userKey, finalProfile);
@@ -108,7 +107,7 @@ export function AuthProvider({ children }) {
               ...created,
               id: userKey,
               uid: userKey,
-              role: isUserAdmin ? 'admin' : (created.role || 'customer'),
+              role: isUserAdmin ? 'admin' : (created.role || fallback.role),
             };
             setProfile(finalProfile);
             saveCachedProfile(userKey, finalProfile);
@@ -133,6 +132,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    // Check if user just returned from a Google redirect sign-in
+    checkRedirectResult().then((redirectUser) => {
+      if (redirectUser) {
+        setFirebaseUser(redirectUser);
+        loadUserProfile(redirectUser);
+      }
+    }).catch((err) => {
+      if (err?.code !== 'auth/popup-closed-by-user') {
+        console.warn('[Auth] checkRedirectResult notice:', err?.message);
+      }
+    });
+
     const unsub = subscribeToAuth(async (user) => {
       setFirebaseUser(user);
       if (user) {
@@ -246,6 +257,10 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const user = await authGoogleSignIn();
+      if (!user) {
+        // Redirect was initiated due to blocked popup; waiting for browser redirect
+        return null;
+      }
       setFirebaseUser(user);
       const userProfile = await loadUserProfile(user, { name: user.displayName });
       return { user, profile: userProfile };

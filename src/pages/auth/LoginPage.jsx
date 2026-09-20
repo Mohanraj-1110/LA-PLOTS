@@ -165,6 +165,10 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       const result = await googleSignIn();
+      if (!result) {
+        setAuthSuccessMsg('Redirecting to Google Accounts for authentication...');
+        return;
+      }
       setAuthSuccessMsg('Google authentication verified! Redirecting...');
       success('Signed in with Google!', 'Welcome');
 
