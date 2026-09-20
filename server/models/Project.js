@@ -22,6 +22,7 @@ const ProjectSchema = new mongoose.Schema(
     description: { type: String, default: '' },
     amenities: { type: [String], default: [] },
     image: { type: String, default: '' },
+    images: { type: [String], default: [] },
     brochureUrl: { type: String, default: '' },
     masterPlanUrl: { type: String, default: '' },
     contactPerson: { type: String, default: '' },

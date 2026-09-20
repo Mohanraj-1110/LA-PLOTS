@@ -1,6 +1,5 @@
 import { api } from './api.js'
 import { storage } from './storage.js'
-import { projectList } from '../data/mockPlots.js'
 import { calculatePlotTotal } from '../utils/calculateProfit.js'
 
 const PLOTS_KEY = 'la_plots_inventory_v1'
@@ -51,12 +50,8 @@ export const plotService = {
       roadWidth: parseFloat(data.roadWidth) || 30,
       description: data.description || '',
       amenities: data.amenities || ['Gated Layout', 'Clear Title', 'Tar Road'],
-      photos:
-        data.photos && data.photos.length > 0
-          ? data.photos
-          : [
-              'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80',
-            ],
+      photos: Array.isArray(data.photos) ? data.photos : [],
+      primaryPhoto: data.primaryPhoto || (Array.isArray(data.photos) && data.photos[0]) || '',
       documents: data.documents || [],
       coordinates: data.coordinates || '12.9716° N, 77.5946° E',
       createdAt: new Date().toISOString(),
@@ -127,11 +122,7 @@ export const plotService = {
   },
 
   async getProjects() {
-    let projects = storage.get(PROJECTS_KEY, null)
-    if (!projects) {
-      projects = projectList
-      storage.set(PROJECTS_KEY, projects)
-    }
-    return projects
+    const projects = storage.get(PROJECTS_KEY, null)
+    return projects || []
   },
 }

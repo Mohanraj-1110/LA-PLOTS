@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
 import { useNavigate, Link } from 'react-router-dom'
 import { ROUTES } from '../../routes/routePaths'
 import { projectService } from '../../services/projectService'
@@ -8,16 +7,15 @@ import { PageHeader } from '../../components/layout/PageHeader'
 import { FormInput } from '../../components/forms/FormInput'
 import { FormSelect } from '../../components/forms/FormSelect'
 import { FormTextarea } from '../../components/forms/FormTextarea'
+import { ImageUploader } from '../../components/common/ImageUploader'
 import {
   Building2,
   MapPin,
   ShieldCheck,
-  Calendar,
-  Layers,
   Sparkles,
   CheckCircle2,
   ArrowLeft,
-  Image,
+  Images,
   Phone,
   Plus,
   X,
@@ -63,11 +61,10 @@ export function AddProjectPage() {
   const [totalAreaSqft, setTotalAreaSqft] = useState('')
   const [launchDate, setLaunchDate] = useState(new Date().toISOString().slice(0, 10))
   const [description, setDescription] = useState('')
-  const [image, setImage] = useState('')
   const [contactPerson, setContactPerson] = useState('')
   const [contactPhone, setContactPhone] = useState('')
 
-  // Amenities tags
+  // Amenities
   const [selectedAmenities, setSelectedAmenities] = useState([
     'Gated Community',
     '24/7 Security & CCTV',
@@ -76,17 +73,19 @@ export function AddProjectPage() {
   ])
   const [customAmenity, setCustomAmenity] = useState('')
 
+  // Image upload state
+  const [images, setImages] = useState([])
+  const [primaryImage, setPrimaryImage] = useState('')
+
   const handleToggleAmenity = (amenity) => {
-    if (selectedAmenities.includes(amenity)) {
-      setSelectedAmenities(selectedAmenities.filter((a) => a !== amenity))
-    } else {
-      setSelectedAmenities([...selectedAmenities, amenity])
-    }
+    setSelectedAmenities((prev) =>
+      prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
+    )
   }
 
   const handleAddCustomAmenity = () => {
     if (customAmenity.trim() && !selectedAmenities.includes(customAmenity.trim())) {
-      setSelectedAmenities([...selectedAmenities, customAmenity.trim()])
+      setSelectedAmenities((prev) => [...prev, customAmenity.trim()])
       setCustomAmenity('')
     }
   }
@@ -106,14 +105,8 @@ export function AddProjectPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!name.trim()) {
-      toastError('Please provide a project name')
-      return
-    }
-    if (!location.trim()) {
-      toastError('Please provide the project location')
-      return
-    }
+    if (!name.trim()) { toastError('Please provide a project name'); return }
+    if (!location.trim()) { toastError('Please provide the project location'); return }
 
     setSubmitting(true)
     try {
@@ -131,9 +124,8 @@ export function AddProjectPage() {
         launchDate,
         description: description.trim(),
         amenities: selectedAmenities,
-        image:
-          image.trim() ||
-          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80',
+        image: primaryImage || (images[0] || ''),
+        images,
         contactPerson: contactPerson.trim(),
         contactPhone: contactPhone.trim(),
       })
@@ -183,7 +175,6 @@ export function AddProjectPage() {
               onChange={(e) => handleNameChange(e.target.value)}
               required
             />
-
             <FormInput
               label="Project Code (Short Identifier)"
               placeholder="e.g. GM or VV"
@@ -191,7 +182,6 @@ export function AddProjectPage() {
               onChange={(e) => setCode(e.target.value)}
               required
             />
-
             <FormSelect
               label="Development Status"
               options={STATUS_OPTIONS}
@@ -199,7 +189,6 @@ export function AddProjectPage() {
               onChange={(e) => setStatus(e.target.value)}
               required
             />
-
             <FormInput
               label="Project Launch / Sanction Date"
               type="date"
@@ -209,7 +198,7 @@ export function AddProjectPage() {
           </div>
         </div>
 
-        {/* Location & Geography */}
+        {/* Location */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-5">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <MapPin className="w-5 h-5 text-emerald-600" />
@@ -226,7 +215,6 @@ export function AddProjectPage() {
                 required
               />
             </div>
-
             <FormInput
               label="City"
               placeholder="e.g. Bengaluru"
@@ -234,7 +222,6 @@ export function AddProjectPage() {
               onChange={(e) => setCity(e.target.value)}
               required
             />
-
             <FormInput
               label="State"
               placeholder="e.g. Karnataka"
@@ -245,7 +232,7 @@ export function AddProjectPage() {
           </div>
         </div>
 
-        {/* Land Specs & Legal Credentials */}
+        {/* Land Specs & Legal */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-5">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
             <ShieldCheck className="w-5 h-5 text-blue-600" />
@@ -259,14 +246,12 @@ export function AddProjectPage() {
               value={reraNumber}
               onChange={(e) => setReraNumber(e.target.value)}
             />
-
             <FormInput
               label="Survey / Khasra Numbers"
               placeholder="e.g. Sy.No 42, 43/1, 45/2"
               value={surveyNumbers}
               onChange={(e) => setSurveyNumbers(e.target.value)}
             />
-
             <FormInput
               label="Total Planned Plots"
               type="number"
@@ -274,7 +259,6 @@ export function AddProjectPage() {
               value={totalPlots}
               onChange={(e) => setTotalPlots(e.target.value)}
             />
-
             <FormInput
               label="Total Land Area (Sq.ft)"
               type="number"
@@ -294,7 +278,7 @@ export function AddProjectPage() {
           />
         </div>
 
-        {/* Amenities Selection */}
+        {/* Amenities */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
@@ -327,19 +311,30 @@ export function AddProjectPage() {
             })}
           </div>
 
+          {/* Selected custom amenities */}
+          {selectedAmenities.filter((a) => !PRESET_AMENITIES.includes(a)).length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {selectedAmenities
+                .filter((a) => !PRESET_AMENITIES.includes(a))
+                .map((a) => (
+                  <span key={a} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-700">
+                    {a}
+                    <button type="button" onClick={() => handleToggleAmenity(a)} className="ml-0.5 cursor-pointer hover:text-red-500 transition-colors">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+            </div>
+          )}
+
           {/* Add custom amenity */}
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-1">
             <input
               type="text"
               placeholder="Add custom amenity (e.g. Amphitheatre)..."
               value={customAmenity}
               onChange={(e) => setCustomAmenity(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  handleAddCustomAmenity()
-                }
-              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomAmenity() } }}
               className="flex-1 px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600"
             />
             <button
@@ -353,30 +348,48 @@ export function AddProjectPage() {
           </div>
         </div>
 
-        {/* Media & Point of Contact */}
+        {/* ── IMAGE UPLOAD ─────────────────────────────────────────────── */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Images className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-sm font-bold text-slate-900">Project Photos</h3>
+            </div>
+            {images.length > 0 && (
+              <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                {images.length} photo{images.length !== 1 ? 's' : ''} uploaded
+              </span>
+            )}
+          </div>
+
+          <p className="text-xs text-slate-500 -mt-1">
+            Upload site photos, master plan images, and marketing visuals. The <strong>Primary</strong> photo becomes the project cover. Images are stored securely in the database.
+          </p>
+
+          <ImageUploader
+            images={images}
+            onChange={setImages}
+            primaryImage={primaryImage}
+            onPrimaryChange={setPrimaryImage}
+            maxFiles={8}
+            label="project photos"
+          />
+        </div>
+
+        {/* Contact */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-5">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <Image className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-sm font-bold text-slate-900">Media Cover & Site Representative</h3>
+            <Phone className="w-5 h-5 text-slate-500" />
+            <h3 className="text-sm font-bold text-slate-900">Site Representative</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <FormInput
-                label="Cover Image URL (Web or Unsplash link)"
-                placeholder="https://images.unsplash.com/..."
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-              />
-            </div>
-
             <FormInput
               label="Site Manager / Contact Person"
               placeholder="e.g. Ramesh Kulkarni"
               value={contactPerson}
               onChange={(e) => setContactPerson(e.target.value)}
             />
-
             <FormInput
               label="Contact Phone Number"
               placeholder="e.g. +91 98450 12345"
@@ -386,7 +399,7 @@ export function AddProjectPage() {
           </div>
         </div>
 
-        {/* Submit Actions */}
+        {/* Submit */}
         <div className="flex items-center justify-end gap-3 pt-2">
           <Link
             to={ROUTES.PROJECTS}
@@ -397,7 +410,7 @@ export function AddProjectPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl shadow-md shadow-primary-600/20 transition-all flex items-center gap-2 cursor-pointer"
+            className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl shadow-md shadow-primary-600/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
           >
             {submitting ? (
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />

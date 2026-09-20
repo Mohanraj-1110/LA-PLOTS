@@ -1,6 +1,5 @@
 import { api } from './api.js'
 import { storage } from './storage.js'
-import { projectList } from '../data/mockPlots.js'
 
 const PROJECTS_KEY = 'la_plots_projects_v1'
 
@@ -41,23 +40,20 @@ export const projectService = {
       status: data.status || 'active',
       launchDate: data.launchDate || new Date().toISOString().slice(0, 10),
       amenities: Array.isArray(data.amenities) ? data.amenities : [],
-      image:
-        data.image ||
-        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80',
+      image: data.image || '',
+      images: Array.isArray(data.images) ? data.images : [],
       createdAt: new Date().toISOString(),
     }
 
     try {
       const created = await api.post('/projects', newProject)
-      // Update local storage
       const existing = storage.get(PROJECTS_KEY, [])
       storage.set(PROJECTS_KEY, [created, ...existing])
       return created
     } catch (err) {
       console.warn('[ProjectService] Offline create fallback:', err.message)
-      const existing = storage.get(PROJECTS_KEY, projectList)
-      const updated = [newProject, ...existing]
-      storage.set(PROJECTS_KEY, updated)
+      const existing = storage.get(PROJECTS_KEY, [])
+      storage.set(PROJECTS_KEY, [newProject, ...existing])
       return newProject
     }
   },

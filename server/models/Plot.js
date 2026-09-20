@@ -18,6 +18,7 @@ const PlotSchema = new mongoose.Schema(
     facing: { type: String, default: 'North' },
     roadWidth: { type: Number, default: 30 },
     photos: { type: [String], default: [] },
+    primaryPhoto: { type: String, default: '' },
     documents: { type: [String], default: [] },
     geo: {
       lat: { type: Number, default: 13.0827 },

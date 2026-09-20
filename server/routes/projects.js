@@ -2,7 +2,6 @@ import express from 'express'
 import mongoose from 'mongoose'
 import { Project } from '../models/Project.js'
 import { Plot } from '../models/Plot.js'
-import { projectList } from '../../src/data/mockPlots.js'
 
 export const projectsRouter = express.Router()
 
@@ -203,7 +202,8 @@ projectsRouter.post('/', async (req, res) => {
       launchDate: data.launchDate || new Date().toISOString().slice(0, 10),
       description: data.description || '',
       amenities: Array.isArray(data.amenities) ? data.amenities : [],
-      image: data.image || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80',
+      image: data.image || '',
+      images: Array.isArray(data.images) ? data.images : [],
       brochureUrl: data.brochureUrl || '',
       masterPlanUrl: data.masterPlanUrl || '',
       contactPerson: data.contactPerson || '',

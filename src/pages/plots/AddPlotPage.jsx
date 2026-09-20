@@ -13,6 +13,7 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { FormInput } from '../../components/forms/FormInput';
 import { FormSelect } from '../../components/forms/FormSelect';
 import { FormTextarea } from '../../components/forms/FormTextarea';
+import { ImageUploader } from '../../components/common/ImageUploader';
 import {
   MapPin,
   Compass,
@@ -21,6 +22,7 @@ import {
   CheckCircle2,
   ArrowLeft,
   Sparkles,
+  Images,
 } from 'lucide-react';
 
 const PROJECT_OPTIONS = [
@@ -55,6 +57,10 @@ export function AddPlotPage() {
   const { success, error: toastError } = useToast();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+
+  // Image upload state
+  const [photos, setPhotos] = useState([]);
+  const [primaryPhoto, setPrimaryPhoto] = useState('');
 
   const {
     register,
@@ -99,7 +105,8 @@ export function AddPlotPage() {
     try {
       const newPlot = await addPlot({
         ...data,
-        photos: [],
+        photos,
+        primaryPhoto: primaryPhoto || photos[0] || '',
       });
       success(`Plot ${newPlot.plotNumber} added to inventory!`, 'Plot Registered');
       navigate(ROUTES.PLOTS);
@@ -276,6 +283,34 @@ export function AddPlotPage() {
             label="Layout Sanction / Khata Reference Number"
             placeholder="e.g. BIAAPA/LP/2024-42 • Khata Certificate No. A-9882"
             {...register('surveyNumber')}
+          />
+        </div>
+
+        {/* Plot Reference Photos */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Images className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-sm font-bold text-slate-900">Plot Reference Photos</h3>
+            </div>
+            {photos.length > 0 && (
+              <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                {photos.length} photo{photos.length !== 1 ? 's' : ''} uploaded
+              </span>
+            )}
+          </div>
+
+          <p className="text-xs text-slate-500 -mt-1">
+            Upload site photos, layout images, location photos, or any reference images for this plot. The <strong>⭐ Primary</strong> photo is used as the plot thumbnail.
+          </p>
+
+          <ImageUploader
+            images={photos}
+            onChange={setPhotos}
+            primaryImage={primaryPhoto}
+            onPrimaryChange={setPrimaryPhoto}
+            maxFiles={6}
+            label="plot photos"
           />
         </div>
 

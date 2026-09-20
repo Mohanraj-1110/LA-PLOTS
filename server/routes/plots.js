@@ -39,7 +39,12 @@ plotsRouter.post('/', async (req, res) => {
   try {
     const data = req.body
     const id = data.id || `plot-${Date.now()}`
-    const plotData = { ...data, id }
+    const plotData = {
+      ...data,
+      id,
+      photos: Array.isArray(data.photos) ? data.photos : [],
+      primaryPhoto: data.primaryPhoto || (Array.isArray(data.photos) && data.photos[0]) || '',
+    }
 
     if (isDBConnected()) {
       const newPlot = new Plot(plotData)

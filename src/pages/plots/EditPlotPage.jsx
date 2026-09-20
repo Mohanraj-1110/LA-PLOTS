@@ -15,6 +15,7 @@ import { FormSelect } from '../../components/forms/FormSelect';
 import { FormTextarea } from '../../components/forms/FormTextarea';
 import { LoadingSpinner } from '../../components/common/LoadingState';
 import { ErrorState } from '../../components/common/ErrorState';
+import { ImageUploader } from '../../components/common/ImageUploader';
 import {
   MapPin,
   Compass,
@@ -22,6 +23,7 @@ import {
   CheckCircle2,
   ArrowLeft,
   Sparkles,
+  Images,
 } from 'lucide-react';
 
 const PROJECT_OPTIONS = [
@@ -58,6 +60,10 @@ export function EditPlotPage() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
+  // Image state — populated from currentPlot once loaded
+  const [photos, setPhotos] = useState([]);
+  const [primaryPhoto, setPrimaryPhoto] = useState('');
+
   const currentPlot = plots.find((p) => p.id === id);
 
   const {
@@ -84,6 +90,10 @@ export function EditPlotPage() {
         status: currentPlot.status,
         description: currentPlot.description || '',
       });
+      // Pre-populate photos
+      const existingPhotos = Array.isArray(currentPlot.photos) ? currentPlot.photos : [];
+      setPhotos(existingPhotos);
+      setPrimaryPhoto(currentPlot.primaryPhoto || existingPhotos[0] || '');
     }
   }, [currentPlot, reset]);
 
@@ -108,7 +118,11 @@ export function EditPlotPage() {
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
-      await editPlot(id, data);
+      await editPlot(id, {
+        ...data,
+        photos,
+        primaryPhoto: primaryPhoto || photos[0] || '',
+      });
       success(`Plot ${data.plotNumber} updated successfully!`);
       navigate(ROUTES.plotDetailsPath(id));
     } catch (err) {
@@ -260,6 +274,34 @@ export function EditPlotPage() {
             label="Plot Description & Highlights"
             rows={3}
             {...register('description')}
+          />
+        </div>
+
+        {/* ── PLOT REFERENCE PHOTOS ─────────────────────────────────── */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Images className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-sm font-bold text-slate-900">Plot Reference Photos</h3>
+            </div>
+            {photos.length > 0 && (
+              <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                {photos.length} photo{photos.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+
+          <p className="text-xs text-slate-500 -mt-1">
+            Upload or replace site reference photos. The <strong>⭐ Primary</strong> photo is used as the plot thumbnail. Images are stored in the database.
+          </p>
+
+          <ImageUploader
+            images={photos}
+            onChange={setPhotos}
+            primaryImage={primaryPhoto}
+            onPrimaryChange={setPrimaryPhoto}
+            maxFiles={6}
+            label="plot photos"
           />
         </div>
 
