@@ -71,15 +71,23 @@ export const plotService = {
   },
 
   async updatePlot(id, updates) {
-    const area = updates.areaSqft !== undefined ? parseFloat(updates.areaSqft) : undefined
-    const rate = updates.ratePerSqft !== undefined ? parseFloat(updates.ratePerSqft) : undefined
-    const totalAmount = area !== undefined && rate !== undefined ? calculatePlotTotal(area, rate) : updates.totalAmount
+    // BUG-09 FIX: Recalculate totalAmount even when only one of areaSqft or
+    // ratePerSqft changes. Fall back to the cached value for the missing
+    // dimension so the total stays accurate after partial updates.
+    const existing = storage.get(PLOTS_KEY, []).find((p) => p.id === id) || {}
+    const area = updates.areaSqft !== undefined
+      ? parseFloat(updates.areaSqft)
+      : parseFloat(existing.areaSqft) || 0
+    const rate = updates.ratePerSqft !== undefined
+      ? parseFloat(updates.ratePerSqft)
+      : parseFloat(existing.ratePerSqft) || 0
+    const totalAmount = calculatePlotTotal(area, rate)
 
     const payload = {
       ...updates,
-      ...(area !== undefined ? { areaSqft: area } : {}),
-      ...(rate !== undefined ? { ratePerSqft: rate } : {}),
-      ...(totalAmount !== undefined ? { totalAmount } : {}),
+      ...(updates.areaSqft !== undefined ? { areaSqft: area } : {}),
+      ...(updates.ratePerSqft !== undefined ? { ratePerSqft: rate } : {}),
+      totalAmount,
     }
 
     try {

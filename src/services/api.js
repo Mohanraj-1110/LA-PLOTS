@@ -49,10 +49,17 @@ async function request(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  // Enforce 8-second request timeout to prevent hanging UI
+  // Enforce 8-second request timeout to prevent hanging UI.
+  // BUG-08 FIX: Compose the timeout signal with any caller-provided signal so
+  // BOTH can abort the fetch — previously a caller signal silently disabled the
+  // timeout by replacing controller.signal entirely.
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 8000)
-  const signal = options.signal || controller.signal
+  const signal = options.signal
+    ? (AbortSignal.any
+        ? AbortSignal.any([controller.signal, options.signal])
+        : controller.signal)
+    : controller.signal
 
   let response
   try {

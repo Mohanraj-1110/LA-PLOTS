@@ -123,6 +123,23 @@ export function AppStateProvider({ children }) {
     return newSale;
   }, []);
 
+  // BUG-12 FIX: AppStateContext was missing editSale and removeSale, forcing
+  // consumers to call salesService directly and leaving shared state stale.
+  const editSale = useCallback(async (id, updates) => {
+    // salesService does not expose an updateSale yet; call the API directly
+    // and update local state optimistically.
+    const { api } = await import('../services/api.js');
+    const updated = await api.put(`/sales/${id}`, updates);
+    setSales((prev) => prev.map((s) => (s.id === id ? { ...s, ...updated } : s)));
+    return updated;
+  }, []);
+
+  const removeSale = useCallback(async (id) => {
+    const { api } = await import('../services/api.js');
+    await api.delete(`/sales/${id}`);
+    setSales((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
   const value = {
     plots,
     customers,
@@ -143,6 +160,8 @@ export function AppStateProvider({ children }) {
     changeAppointmentStatus,
     removeAppointment,
     addSale,
+    editSale,
+    removeSale,
   };
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

@@ -25,14 +25,6 @@ import {
   Images,
 } from 'lucide-react';
 
-const PROJECT_OPTIONS = [
-  { value: 'Greenfield Meadows', label: 'Greenfield Meadows (Devanahalli, Bengaluru)' },
-  { value: 'Vedic Valley', label: 'Vedic Valley (Electronic City Phase 2, Bengaluru)' },
-  { value: 'Emerald Palms', label: 'Emerald Palms (ECR Coastal Highway, Chennai)' },
-  { value: 'Sunrise Enclave', label: 'Sunrise Enclave (Shamshabad, Hyderabad)' },
-  { value: 'Golden Acres', label: 'Golden Acres (Hinjewadi Phase 3, Pune)' },
-];
-
 const FACING_OPTIONS = [
   'East',
   'North',
@@ -89,17 +81,6 @@ export function AddPlotPage() {
   const watchedRate = watch('ratePerSqft');
   const liveTotalAmount = calculatePlotTotal(watchedArea, watchedRate);
 
-  // Sync location when project changes
-  const handleProjectChange = (e) => {
-    const projName = e.target.value;
-    setValue('projectName', projName);
-    if (projName === 'Greenfield Meadows') setValue('location', 'Devanahalli, North Bengaluru');
-    else if (projName === 'Vedic Valley') setValue('location', 'Electronic City Phase 2, Bengaluru');
-    else if (projName === 'Emerald Palms') setValue('location', 'ECR Highway, Chennai');
-    else if (projName === 'Sunrise Enclave') setValue('location', 'Shamshabad, Hyderabad');
-    else if (projName === 'Golden Acres') setValue('location', 'Hinjewadi Phase 3, Pune');
-  };
-
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
@@ -147,17 +128,17 @@ export function AddPlotPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormSelect
-              label="Select Project"
-              options={PROJECT_OPTIONS}
+            <FormInput
+              label="Project Name : "
+              placeholder="Project"
               required
               error={errors.projectName?.message}
-              {...register('projectName', { onChange: handleProjectChange })}
+              {...register('projectName')}
             />
 
             <FormInput
               label="Location"
-              placeholder="e.g. Devanahalli, Bengaluru"
+              placeholder="e.g. Trichy, Tamil Nadu"
               required
               error={errors.location?.message}
               {...register('location')}
@@ -282,7 +263,7 @@ export function AddPlotPage() {
           <FormInput
             label="Layout Sanction / Khata Reference Number"
             placeholder="e.g. BIAAPA/LP/2024-42 • Khata Certificate No. A-9882"
-            {...register('surveyNumber')}
+            {...register('layoutSanction')}
           />
         </div>
 

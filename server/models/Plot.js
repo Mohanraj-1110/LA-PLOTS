@@ -4,8 +4,10 @@ const PlotSchema = new mongoose.Schema(
   {
     id: { type: String, unique: true, index: true },
     projectId: { type: String, default: 'proj-1' },
+    projectName: { type: String, default: '' },
     plotNumber: { type: String, required: true },
     surveyNumber: { type: String, default: '' },
+    layoutSanction: { type: String, default: '' },
     areaSqft: { type: Number, required: true },
     ratePerSqft: { type: Number, required: true },
     totalAmount: { type: Number, required: true },
@@ -20,6 +22,8 @@ const PlotSchema = new mongoose.Schema(
     photos: { type: [String], default: [] },
     primaryPhoto: { type: String, default: '' },
     documents: { type: [String], default: [] },
+    amenities: { type: [String], default: [] },
+    coordinates: { type: String, default: '' },
     geo: {
       lat: { type: Number, default: 13.0827 },
       lng: { type: Number, default: 80.2707 },

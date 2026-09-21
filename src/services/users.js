@@ -53,11 +53,17 @@ export function subscribeToUsers(onChange, onError) {
   onChange(initialData)
 
   let isMounted = true
+  // BUG-17 FIX: Exponential backoff prevents hammering a down server.
+  let failCount = 0
+  const BASE_INTERVAL = 10000
+  const MAX_INTERVAL = 5 * 60 * 1000
+  let timeoutId = null
 
   const fetchUsers = async () => {
     try {
       const users = await api.get('/users')
       if (isMounted) {
+        failCount = 0
         const merged = mergeUsers(Array.isArray(users) && users.length > 0 ? users : initialData)
         saveCachedUsers(merged)
         onChange(merged)
@@ -67,16 +73,20 @@ export function subscribeToUsers(onChange, onError) {
         console.warn('[MongoDB Atlas] subscribeToUsers fallback:', err?.message)
         if (onError) onError(err)
         onChange(getCachedUsers())
+        failCount++
       }
+    }
+    if (isMounted) {
+      const delay = Math.min(BASE_INTERVAL * Math.pow(2, failCount), MAX_INTERVAL)
+      timeoutId = setTimeout(fetchUsers, delay)
     }
   }
 
   fetchUsers()
-  const intervalId = setInterval(fetchUsers, 10000)
 
   return () => {
     isMounted = false
-    clearInterval(intervalId)
+    if (timeoutId) clearTimeout(timeoutId)
   }
 }
 

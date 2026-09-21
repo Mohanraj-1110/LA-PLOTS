@@ -79,7 +79,10 @@ export const salesService = {
     const totalRevenue = sales.reduce((acc, curr) => acc + (Number(curr.saleAmount) || 0), 0)
     const totalCost = sales.reduce((acc, curr) => acc + (Number(curr.cost) || 0), 0)
     const totalProfit = calculateNetProfit(totalRevenue, totalCost)
-    const profitMargin = calculateProfitMargin(totalRevenue, totalProfit)
+    // BUG-04 FIX: calculateProfitMargin(saleAmount, costAmount) computes profit
+    // internally. Previously (totalRevenue, totalProfit) was passed which made
+    // it compute cost% instead of profit margin.
+    const profitMargin = calculateProfitMargin(totalRevenue, totalCost)
 
     return {
       totalRevenue,

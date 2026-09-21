@@ -50,11 +50,17 @@ export function formatPlot(id, data = {}) {
 // Admin: subscribe / fetch all plots
 export function subscribeToPlots(onChange, onError) {
   let isMounted = true
+  // BUG-17 FIX: Exponential backoff prevents hammering a down server.
+  let failCount = 0
+  const BASE_INTERVAL = 10000
+  const MAX_INTERVAL = 5 * 60 * 1000 // 5 minutes
+  let timeoutId = null
 
   const fetchPlots = async () => {
     try {
       const plots = await api.get('/plots')
       if (isMounted) {
+        failCount = 0 // reset on success
         if (Array.isArray(plots)) {
           onChange(plots.map((p) => formatPlot(p.id, p)))
         } else {
@@ -66,28 +72,37 @@ export function subscribeToPlots(onChange, onError) {
         console.warn('[MongoDB Atlas] subscribeToPlots notice:', err?.message)
         onChange([])
         if (onError) onError(err)
+        failCount++
       }
+    }
+    if (isMounted) {
+      const delay = Math.min(BASE_INTERVAL * Math.pow(2, failCount), MAX_INTERVAL)
+      timeoutId = setTimeout(fetchPlots, delay)
     }
   }
 
   fetchPlots()
-  // Poll periodically for updates in place of Firestore websocket
-  const intervalId = setInterval(fetchPlots, 10000)
 
   return () => {
     isMounted = false
-    clearInterval(intervalId)
+    if (timeoutId) clearTimeout(timeoutId)
   }
 }
 
 // Public: subscribe to available & reserved plots
 export function subscribeToPublicPlots(onChange, onError) {
   let isMounted = true
+  // BUG-17 FIX: Same backoff as subscribeToPlots
+  let failCount = 0
+  const BASE_INTERVAL = 10000
+  const MAX_INTERVAL = 5 * 60 * 1000
+  let timeoutId = null
 
   const fetchPublic = async () => {
     try {
       const plots = await api.get('/plots')
       if (isMounted) {
+        failCount = 0
         if (Array.isArray(plots)) {
           const filtered = plots
             .filter((p) => p.status === 'available' || p.status === 'reserved')
@@ -102,16 +117,20 @@ export function subscribeToPublicPlots(onChange, onError) {
         console.warn('[MongoDB Atlas] subscribeToPublicPlots notice:', err?.message)
         onChange([])
         if (onError) onError(err)
+        failCount++
       }
+    }
+    if (isMounted) {
+      const delay = Math.min(BASE_INTERVAL * Math.pow(2, failCount), MAX_INTERVAL)
+      timeoutId = setTimeout(fetchPublic, delay)
     }
   }
 
   fetchPublic()
-  const intervalId = setInterval(fetchPublic, 10000)
 
   return () => {
     isMounted = false
-    clearInterval(intervalId)
+    if (timeoutId) clearTimeout(timeoutId)
   }
 }
 

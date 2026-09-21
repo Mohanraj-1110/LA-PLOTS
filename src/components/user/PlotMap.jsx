@@ -59,8 +59,8 @@ export function PlotMap({ plots = [] }) {
                   {plot.projectId || `Plot ${plot.plotNumber}`}
                 </Link>
                 <p className="text-xs text-surface-600 mt-1">Plot #{plot.plotNumber}</p>
-                <p className="text-sm font-semibold text-surface-900 mt-1">
-                  {currency.format(plot.totalAmount)}
+                <p className="text-xs font-bold text-primary-700 mt-1">
+                  Price on Request
                 </p>
                 <span className="inline-block mt-1 text-[10px] uppercase font-bold text-primary-700 bg-primary-50 border border-primary-200 px-1.5 py-0.5 rounded">
                   {plot.status}

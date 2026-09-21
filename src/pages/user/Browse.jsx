@@ -126,17 +126,6 @@ export function Browse() {
           </select>
 
           <label className="flex items-center gap-2 rounded-xl border border-surface-200 bg-surface-50 px-3 py-2 text-sm text-surface-500 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:bg-white transition-all duration-300">
-            <span className="text-primary-600 font-semibold">₹</span>
-            <input
-              type="number"
-              value={budget}
-              onChange={(e) => setBudget(e.target.value)}
-              placeholder="Max budget (₹)"
-              className="w-full bg-transparent text-surface-900 outline-none placeholder:text-surface-400"
-            />
-          </label>
-
-          <label className="flex items-center gap-2 rounded-xl border border-surface-200 bg-surface-50 px-3 py-2 text-sm text-surface-500 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:bg-white transition-all duration-300">
             <input
               type="number"
               value={area}

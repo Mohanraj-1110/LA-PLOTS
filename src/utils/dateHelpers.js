@@ -1,6 +1,20 @@
 /**
- * Date helper utilities for LA PLOTS
+ * Parses a date value, treating bare "YYYY-MM-DD" strings as local midnight
+ * to avoid timezone-induced off-by-one-day errors (BUG-15).
+ * @param {string|Date} dateVal
+ * @returns {Date}
  */
+function parseDate(dateVal) {
+  if (!dateVal) return new Date(NaN);
+  if (dateVal instanceof Date) return dateVal;
+  // A bare date-only string (e.g. "2026-09-18") is treated as UTC midnight by
+  // the Date constructor, which shifts it to the previous day in UTC+5:30.
+  // Appending T00:00:00 forces the engine to interpret it as local midnight.
+  if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+    return new Date(dateVal + 'T00:00:00');
+  }
+  return new Date(dateVal);
+}
 
 /**
  * Formats an ISO date string or Date object to DD/MM/YYYY
@@ -9,7 +23,7 @@
  */
 export function formatDate(dateVal) {
   if (!dateVal) return '-';
-  const d = new Date(dateVal);
+  const d = parseDate(dateVal);
   if (isNaN(d.getTime())) return '-';
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -92,7 +106,7 @@ export function formatRelativeTime(dateVal) {
  */
 export function isToday(dateVal) {
   if (!dateVal) return false;
-  const d = new Date(dateVal);
+  const d = parseDate(dateVal);
   const now = new Date();
   return (
     d.getDate() === now.getDate() &&
@@ -108,5 +122,5 @@ export function isToday(dateVal) {
  */
 export function isFuture(dateVal) {
   if (!dateVal) return false;
-  return new Date(dateVal).getTime() > Date.now();
+  return parseDate(dateVal).getTime() > Date.now();
 }

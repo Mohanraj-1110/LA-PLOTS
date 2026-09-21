@@ -195,4 +195,17 @@ export const authService = {
       // ignore
     }
   },
+
+  /**
+   * Clear local session data only (without calling Firebase signOut).
+   * Use this when Firebase signOut has already been called elsewhere.
+   */
+  clearSession() {
+    storage.remove(AUTH_KEY)
+    try {
+      sessionStorage.removeItem(AUTH_KEY)
+    } catch {
+      // ignore
+    }
+  },
 }

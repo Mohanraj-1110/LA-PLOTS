@@ -360,7 +360,7 @@ export function UserDashboard() {
                           </span>
                         </div>
                         <p className="text-xs font-semibold text-primary-700">
-                          {formatCurrency(plot.totalAmount || plot.price || 0)}
+                          Price on Request
                           <span className="text-surface-400 font-normal ml-1">
                             ({plot.areaSqft || 1200} sq.ft)
                           </span>

@@ -22,9 +22,10 @@ export const reportService = {
     const soldPlots = plots.filter((p) => p.status === 'sold').length;
     const blockedPlots = plots.filter((p) => p.status === 'blocked').length;
 
+    // BUG-05 FIX: Sales objects use `cost` and `profit` (not `costAmount`/`netProfit`)
     const totalSalesRevenue = sales.reduce((acc, s) => acc + (s.saleAmount || 0), 0);
-    const totalCost = sales.reduce((acc, s) => acc + (s.costAmount || 0), 0);
-    const totalNetProfit = sales.reduce((acc, s) => acc + (s.netProfit || 0), 0);
+    const totalCost = sales.reduce((acc, s) => acc + (s.cost || 0), 0);
+    const totalNetProfit = sales.reduce((acc, s) => acc + (s.profit || 0), 0);
     const avgProfitMargin =
       totalSalesRevenue > 0 ? ((totalNetProfit / totalSalesRevenue) * 100).toFixed(1) : 0;
 
@@ -33,7 +34,11 @@ export const reportService = {
     ).length;
     const convertedCustomers = customers.filter((c) => c.status === 'Converted').length;
 
-    const upcomingAppts = appointments.filter((a) => a.status === 'Upcoming').length;
+    // BUG-06 FIX: Appointments are created with status 'scheduled' (lowercase),
+    // not 'Upcoming' (Title Case), so the filter was always returning 0.
+    const upcomingAppts = appointments.filter(
+      (a) => a.status?.toLowerCase() === 'scheduled'
+    ).length;
 
     return {
       totalPlots,
@@ -69,7 +74,16 @@ export const reportService = {
           keys
             .map((k) => {
               let cell = row[k] === null || row[k] === undefined ? '' : row[k];
-              cell = cell instanceof Date ? cell.toLocaleString() : cell.toString();
+              // BUG-14 FIX: serialize arrays and objects to JSON instead of
+              // using .toString() which produces "[object Object]" or
+              // comma-joined array values that corrupt the CSV.
+              if (cell instanceof Date) {
+                cell = cell.toLocaleString();
+              } else if (typeof cell === 'object' && cell !== null) {
+                cell = JSON.stringify(cell);
+              } else {
+                cell = String(cell);
+              }
               cell = cell.replace(/"/g, '""');
               if (cell.search(/("|,|\n)/g) >= 0) {
                 cell = `"${cell}"`;

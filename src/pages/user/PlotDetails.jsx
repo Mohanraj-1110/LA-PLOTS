@@ -187,7 +187,7 @@ export function PlotDetails() {
               <div className="rounded-xl bg-gradient-to-br from-primary-50/60 to-surface-50 p-3.5 border border-primary-100/50">
                 <dt className="text-xs text-surface-500">Project</dt>
                 <dd className="mt-1 text-base font-bold text-surface-900">
-                  {plot.projectId || 'Lakeview Township'}
+                  {plot.projectName || plot.projectId || 'Lakeview Township'}
                 </dd>
               </div>
               <div className="rounded-xl bg-gradient-to-br from-primary-50/60 to-surface-50 p-3.5 border border-primary-100/50">
@@ -197,7 +197,7 @@ export function PlotDetails() {
             </dl>
           </article>
 
-          {/* Interactive Plot Loan EMI Widget */}
+          {/* Bank Loan & Financing Assistance Card */}
           <article className="mt-8 card-modern overflow-hidden">
             <div className="bg-gradient-to-r from-primary-600 to-primary-500 p-6">
               <div className="flex items-center justify-between">
@@ -206,78 +206,29 @@ export function PlotDetails() {
                     <Calculator size={18} />
                   </div>
                   <div>
-                    <h2 className="font-display text-lg font-bold text-white">Estimated Monthly EMI</h2>
-                    <p className="text-xs text-primary-100">Bank finance available up to 80%</p>
+                    <h2 className="font-display text-lg font-bold text-white">Bank Loan & Financing Assistance</h2>
+                    <p className="text-xs text-primary-100">Bank finance available up to 80% with partner banks</p>
                   </div>
                 </div>
                 <Link to="/emi" className="text-xs font-bold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition">
-                  Full Calculator
+                  EMI Calculator
                 </Link>
               </div>
             </div>
 
             <div className="p-6">
-              <div className="grid gap-5 sm:grid-cols-3 bg-surface-50 p-4 rounded-xl border border-surface-100">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-surface-600 block mb-1.5">
-                    Bank Loan: {loanPercent}%
-                  </label>
-                  <input
-                    type="range"
-                    min="50"
-                    max="80"
-                    step="5"
-                    value={loanPercent}
-                    onChange={(e) => setLoanPercent(Number(e.target.value))}
-                    className="w-full accent-primary-600 cursor-pointer h-1.5 bg-surface-200 rounded"
-                  />
-                  <span className="text-[11px] text-surface-500">{currency.format(loanAmount)}</span>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-surface-600 block mb-1.5">
-                    Interest: {interestRate}%
-                  </label>
-                  <input
-                    type="range"
-                    min="7.5"
-                    max="12.0"
-                    step="0.5"
-                    value={interestRate}
-                    onChange={(e) => setInterestRate(Number(e.target.value))}
-                    className="w-full accent-primary-600 cursor-pointer h-1.5 bg-surface-200 rounded"
-                  />
-                  <span className="text-[11px] text-surface-500">Annual rate</span>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-surface-600 block mb-1.5">
-                    Tenure: {tenureYears} Yrs
-                  </label>
-                  <input
-                    type="range"
-                    min="5"
-                    max="25"
-                    step="5"
-                    value={tenureYears}
-                    onChange={(e) => setTenureYears(Number(e.target.value))}
-                    className="w-full accent-primary-600 cursor-pointer h-1.5 bg-surface-200 rounded"
-                  />
-                  <span className="text-[11px] text-surface-500">{tenureYears * 12} Months</span>
-                </div>
-              </div>
-
-              <div className="mt-5 flex items-center justify-between pt-4 border-t border-surface-100">
-                <div>
-                  <span className="text-xs text-surface-400 font-medium">Estimated EMI</span>
-                  <p className="text-2xl font-extrabold text-primary-600">
-                    {currency.format(emiAmount)}
-                    <span className="text-xs font-normal text-surface-400"> / month</span>
+                  <p className="text-sm font-semibold text-surface-800">Pre-approved Bank Tie-ups</p>
+                  <p className="text-xs text-surface-500 mt-0.5">
+                    HDFC, SBI, ICICI, and Axis Bank loan approvals available with quick sanctions and competitive rates.
                   </p>
                 </div>
                 <Link
-                  to={`/enquiry?plotId=${plot.id}&budget=${loanAmount}&requirement=Financing assistance for Plot #${plot.plotNumber}`}
-                  className="rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-2.5 text-xs font-bold text-white hover:from-primary-600 hover:to-primary-700 transition shadow-card"
+                  to={`/enquiry?plotId=${plot.id}&requirement=Financing and pricing assistance for Plot #${plot.plotNumber}`}
+                  className="shrink-0 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-2.5 text-xs font-bold text-white hover:from-primary-600 hover:to-primary-700 transition shadow-card"
                 >
-                  Apply for Loan Assistance
+                  Request Pricing & Loan Info
                 </Link>
               </div>
             </div>
@@ -329,7 +280,7 @@ export function PlotDetails() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-surface-300">
-                    {plot.projectId || 'Residential Layout'}
+                    {plot.projectName || plot.projectId || 'Residential Layout'}
                   </p>
                   <h1 className="mt-1 font-display text-2xl font-extrabold">
                     Plot #{plot.plotNumber}
@@ -355,14 +306,12 @@ export function PlotDetails() {
               </p>
 
               <div className="mt-5 pt-5 border-t border-white/10">
-                <p className="text-3xl font-extrabold text-white">
-                  {currency.format(plot.totalAmount)}
+                <p className="text-2xl font-extrabold text-white font-display tracking-tight">
+                  Price on Request
                 </p>
-                {plot.ratePerSqft > 0 && (
-                  <p className="mt-1 text-xs text-surface-400">
-                    ₹{plot.ratePerSqft.toLocaleString('en-IN')} per sq.ft
-                  </p>
-                )}
+                <p className="mt-1 text-xs text-surface-300">
+                  Contact our sales advisors for verified pricing, payment schedules & exclusive site-visit offers.
+                </p>
                 <div className="mt-3">
                   <span
                     className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${

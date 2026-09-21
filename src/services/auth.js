@@ -84,10 +84,9 @@ export function formatAuthError(err) {
 export function subscribeToAuth(callback) {
   if (!isFirebaseConfigured || !auth) {
     callback(null)
-  } else {
-    return onAuthStateChanged(auth, callback)
+    return () => undefined
   }
-  return () => undefined
+  return onAuthStateChanged(auth, callback)
 }
 
 /**

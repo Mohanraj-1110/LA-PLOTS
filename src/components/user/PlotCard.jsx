@@ -89,7 +89,10 @@ export function PlotCard({ plot }) {
         <div className="flex justify-between items-start gap-2">
           <div>
             <h3 className="font-bold text-surface-900 group-hover:text-primary-700 transition-colors duration-200 font-display">
-              {plot.projectId ? `${plot.projectId} — Plot ${plot.plotNumber}` : `Plot ${plot.plotNumber}`}
+              {/* Show projectName if available (typed by admin), fall back to projectId */}
+              {(plot.projectName || plot.projectId)
+                ? `${plot.projectName || plot.projectId} — Plot ${plot.plotNumber}`
+                : `Plot ${plot.plotNumber}`}
             </h3>
             <p className="mt-1.5 flex items-center text-xs text-surface-500">
               <MapPin className="mr-1 inline text-surface-400 shrink-0" size={13} />
@@ -98,16 +101,11 @@ export function PlotCard({ plot }) {
           </div>
         </div>
 
-        <div className="mt-4 flex items-baseline justify-between border-t border-surface-100 pt-3.5">
+        <div className="mt-4 flex items-center justify-between border-t border-surface-100 pt-3.5">
           <div>
-            <span className="text-lg font-extrabold text-primary-700 font-display">
-              {currency.format(plot.totalAmount)}
+            <span className="inline-flex items-center px-3 py-1 rounded-lg bg-primary-50 text-primary-700 font-bold text-sm border border-primary-100/80 shadow-2xs">
+              Price on Request
             </span>
-            {plot.ratePerSqft > 0 && (
-              <span className="block text-[11px] text-surface-400 mt-0.5">
-                {currency.format(plot.ratePerSqft)}/sq.ft
-              </span>
-            )}
           </div>
           <span className="text-xs font-semibold text-surface-500 bg-surface-50 px-2.5 py-1 rounded-lg">
             {plot.areaSqft.toLocaleString('en-IN')} sq.ft

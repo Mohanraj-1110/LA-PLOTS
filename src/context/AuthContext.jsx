@@ -116,17 +116,20 @@ export function AuthProvider({ children }) {
         }).catch(() => {});
       } catch (err) {
         console.warn('[Auth] Profile resolution note:', err?.message);
-      } finally {
-        inflightProfileRequests.delete(userKey);
       }
       return fallback;
     })();
 
-    // Ensure loadUserProfile never hangs UI longer than 3 seconds
+    // Ensure loadUserProfile never hangs UI longer than 3 seconds.
+    // BUG-03 FIX: Delete the key AFTER the race resolves, not inside fetchTask's
+    // finally, so a timed-out fetchTask finishing late cannot overwrite a newer
+    // profile load that already completed.
     const resilientTask = Promise.race([
       fetchTask,
       new Promise((resolve) => setTimeout(() => resolve(fallback), 3000)),
-    ]);
+    ]).finally(() => {
+      inflightProfileRequests.delete(userKey);
+    });
 
     inflightProfileRequests.set(userKey, resilientTask);
     return resilientTask;
@@ -182,7 +185,13 @@ export function AuthProvider({ children }) {
         const userProfile = await loadUserProfile(result.user);
         return { user: result.user, profile: userProfile };
       } else {
+        // BUG-10 FIX: phone-number login — authService.login() calls Firebase
+        // signInWithEmailAndPassword internally, so auth.currentUser is populated
+        // after it resolves. Set firebaseUser so that switchRole/refreshProfile
+        // and other features that check firebaseUser directly work correctly.
         const loggedUser = await authService.login(cleanEmailOrPhone, cleanPassword, rememberMe);
+        const { auth: firebaseAuth } = await import('../firebase/config');
+        setFirebaseUser(firebaseAuth?.currentUser || null);
         setProfile(loggedUser);
         return { user: loggedUser, profile: loggedUser };
       }
@@ -277,8 +286,12 @@ export function AuthProvider({ children }) {
   }, [loadUserProfile]);
 
   const logout = useCallback(async () => {
+    // BUG-07 FIX: signOutCurrentUser() already calls Firebase signOut(auth).
+    // authService.logout() also calls signOut(auth) which would throw
+    // auth/no-current-user. Call only the storage cleanup part instead.
     await signOutCurrentUser();
-    await authService.logout();
+    // Clear local session storage without triggering another Firebase signOut
+    authService.clearSession();
     if (typeof window !== 'undefined') {
       localStorage.removeItem('la_plots_user_role');
     }
@@ -301,12 +314,17 @@ export function AuthProvider({ children }) {
     if (newRole === 'admin' && !isAdminEmail(userEmail)) {
       throw new Error('Access denied: Admin role requires authorized administrator email.');
     }
-    setProfile((prev) => (prev ? { ...prev, role: newRole } : { role: newRole }));
+    // BUG-11 FIX: write cache inside the functional updater so we always use
+    // the latest profile state rather than the potentially-stale closure value.
+    setProfile((prev) => {
+      const updated = prev ? { ...prev, role: newRole } : { role: newRole };
+      if (firebaseUser?.uid) saveCachedProfile(firebaseUser.uid, updated);
+      return updated;
+    });
     if (firebaseUser?.uid) {
-      saveCachedProfile(firebaseUser.uid, { ...profile, role: newRole });
       ensureUserDocument(firebaseUser, { role: newRole }).catch(() => {});
     }
-  }, [firebaseUser, profile]);
+  }, [firebaseUser]);
 
   const refreshProfile = useCallback(async () => {
     if (firebaseUser) {

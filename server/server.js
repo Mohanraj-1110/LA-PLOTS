@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { connectDB } from './db.js'
+import { requireAuth } from './middleware/auth.js'
 
 import { plotsRouter } from './routes/plots.js'
 import { customersRouter } from './routes/customers.js'
@@ -22,8 +23,13 @@ dotenv.config()
 
 export const app = express()
 
-// Middlewares
-app.use(cors())
+// BUG-16 FIX: Restrict CORS to the configured origin instead of allowing all.
+// Set ALLOWED_ORIGIN in .env to your production domain (e.g. https://yourdomain.com).
+const allowedOrigin = process.env.ALLOWED_ORIGIN || 'http://localhost:5173'
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true,
+}))
 app.use(express.json({ limit: '25mb' }))
 app.use(express.urlencoded({ extended: true, limit: '25mb' }))
 
@@ -44,21 +50,50 @@ export async function initializeBackend() {
 // Ensure init is called
 initializeBackend().catch(() => {})
 
+// -----------------------------------------------------------------------
 // Mount API Routes
-app.use('/api/plots', plotsRouter)
-app.use('/api/customers', customersRouter)
-app.use('/api/appointments', appointmentsRouter)
-app.use('/api/sales', salesRouter)
-app.use('/api/documents', documentsRouter)
-app.use('/api/enquiries', enquiriesRouter)
-app.use('/api/messages', messagesRouter)
-app.use('/api/users', usersRouter)
-app.use('/api/wishlists', wishlistsRouter)
-app.use('/api/reviews', reviewsRouter)
-app.use('/api/dashboard', dashboardRouter)
+// BUG-01 FIX: Apply requireAuth middleware to all protected routes.
+// Public exceptions:
+//   - GET  /api/health   — liveness probe, no auth needed
+//   - POST /api/enquiries — public enquiry form submission from customer portal
+// -----------------------------------------------------------------------
+
+// Public routes (no auth required)
 app.use('/api/health', healthRouter)
-app.use('/api/upload', uploadRouter)
-app.use('/api/projects', projectsRouter)
+
+// Partially public: enquiry creation is open, admin operations require auth
+app.use('/api/enquiries', (req, res, next) => {
+  // Allow unauthenticated POST (customer submitting an enquiry from the portal)
+  if (req.method === 'POST') return next()
+  return requireAuth(req, res, next)
+}, enquiriesRouter)
+
+// Public read routes for customer browsing; mutations require auth
+app.use('/api/plots', (req, res, next) => {
+  if (req.method === 'GET') return next()
+  return requireAuth(req, res, next)
+}, plotsRouter)
+
+app.use('/api/projects', (req, res, next) => {
+  if (req.method === 'GET') return next()
+  return requireAuth(req, res, next)
+}, projectsRouter)
+
+app.use('/api/reviews', (req, res, next) => {
+  if (req.method === 'GET') return next()
+  return requireAuth(req, res, next)
+}, reviewsRouter)
+
+// Protected operational routes (require valid Firebase token)
+app.use('/api/customers', requireAuth, customersRouter)
+app.use('/api/appointments', requireAuth, appointmentsRouter)
+app.use('/api/sales', requireAuth, salesRouter)
+app.use('/api/documents', requireAuth, documentsRouter)
+app.use('/api/messages', requireAuth, messagesRouter)
+app.use('/api/users', requireAuth, usersRouter)
+app.use('/api/wishlists', requireAuth, wishlistsRouter)
+app.use('/api/dashboard', requireAuth, dashboardRouter)
+app.use('/api/upload', requireAuth, uploadRouter)
 
 // Root API Welcome / Status
 app.get('/api', (req, res) => {
