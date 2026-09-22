@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../routes/routePaths';
+import { ThemeToggle } from '../common/ThemeToggle';
 import {
   Bell,
   Plus,
@@ -33,7 +34,7 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
   const displayAvatar = profile?.photoURL || profile?.avatar || user?.photoURL || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80';
 
   return (
-    <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-3 transition-all">
+    <header className="sticky top-0 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 lg:px-8 py-3 transition-colors duration-200">
       <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto">
         {/* Left: Mobile hamburger + Mobile brand / Desktop greeting */}
         <div className="flex items-center gap-3">
@@ -41,7 +42,7 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
             <button
               type="button"
               onClick={onMenuToggle}
-              className="lg:hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="lg:hidden p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
               aria-label="Toggle navigation menu"
             >
               <Menu className="w-5 h-5" />
@@ -49,24 +50,24 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
           )}
 
           <div className="lg:hidden flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white flex items-center justify-center shadow-xs font-bold text-xs">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-primary-600 via-teal-500 to-indigo-600 text-white flex items-center justify-center shadow-xs font-bold text-xs">
               LK
             </div>
             <div>
-              <span className="text-sm font-black text-slate-900 tracking-tight leading-none block font-display">
+              <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-none block font-display">
                 PROPERTIES
               </span>
-              <span className="text-[9px] font-bold text-primary-700 uppercase tracking-wider">
+              <span className="text-[9px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider">
                 Admin
               </span>
             </div>
           </div>
 
           <div className="hidden lg:block">
-            <h2 className="text-sm font-bold text-slate-800">
-              Welcome, <span className="text-primary-600">{displayName}</span>
+            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+              Welcome back, <span className="bg-gradient-to-r from-emerald-600 to-indigo-600 dark:from-emerald-400 dark:to-indigo-400 bg-clip-text text-transparent font-extrabold">{displayName}</span>
             </h2>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {new Date().toLocaleDateString('en-IN', {
                 weekday: 'long',
                 day: 'numeric',
@@ -82,10 +83,10 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
           {/* View Public Website button */}
           <Link
             to="/"
-            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary-700 hover:text-primary-800 bg-primary-50 hover:bg-primary-100/70 border border-primary-200/60 rounded-xl transition-all"
+            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary-700 dark:text-primary-300 hover:text-primary-800 dark:hover:text-primary-200 bg-primary-50 dark:bg-primary-950/50 hover:bg-primary-100/70 border border-primary-200/60 dark:border-primary-800/60 rounded-xl transition-all"
             title="Open customer-facing website"
           >
-            <Globe className="w-3.5 h-3.5" />
+            <Globe className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
             <span>Public Site</span>
           </Link>
 
@@ -103,17 +104,20 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
             </div>
           )}
 
+          {/* Theme Toggle Button */}
+          <ThemeToggle />
+
           {/* Notifications button & dropdown */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="relative p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               aria-label="View notifications"
             >
               <Bell className="w-5 h-5" />
               {alerts.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary-500 ring-2 ring-white" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary-500 ring-2 ring-white dark:ring-slate-900" />
               )}
             </button>
 
@@ -123,12 +127,12 @@ export function TopHeader({ onOpenQuickAdd, onMenuToggle }) {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowNotifications(false)}
                 />
-                <div className="absolute right-0 mt-2 w-80 sm:w-88 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 animate-scale-in">
-                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                <div className="absolute right-0 mt-2 w-80 sm:w-88 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-4 z-50 animate-scale-in">
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
                       Notifications
                     </h4>
-                    <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-2 py-0.5 rounded-full">
                       {alerts.length} New
                     </span>
                   </div>

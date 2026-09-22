@@ -54,7 +54,7 @@ export function ProjectListPage() {
       setProjects(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Failed to load projects:', err)
-      toastError('Failed to load projects list')
+      toastError(err.message || 'Failed to load projects list')
     } finally {
       setLoading(false)
     }
@@ -269,8 +269,8 @@ export function ProjectListPage() {
         <LoadingSpinner text="Loading projects directory..." className="py-24" />
       ) : filteredProjects.length === 0 ? (
         <EmptyState
-          title="No projects match your filter"
-          description="Try modifying your search keywords or create a new real estate project parcel."
+          title={searchQuery || activeFilter !== 'all' ? "No projects match your filter" : "No projects in MongoDB Atlas yet"}
+          description={searchQuery || activeFilter !== 'all' ? "Try modifying your search keywords or create a new real estate project." : "Your MongoDB Atlas database has no projects stored yet. Click below to add your first real estate project."}
           actionLabel="Add New Project"
           onAction={() => navigate(ROUTES.ADD_PROJECT)}
         />

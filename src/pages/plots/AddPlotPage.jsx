@@ -276,13 +276,13 @@ export function AddPlotPage() {
             </div>
             {photos.length > 0 && (
               <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
-                {photos.length} photo{photos.length !== 1 ? 's' : ''} uploaded
+                {photos.length} photo{photos.length !== 1 ? 's' : ''} linked
               </span>
             )}
           </div>
 
           <p className="text-xs text-slate-500 -mt-1">
-            Upload site photos, layout images, location photos, or any reference images for this plot. The <strong>⭐ Primary</strong> photo is used as the plot thumbnail.
+            Add web image URLs for plot layout views and site reference imagery. The <strong>⭐ Primary</strong> photo is used as the plot thumbnail.
           </p>
 
           <ImageUploader

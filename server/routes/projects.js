@@ -2,121 +2,56 @@ import express from 'express'
 import mongoose from 'mongoose'
 import { Project } from '../models/Project.js'
 import { Plot } from '../models/Plot.js'
+import { isDBConnected, connectDB } from '../db.js'
 
 export const projectsRouter = express.Router()
 
-// Initial fallback seeds
-const DEFAULT_PROJECTS = [
-  {
-    id: 'proj-01',
-    name: 'Greenfield Meadows',
-    code: 'GM',
-    location: 'Devanahalli, North Bengaluru',
-    city: 'Bengaluru',
-    state: 'Karnataka',
-    reraNumber: 'PRM/KA/RERA/1251/309/PR/200922/003621',
-    surveyNumbers: 'Sy.No 42, 43/1, 45/2',
-    totalPlots: 48,
-    totalAreaSqft: 145000,
-    status: 'active',
-    launchDate: '2024-01-15',
-    description: 'Premium villa plots near Kempegowda International Airport with BIAAPA sanction and clear titles.',
-    amenities: ['Gated Community', 'Blacktop Roads', 'Underground Drainage', 'Solar Streetlights', 'Clubhouse & Park', '24/7 Security'],
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'proj-02',
-    name: 'Vedic Valley',
-    code: 'VV',
-    location: 'Electronic City Phase 2, Bengaluru',
-    city: 'Bengaluru',
-    state: 'Karnataka',
-    reraNumber: 'PRM/KA/RERA/1251/310/PR/210415/004112',
-    surveyNumbers: 'Sy.No 88, 89/3',
-    totalPlots: 36,
-    totalAreaSqft: 98000,
-    status: 'active',
-    launchDate: '2024-03-01',
-    description: 'Serene eco-friendly plotted community surrounded by green belts, minutes from major IT corridors.',
-    amenities: ['Gated Community', 'Rainwater Harvesting', 'Avenue Plantations', 'Children Play Area', '24/7 Security'],
-    image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'proj-03',
-    name: 'Emerald Palms',
-    code: 'EP',
-    location: 'ECR Highway, Chennai',
-    city: 'Chennai',
-    state: 'Tamil Nadu',
-    reraNumber: 'TN/01/Layout/0245/2023',
-    surveyNumbers: 'Sy.No 112/4, 114',
-    totalPlots: 24,
-    totalAreaSqft: 72000,
-    status: 'active',
-    launchDate: '2023-11-10',
-    description: 'Luxury coastal layout with direct beach access roads and DTCP-approved master plans.',
-    amenities: ['Beachside Access', 'Gated Layout', 'Compound Wall', 'Solar Lights', 'Underground Cabling'],
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'proj-04',
-    name: 'Sunrise Enclave',
-    code: 'SE',
-    location: 'Shamshabad, Hyderabad',
-    city: 'Hyderabad',
-    state: 'Telangana',
-    reraNumber: 'P02400005118',
-    surveyNumbers: 'Sy.No 204, 205/1',
-    totalPlots: 60,
-    totalAreaSqft: 180000,
-    status: 'upcoming',
-    launchDate: '2024-06-01',
-    description: 'HMDA-approved investment corridor parcel strategically situated near Hyderabad ORR.',
-    amenities: ['HMDA Approved', 'Wide Tar Roads', 'Overhead Tank', 'Grand Entrance Arch', 'Landscaped Garden'],
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'proj-05',
-    name: 'Golden Acres',
-    code: 'GA',
-    location: 'Hinjewadi Phase 3, Pune',
-    city: 'Pune',
-    state: 'Maharashtra',
-    reraNumber: 'P52100049210',
-    surveyNumbers: 'Sy.No 15/2, 16/1',
-    totalPlots: 30,
-    totalAreaSqft: 90000,
-    status: 'completed',
-    launchDate: '2023-04-15',
-    description: 'Fully developed plotted layout next to Pune IT Tech Park with ready-to-construct deeds.',
-    amenities: ['PMRDA Sanction', 'Clear Titles', 'Clubhouse', 'Gymnasium', 'Gated Community'],
-    image: 'https://images.unsplash.com/photo-1448630360428-65456885c650?w=800&auto=format&fit=crop&q=80',
-  },
-]
+// Helper to ensure MongoDB Atlas connection is active before operations
+async function ensureConnected(res) {
+  if (!isDBConnected()) {
+    try {
+      await connectDB()
+    } catch {
+      // ignore, checked below
+    }
+  }
 
-// GET /api/projects - list all projects with live plot stats
+  if (!isDBConnected()) {
+    res.status(503).json({
+      error: 'Database unavailable',
+      message: 'MongoDB Atlas is not connected. Please ensure your MONGODB_URI credentials and IP access are configured.',
+    })
+    return false
+  }
+  return true
+}
+
+// GET /api/projects - list all projects directly from MongoDB Atlas
 projectsRouter.get('/', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({
-        error: 'Database unavailable',
-        message: 'Cannot retrieve projects: database connection is not established.',
-      })
-    }
+    const ok = await ensureConnected(res)
+    if (!ok) return
 
-    let projects = await Project.find().sort({ createdAt: -1 }).lean()
+    // Query real projects only from MongoDB Atlas (no mock fallback)
+    const projects = await Project.find().sort({ createdAt: -1 }).lean()
 
-    // If database is empty on first run, seed initial project data
+    // If no projects exist in MongoDB Atlas yet, return empty list
     if (!projects || projects.length === 0) {
-      console.log('[Projects] Database empty — seeding initial project data...')
-      await Project.insertMany(DEFAULT_PROJECTS)
-      projects = await Project.find().sort({ createdAt: -1 }).lean()
+      return res.json([])
     }
 
-    // Attach live plot counts
-    const plots = await Plot.find({}, 'projectId status').lean()
+    // Attach live plot counts from MongoDB Atlas
+    const plots = await Plot.find({}, 'projectId projectName status plotNumber').lean()
+
     const enriched = projects.map((proj) => {
-      const projPlots = plots.filter((p) => p.projectId === proj.id || p.projectId === proj.name)
+      const projId = proj.id || proj._id.toString()
+      const projPlots = plots.filter(
+        (p) =>
+          p.projectId === projId ||
+          p.projectId === proj.code ||
+          p.projectName === proj.name ||
+          (proj.code && p.plotNumber?.startsWith(proj.code))
+      )
       const available = projPlots.filter((p) => p.status === 'available').length
       const reserved = projPlots.filter((p) => p.status === 'reserved').length
       const sold = projPlots.filter((p) => p.status === 'sold').length
@@ -125,7 +60,7 @@ projectsRouter.get('/', async (req, res) => {
 
       return {
         ...proj,
-        id: proj.id || proj._id.toString(),
+        id: projId,
         plotsCount: projPlots.length,
         availablePlots: available,
         reservedPlots: reserved,
@@ -137,53 +72,60 @@ projectsRouter.get('/', async (req, res) => {
 
     return res.json(enriched)
   } catch (err) {
-    console.error('Projects fetch error:', err.message)
-    return res.status(500).json({ error: 'Failed to fetch projects', details: err.message })
+    console.error('[Projects API] Fetch error:', err.message)
+    return res.status(500).json({ error: 'Failed to fetch projects', message: err.message })
   }
 })
 
-// GET /api/projects/:id - single project with its plots
+// GET /api/projects/:id - single project with its plots directly from MongoDB Atlas
 projectsRouter.get('/:id', async (req, res) => {
   try {
+    const ok = await ensureConnected(res)
+    if (!ok) return
+
     const { id } = req.params
 
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({
-        error: 'Database unavailable',
-        message: 'Cannot retrieve project: database connection is not established.',
+    let project = await Project.findOne({ id }).lean()
+    if (!project && mongoose.Types.ObjectId.isValid(id)) {
+      project = await Project.findById(id).lean()
+    }
+
+    if (!project) {
+      return res.status(404).json({
+        error: 'Project not found',
+        message: `No project with id "${id}" found in MongoDB Atlas.`,
       })
     }
 
-    let project = await Project.findOne({ id }).lean()
-    if (!project) {
-      try {
-        project = await Project.findById(id).lean()
-      } catch {}
-    }
+    const projId = project.id || project._id.toString()
 
-    if (!project) {
-      return res.status(404).json({ error: 'Project not found' })
-    }
-
-    // Fetch plots associated with this project
+    // Fetch real plots associated with this project from MongoDB Atlas
     const plots = await Plot.find({
-      $or: [{ projectId: project.id }, { projectId: project.name }, { projectName: project.name }],
+      $or: [
+        { projectId: projId },
+        { projectId: project.code },
+        { projectId: project.name },
+        { projectName: project.name },
+      ],
     }).lean()
 
     return res.json({
       ...project,
-      id: project.id || project._id.toString(),
+      id: projId,
       plots: plots || [],
     })
   } catch (err) {
-    console.error('Project fetch error:', err.message)
-    res.status(500).json({ error: 'Failed to fetch project', details: err.message })
+    console.error('[Projects API] Project fetch error:', err.message)
+    return res.status(500).json({ error: 'Failed to fetch project', message: err.message })
   }
 })
 
-// POST /api/projects - create new project
+// POST /api/projects - create new project in MongoDB Atlas
 projectsRouter.post('/', async (req, res) => {
   try {
+    const ok = await ensureConnected(res)
+    if (!ok) return
+
     const data = req.body
     const id = data.id || `proj-${Date.now().toString().slice(-6)}`
 
@@ -211,50 +153,64 @@ projectsRouter.post('/', async (req, res) => {
     })
 
     await newProject.save()
-    res.status(201).json(newProject)
+    return res.status(201).json(newProject.toJSON ? newProject.toJSON() : newProject)
   } catch (err) {
-    console.error('Error creating project:', err)
-    res.status(500).json({ error: 'Failed to create project', details: err.message })
+    console.error('[Projects API] Error creating project:', err)
+    return res.status(500).json({ error: 'Failed to create project', message: err.message })
   }
 })
 
-// PUT /api/projects/:id - update project
+// PUT /api/projects/:id - update project in MongoDB Atlas
 projectsRouter.put('/:id', async (req, res) => {
   try {
+    const ok = await ensureConnected(res)
+    if (!ok) return
+
     const { id } = req.params
     const data = req.body
 
-    let project = await Project.findOneAndUpdate(
-      { $or: [{ id }, { _id: id }] },
+    const query = mongoose.Types.ObjectId.isValid(id)
+      ? { $or: [{ id }, { _id: id }] }
+      : { id }
+
+    const project = await Project.findOneAndUpdate(
+      query,
       { $set: data },
       { returnDocument: 'after' }
     )
 
     if (!project) {
-      return res.status(404).json({ error: 'Project not found' })
+      return res.status(404).json({ error: 'Project not found in MongoDB Atlas' })
     }
 
-    res.json(project)
+    return res.json(project.toJSON ? project.toJSON() : project)
   } catch (err) {
-    console.error('Error updating project:', err)
-    res.status(500).json({ error: 'Failed to update project', details: err.message })
+    console.error('[Projects API] Error updating project:', err)
+    return res.status(500).json({ error: 'Failed to update project', message: err.message })
   }
 })
 
-// DELETE /api/projects/:id - delete project
+// DELETE /api/projects/:id - delete project in MongoDB Atlas
 projectsRouter.delete('/:id', async (req, res) => {
   try {
+    const ok = await ensureConnected(res)
+    if (!ok) return
+
     const { id } = req.params
-    const deleted = await Project.findOneAndDelete({ $or: [{ id }, { _id: id }] })
+    const query = mongoose.Types.ObjectId.isValid(id)
+      ? { $or: [{ id }, { _id: id }] }
+      : { id }
+
+    const deleted = await Project.findOneAndDelete(query)
 
     if (!deleted) {
-      return res.status(404).json({ error: 'Project not found' })
+      return res.status(404).json({ error: 'Project not found in MongoDB Atlas' })
     }
 
-    res.json({ message: 'Project deleted successfully', id })
+    return res.json({ message: 'Project deleted successfully from MongoDB Atlas', id })
   } catch (err) {
-    console.error('Error deleting project:', err)
-    res.status(500).json({ error: 'Failed to delete project', details: err.message })
+    console.error('[Projects API] Error deleting project:', err)
+    return res.status(500).json({ error: 'Failed to delete project', message: err.message })
   }
 })
 

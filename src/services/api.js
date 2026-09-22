@@ -76,7 +76,8 @@ async function request(endpoint, options = {}) {
     let errorMessage = `API request failed with status ${response.status}`
     try {
       const errorData = await response.json()
-      if (errorData.error) errorMessage = errorData.error
+      if (errorData.message) errorMessage = errorData.message
+      else if (errorData.error) errorMessage = errorData.error
     } catch {
       // Use fallback error message
     }

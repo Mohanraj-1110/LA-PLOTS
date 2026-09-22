@@ -292,7 +292,7 @@ export function EditPlotPage() {
           </div>
 
           <p className="text-xs text-slate-500 -mt-1">
-            Upload or replace site reference photos. The <strong>⭐ Primary</strong> photo is used as the plot thumbnail. Images are stored in the database.
+            Add or update plot photo URLs. The <strong>⭐ Primary</strong> photo is used as the plot thumbnail across cards and detail pages.
           </p>
 
           <ImageUploader

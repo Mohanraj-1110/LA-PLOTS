@@ -1,34 +1,37 @@
 import { api } from './api.js'
-import { storage } from './storage.js'
-
-const PROJECTS_KEY = 'la_plots_projects_v1'
 
 export const projectService = {
+  /**
+   * Fetches all projects from MongoDB Atlas.
+   * Does NOT use mock data. Returns an empty array if no projects exist in the database.
+   */
   async getAllProjects() {
     try {
       const projects = await api.get('/projects')
-      if (Array.isArray(projects) && projects.length > 0) {
-        storage.set(PROJECTS_KEY, projects)
-        return projects
-      }
-      const local = storage.get(PROJECTS_KEY, projectList)
-      return local
+      return Array.isArray(projects) ? projects : []
     } catch (err) {
-      console.warn('[ProjectService] getAllProjects fallback to local cache:', err.message)
-      return storage.get(PROJECTS_KEY, projectList)
+      console.error('[ProjectService] Failed to load projects from MongoDB Atlas:', err.message)
+      throw err
     }
   },
 
+  /**
+   * Fetches a single project by ID from MongoDB Atlas.
+   */
   async getProjectById(id) {
+    if (!id) return null
     try {
       const project = await api.get(`/projects/${id}`)
       return project
-    } catch {
-      const projects = await this.getAllProjects()
-      return projects.find((p) => p.id === id || p.code === id || p.name === id) || null
+    } catch (err) {
+      console.error(`[ProjectService] Failed to load project ${id} from MongoDB Atlas:`, err.message)
+      throw err
     }
   },
 
+  /**
+   * Creates a new project in MongoDB Atlas.
+   */
   async createProject(data) {
     const id = data.id || `proj-${Date.now().toString().slice(-6)}`
     const newProject = {
@@ -42,55 +45,41 @@ export const projectService = {
       amenities: Array.isArray(data.amenities) ? data.amenities : [],
       image: data.image || '',
       images: Array.isArray(data.images) ? data.images : [],
-      createdAt: new Date().toISOString(),
     }
 
     try {
       const created = await api.post('/projects', newProject)
-      const existing = storage.get(PROJECTS_KEY, [])
-      storage.set(PROJECTS_KEY, [created, ...existing])
       return created
     } catch (err) {
-      console.warn('[ProjectService] Offline create fallback:', err.message)
-      const existing = storage.get(PROJECTS_KEY, [])
-      storage.set(PROJECTS_KEY, [newProject, ...existing])
-      return newProject
+      console.error('[ProjectService] Failed to create project in MongoDB Atlas:', err.message)
+      throw err
     }
   },
 
+  /**
+   * Updates an existing project in MongoDB Atlas.
+   */
   async updateProject(id, updates) {
     try {
       const updated = await api.put(`/projects/${id}`, updates)
-      const existing = storage.get(PROJECTS_KEY, [])
-      const idx = existing.findIndex((p) => p.id === id)
-      if (idx !== -1) {
-        existing[idx] = { ...existing[idx], ...updated }
-        storage.set(PROJECTS_KEY, existing)
-      }
       return updated
     } catch (err) {
-      console.warn('[ProjectService] Offline update fallback:', err.message)
-      const existing = storage.get(PROJECTS_KEY, projectList)
-      const idx = existing.findIndex((p) => p.id === id)
-      if (idx !== -1) {
-        existing[idx] = { ...existing[idx], ...updates }
-        storage.set(PROJECTS_KEY, existing)
-        return existing[idx]
-      }
-      return { id, ...updates }
+      console.error(`[ProjectService] Failed to update project ${id} in MongoDB Atlas:`, err.message)
+      throw err
     }
   },
 
+  /**
+   * Deletes a project from MongoDB Atlas.
+   */
   async deleteProject(id) {
     try {
       await api.delete(`/projects/${id}`)
+      return true
     } catch (err) {
-      console.warn('[ProjectService] Offline delete fallback:', err.message)
+      console.error(`[ProjectService] Failed to delete project ${id} from MongoDB Atlas:`, err.message)
+      throw err
     }
-    const existing = storage.get(PROJECTS_KEY, [])
-    const filtered = existing.filter((p) => p.id !== id)
-    storage.set(PROJECTS_KEY, filtered)
-    return true
   },
 }
 

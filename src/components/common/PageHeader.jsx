@@ -21,19 +21,19 @@ export function PageHeader({
       <div className="min-w-0 flex-1">
         {/* Breadcrumbs */}
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-2" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 mb-2" aria-label="Breadcrumb">
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={crumb.label || idx}>
-                {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />}
+                {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 flex-shrink-0" />}
                 {crumb.to ? (
                   <Link
                     to={crumb.to}
-                    className="hover:text-emerald-700 transition-colors truncate max-w-[120px] sm:max-w-none"
+                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors truncate max-w-[120px] sm:max-w-none"
                   >
                     {crumb.label}
                   </Link>
                 ) : (
-                  <span className="text-slate-600 font-medium truncate max-w-[150px] sm:max-w-none">
+                  <span className="text-slate-600 dark:text-slate-300 font-medium truncate max-w-[150px] sm:max-w-none">
                     {crumb.label}
                   </span>
                 )}
@@ -43,14 +43,14 @@ export function PageHeader({
         )}
 
         <div className="flex items-center gap-3">
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight font-display">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight font-display">
             {title}
           </h1>
           {badge && <div>{badge}</div>}
         </div>
 
         {displaySubtitle && (
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
             {displaySubtitle}
           </p>
         )}

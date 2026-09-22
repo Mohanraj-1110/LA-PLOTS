@@ -11,7 +11,7 @@ export function AppLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col text-slate-900">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#080c16] flex flex-col text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Desktop fixed sidebar */}
       <Sidebar className="hidden lg:flex" />
 
@@ -20,12 +20,12 @@ export function AppLayout() {
         <div className="fixed inset-0 z-50 flex lg:hidden">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-slate-950/50 backdrop-blur-xs transition-opacity animate-fade-in"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-fade-in"
             onClick={() => setMobileMenuOpen(false)}
             aria-hidden="true"
           />
           {/* Drawer */}
-          <div className="relative z-10 flex flex-col h-full bg-white shadow-2xl animate-slide-in">
+          <div className="relative z-10 flex flex-col h-full bg-white dark:bg-slate-900 shadow-2xl animate-slide-in">
             <Sidebar
               isMobileDrawer={true}
               onClose={() => setMobileMenuOpen(false)}

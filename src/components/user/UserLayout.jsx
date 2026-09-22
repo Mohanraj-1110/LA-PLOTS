@@ -7,7 +7,7 @@ import { WhatsAppButton } from '../common/WhatsAppButton'
 
 export function UserLayout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col bg-surface-50 text-surface-900 selection:bg-primary-100 selection:text-primary-800">
+    <div className="min-h-screen flex flex-col bg-surface-50 dark:bg-[#080c16] text-surface-900 dark:text-slate-100 selection:bg-indigo-500/20 selection:text-indigo-400 transition-colors duration-200">
       <UserHeader />
       <main className="flex-1 pb-16 md:pb-0">
         {children || <Outlet />}

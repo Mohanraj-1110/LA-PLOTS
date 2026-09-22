@@ -118,14 +118,14 @@ export function DashboardPage() {
         }
       />
 
-      {/* 8 Primary KPI Cards (1 col mobile, 2 col tablet, 4 col desktop) */}
+      {/* 8 Primary KPI Cards with Distinct Harmonious Colors (1 col mobile, 2 col tablet, 4 col desktop) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Plot Inventory"
           value={totalPlots}
-          subtitle="Across 5 premier layouts"
+          subtitle="Across premier layouts"
           icon={MapPin}
-          color="emerald"
+          color="indigo"
           onClick={() => navigate(ROUTES.PLOTS)}
         />
         <StatCard
@@ -158,7 +158,7 @@ export function DashboardPage() {
           value={activeCustomers}
           subtitle="In pipeline negotiation"
           icon={Users}
-          color="blue"
+          color="cyan"
           trend={14}
           trendLabel="leads this month"
           onClick={() => navigate(ROUTES.CUSTOMERS)}
@@ -176,7 +176,7 @@ export function DashboardPage() {
           value={formatCompactCurrency(totalSalesRevenue)}
           subtitle={formatCurrency(totalSalesRevenue)}
           icon={IndianRupee}
-          color="emerald"
+          color="blue"
           trend={22}
           trendLabel="growth rate"
           onClick={() => navigate(ROUTES.SALES)}
@@ -196,20 +196,20 @@ export function DashboardPage() {
       {/* Two Column Content: Monthly Trends Chart + Today's Priority Tasks */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Recharts Monthly Sales & Profit (8 cols desktop) */}
-        <div className="lg:col-span-8 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs">
+        <div className="lg:col-span-8 bg-white dark:bg-slate-900/90 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-card">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 Monthly Sales & Profit Performance
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Revenue vs Gross Land Cost & Net Profit (FY 2026-27)
               </p>
             </div>
             <button
               type="button"
               onClick={() => navigate(ROUTES.SALES)}
-              className="text-xs font-bold text-emerald-600 hover:text-emerald-700 inline-flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 inline-flex items-center gap-1 cursor-pointer"
             >
               <span>Full Financials</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -225,26 +225,27 @@ export function DashboardPage() {
                   data={trends}
                   margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.3} />
                   <XAxis
                     dataKey="month"
-                    tick={{ fontSize: 11, fill: '#64748b' }}
-                    axisLine={{ stroke: '#e2e8f0' }}
+                    tick={{ fontSize: 11, fill: '#94a3b8' }}
+                    axisLine={{ stroke: '#475569' }}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: '#64748b' }}
-                    axisLine={{ stroke: '#e2e8f0' }}
+                    tick={{ fontSize: 10, fill: '#94a3b8' }}
+                    axisLine={{ stroke: '#475569' }}
                     tickLine={false}
                     tickFormatter={(val) => formatCompactCurrency(val, true)}
                   />
                   <Tooltip
                     formatter={(val) => [formatCurrency(val), '']}
                     contentStyle={{
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'rgba(15, 23, 42, 0.95)',
                       borderRadius: '1rem',
-                      border: '1px solid #e2e8f0',
-                      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)',
+                      border: '1px solid #334155',
+                      boxShadow: '0 10px 25px -3px rgba(0,0,0,0.5)',
+                      color: '#ffffff',
                       fontSize: '12px',
                     }}
                   />
@@ -252,13 +253,13 @@ export function DashboardPage() {
                   <Bar
                     dataKey="sales"
                     name="Sales Revenue"
-                    fill="#16a34a"
+                    fill="#6366f1"
                     radius={[6, 6, 0, 0]}
                   />
                   <Bar
                     dataKey="profit"
                     name="Net Profit"
-                    fill="#3b82f6"
+                    fill="#10b981"
                     radius={[6, 6, 0, 0]}
                   />
                 </BarChart>
@@ -268,14 +269,14 @@ export function DashboardPage() {
         </div>
 
         {/* Today's Tasks & Urgent Follow-ups (4 cols desktop) */}
-        <div className="lg:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-white dark:bg-slate-900/90 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-card flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <CheckSquare className="w-4 h-4 text-emerald-600" />
-                <h3 className="text-sm font-bold text-slate-900">Today's Priority Tasks</h3>
+                <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Today's Priority Tasks</h3>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
                 {todayTasks.length} Pending
               </span>
             </div>
@@ -292,7 +293,7 @@ export function DashboardPage() {
                     <div
                       key={t.id}
                       onClick={t.action}
-                      className="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/60 border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group"
+                      className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-emerald-50/60 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/60 hover:border-emerald-200 dark:hover:border-emerald-700/60 transition-all cursor-pointer group"
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -301,17 +302,17 @@ export function DashboardPage() {
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-900 truncate">
+                          <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 truncate">
                             {t.title}
                           </p>
-                          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                             {t.detail}
                           </p>
-                          <p className="text-[10px] font-semibold text-emerald-700 mt-1">
+                          <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
                             {t.time}
                           </p>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-600 self-center" />
+                        <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-emerald-600 self-center" />
                       </div>
                     </div>
                   );
@@ -320,11 +321,11 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-slate-100">
+          <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => navigate(ROUTES.APPOINTMENTS)}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors text-center cursor-pointer"
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors text-center cursor-pointer"
             >
               Open Full Schedule
             </button>
@@ -335,16 +336,16 @@ export function DashboardPage() {
       {/* Bottom Grid: Recent In-Demand Plots & Hot Customer Leads */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Plots */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-card">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Featured Plot Parcels</h3>
-              <p className="text-[11px] text-slate-400">Recently updated inventory</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Featured Plot Parcels</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">Recently updated inventory</p>
             </div>
             <button
               type="button"
               onClick={() => navigate(ROUTES.PLOTS)}
-              className="text-xs font-bold text-emerald-600 hover:text-emerald-700 cursor-pointer"
+              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 cursor-pointer"
             >
               View All ({plots.length}) →
             </button>
@@ -360,33 +361,33 @@ export function DashboardPage() {
                 <div
                   key={plot.id}
                   onClick={() => navigate(ROUTES.plotDetailsPath(plot.id))}
-                  className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all cursor-pointer"
+                  className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-100 dark:border-slate-800 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <img
                       src={plot.photos?.[0] || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80'}
                       alt={plot.plotNumber}
-                      className="w-12 h-12 rounded-xl object-cover border border-slate-100 flex-shrink-0"
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-100 dark:border-slate-700 flex-shrink-0"
                       loading="lazy"
                     />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-extrabold text-slate-900">
+                        <span className="text-xs font-extrabold text-slate-900 dark:text-white">
                           {plot.plotNumber}
                         </span>
                         <StatusBadge status={plot.status} />
                       </div>
-                      <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                         {plot.projectName} • {plot.areaSqft} sq.ft
                       </p>
                     </div>
                   </div>
 
                   <div className="text-right flex-shrink-0">
-                    <p className="text-xs font-black text-slate-900">
+                    <p className="text-xs font-black text-slate-900 dark:text-white">
                       {formatCompactCurrency(plot.totalAmount)}
                     </p>
-                    <p className="text-[10px] text-slate-400">₹{plot.ratePerSqft}/sq.ft</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">₹{plot.ratePerSqft}/sq.ft</p>
                   </div>
                 </div>
               ))
@@ -395,16 +396,16 @@ export function DashboardPage() {
         </div>
 
         {/* Hot Leads / Pipeline */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-card">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">High-Intent Leads</h3>
-              <p className="text-[11px] text-slate-400">Buyers near closing stage</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">High-Intent Leads</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">Buyers near closing stage</p>
             </div>
             <button
               type="button"
               onClick={() => navigate(ROUTES.CUSTOMERS)}
-              className="text-xs font-bold text-emerald-600 hover:text-emerald-700 cursor-pointer"
+              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 cursor-pointer"
             >
               View Pipeline ({customers.length}) →
             </button>
@@ -420,25 +421,25 @@ export function DashboardPage() {
                 <div
                   key={cust.id}
                   onClick={() => navigate(ROUTES.customerDetailsPath(cust.id))}
-                  className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all cursor-pointer"
+                  className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-100 dark:border-slate-800 transition-all cursor-pointer"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-slate-900 truncate">
+                      <span className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
                         {cust.name}
                       </span>
                       <StatusBadge status={cust.status} />
                     </div>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                       {cust.interestedProjectName} • {cust.phone}
                     </p>
                   </div>
 
                   <div className="text-right flex-shrink-0">
-                    <p className="text-xs font-bold text-slate-700">
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
                       {formatCompactCurrency(cust.budgetMin)} - {formatCompactCurrency(cust.budgetMax)}
                     </p>
-                    <p className="text-[10px] font-semibold text-emerald-700">
+                    <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
                       Score: {cust.leadScore || 80}/100
                     </p>
                   </div>

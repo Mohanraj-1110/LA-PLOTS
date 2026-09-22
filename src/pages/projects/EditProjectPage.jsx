@@ -108,7 +108,7 @@ export function EditProjectPage() {
         }
       } catch (err) {
         console.error(err)
-        toastError('Failed to load project details')
+        toastError(err.message || 'Failed to load project details')
       } finally {
         setLoading(false)
       }
@@ -327,7 +327,7 @@ export function EditProjectPage() {
           </div>
 
           <p className="text-xs text-slate-500 -mt-1">
-            Upload or replace site photos. The <strong>⭐ Primary</strong> photo is the project cover. Images are stored in the database.
+            Add or update site photo URLs. The <strong>⭐ Primary</strong> photo is used as the cover photo on all project cards and details pages.
           </p>
 
           <ImageUploader

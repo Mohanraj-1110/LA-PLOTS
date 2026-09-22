@@ -59,7 +59,7 @@ export function ProjectDetailsPage() {
         }
       } catch (err) {
         console.error(err)
-        toastError('Failed to load project details')
+        toastError(err.message || 'Failed to load project details')
       } finally {
         setLoading(false)
       }

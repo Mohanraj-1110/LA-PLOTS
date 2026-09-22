@@ -357,13 +357,13 @@ export function AddProjectPage() {
             </div>
             {images.length > 0 && (
               <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
-                {images.length} photo{images.length !== 1 ? 's' : ''} uploaded
+                {images.length} photo{images.length !== 1 ? 's' : ''} linked
               </span>
             )}
           </div>
 
           <p className="text-xs text-slate-500 -mt-1">
-            Upload site photos, master plan images, and marketing visuals. The <strong>Primary</strong> photo becomes the project cover. Images are stored securely in the database.
+            Provide direct image URLs for site photos, master plans, and layout visuals. The <strong>⭐ Primary Cover</strong> image is displayed across project cards and details pages.
           </p>
 
           <ImageUploader

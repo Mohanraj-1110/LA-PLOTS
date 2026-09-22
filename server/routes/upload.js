@@ -5,9 +5,17 @@ export const uploadRouter = Router()
 // Handles file uploads (accepts base64 or data URLs, returns clean file URL/data)
 uploadRouter.post('/', (req, res) => {
   try {
-    const { name, data, type } = req.body
+    const { name, data, type, url } = req.body
+    if (url) {
+      return res.status(200).json({
+        success: true,
+        name: name || 'Image Link',
+        url: url,
+      })
+    }
+
     if (!data) {
-      return res.status(400).json({ error: 'No file data provided' })
+      return res.status(400).json({ error: 'No file data or URL provided' })
     }
 
     // Return the data URL or uploaded representation
